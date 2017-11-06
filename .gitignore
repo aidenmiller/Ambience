@@ -1,1 +1,7 @@
 /data
+/credentials
+*.cbp
+*.depend
+*.layout.temp
+*.gout*
+*.layout

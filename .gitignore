@@ -5,3 +5,4 @@
 *.layout.temp
 *.gout*
 *.layout
+*.o

@@ -1,4 +1,5 @@
 #include <string>
+#include <Wt/WAnchor>
 #include <Wt/WApplication>
 #include <Wt/WBreak>
 #include <Wt/WComboBox>
@@ -8,87 +9,60 @@
 #include <Wt/WText>
 #include <Wt/WTableCell>
 #include <Wt/WServer>
+#include <Wt/WStackedWidget>
 #include "Account.h"
-#include "CreateAccountScreen.h"
+#include "CreateAccountWidget.h"
+#include "LoginWidget.h"
+#include "WelcomeScreen.h"
 
 using namespace Wt;
 using namespace std;
 
-class WelcomeScreen : public WApplication
+WelcomeScreen::WelcomeScreen(WContainerWidget *parent):
+  WContainerWidget(parent),
+  create_(0),
+  login_(0)
 {
-public:
-    WelcomeScreen(const WEnvironment& env);
+    mainStack_ = new WStackedWidget();
+    addWidget(mainStack_);
 
-    WLineEdit *accountEdit_; // account name text box
-    WLineEdit *passwordEdit_; // password text box
-private:
-    WPushButton *login_; // clickable button to log in
-    WPushButton *createAccount_; // clickable button to create new Account
-    WPushButton *resetPassword_; // clickable button to reset password
-    void login();
-    void createAccount();
-    void resetPassword();
-};
+    links_ = new WContainerWidget();
+    links_->show();
+    addWidget(links_);
 
-// Create Wt display with a WLineEdit widget where user can enter number of people to generate
-WelcomeScreen::WelcomeScreen(const WEnvironment& env)
-    : WApplication(env)
+    createAnchor_ = new WAnchor("/create", "Create New Account ", links_);
+    createAnchor_->setLink(WLink(WLink::InternalPath, "/create"));
+
+    loginAnchor_ = new WAnchor("/login", "Login with Existing Account ", links_);
+    loginAnchor_->setLink(WLink(WLink::InternalPath, "/login"));
+
+    WApplication::instance()->internalPathChanged().connect(this, &WelcomeScreen::handleInternalPath);
+}
+
+void WelcomeScreen::handleInternalPath(const string &internalPath)
 {
-    setTitle("Welcome Screen"); //Title of page
-
-    root()->addWidget(new WText("ID: ")); // ask for id
-    accountEdit_ = new WLineEdit(root()); // text box for id
-    root()->addWidget(new WBreak());
-
-    root()->addWidget(new WText("Password: ")); // ask for pw
-    passwordEdit_ = new WLineEdit(root()); // text box for pw
-    login_ = new WPushButton("Login!", root()); // button to log in
-    root()->addWidget(new WBreak());
-
-    createAccount_ = new WPushButton("Create new account", root()); // button to create new account
-    resetPassword_ = new WPushButton("Reset Password", root()); // forgot password button
-
-    login_->clicked().connect(this, &WelcomeScreen::login); // run login function when button is clicked
-    createAccount_->clicked().connect(this, &WelcomeScreen::createAccount); // run createAccount function when button is clicked
-    resetPassword_->clicked().connect(this, &WelcomeScreen::resetPassword); // run resetPassword function when button is clicked
-}
-
-void WelcomeScreen::login(){
-    printf("Account: %s, Password: %s\n", accountEdit_->text(), passwordEdit_->text());
-}
-
-void WelcomeScreen::createAccount(){
-    printf("Create Account clicked\n");
-}
-
-void WelcomeScreen::resetPassword(){
-    printf("Reset Password clicked\n");
-}
-
-// Create new application function
-WApplication *createApplication(const WEnvironment& env)
-{
-    return new CreateAccountScreen(env);
-}
-
-int main(int argc, char **argv)
-{
-    try {
-        WServer server(argv[0], "");
-
-        server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
-        server.addEntryPoint(Application, createApplication);
-
-        if (server.start()) {
-            int sig = WServer::waitForShutdown(argv[0]);
-
-            cerr << "Server Shutdown (SIGNAL: " << sig << ")" << "\n";
-            server.stop();
-        }
+    if (true) { // change to if(loggedin = true)
+        if (internalPath == "/create")
+            createAccount();
+        else if (internalPath == "/login")
+            login();
+    else
+        WApplication::instance()->setInternalPath("/login", true);
     }
-    catch (WServer::Exception& ex) {
-        cerr << "EXCEPTION: " << ex.what() << "\n";
-        return 1;
-    }
-    return 0;
+}
+
+void WelcomeScreen::createAccount()
+{
+    if (!create_) create_ = new CreateAccountWidget(mainStack_);
+
+    mainStack_->setCurrentWidget(create_);
+    create_->update();
+}
+
+void WelcomeScreen::login()
+{
+    if (!login_) login_ = new LoginWidget(mainStack_);
+
+    mainStack_->setCurrentWidget(login_);
+    login_->update();
 }

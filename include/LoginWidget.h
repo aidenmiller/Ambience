@@ -12,9 +12,12 @@ public:
     void update();
 
 private:
-    Wt::WLineEdit *idEdit;
-    Wt::WLineEdit *pwEdit;
-    Wt::WPushButton *loginButton;
+    Wt::WLineEdit *idEdit_;
+    Wt::WLineEdit *pwEdit_;
+    Wt::WPushButton *loginButton_;
+
+    void submit();
+    int checkCredentials(std::string username, std::string password);
 };
 
 #endif //LOGIN_WIDGET_H

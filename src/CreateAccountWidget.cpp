@@ -20,11 +20,14 @@ void CreateAccountWidget::update()
     clear();
     new WText("User ID: ", this);
     username_ = new WLineEdit();
+    username_->setPlaceholderText("someone@something.com");
     addWidget(username_);
     new WBreak(this);
 
     usernameValidator_ = new WRegExpValidator("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}", this);
+    usernameValidator_->setInvalidNoMatchText("Username must be valid email address");
     username_->setValidator(usernameValidator_);
+
 
     new WText("Password: ", this);
     password_ = new WLineEdit();

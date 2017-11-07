@@ -47,7 +47,7 @@ void WelcomeScreen::handleInternalPath(const string &internalPath)
         else if (internalPath == "/login")
             login();
     else
-        WApplication::instance()->setInternalPath("/login", true);
+        WApplication::instance()->setInternalPath("/create", true);
     }
 }
 

@@ -4,6 +4,7 @@
 #include <Wt/WContainerWidget>
 #include <Wt/WLineEdit>
 #include <Wt/WPushButton>
+#include <Wt/WText>
 
 class LoginWidget: public Wt::WContainerWidget
 {
@@ -15,9 +16,10 @@ private:
     Wt::WLineEdit *idEdit_;
     Wt::WLineEdit *pwEdit_;
     Wt::WPushButton *loginButton_;
+    Wt::WText *statusMessage_;
 
     void submit();
-    int checkCredentials(std::string username, std::string password);
+    bool checkCredentials(std::string username, std::string password);
 };
 
 #endif //LOGIN_WIDGET_H

@@ -1,3 +1,4 @@
+#include <Wt/WApplication>
 #include <Wt/WBreak>
 #include <Wt/WText>
 #include <Wt/WLineEdit>
@@ -36,13 +37,17 @@ void LoginWidget::update()
     addWidget(loginButton_);
 
     loginButton_->clicked().connect(this, &LoginWidget::submit);
+    statusMessage_ = new WText("Incorrect username or password!",this);
+    statusMessage_->setHidden(true);
 }
 
 void LoginWidget::submit(){
-    LoginWidget::checkCredentials(idEdit_->text().toUTF8(),pwEdit_->text().toUTF8());
+    if(!LoginWidget::checkCredentials(idEdit_->text().toUTF8(),pwEdit_->text().toUTF8())){
+        statusMessage_->setHidden(false);
+    }
 }
 
-int LoginWidget::checkCredentials(string username, string password) {
+bool LoginWidget::checkCredentials(string username, string password) {
     ifstream inFile;
     string str;
     string filename = "credentials/" + username+".txt";
@@ -50,16 +55,16 @@ int LoginWidget::checkCredentials(string username, string password) {
     string hashedPW = Hash::sha256_hash(password);
 
     if (!inFile) {
-        return(0);
+        return(false);
     }
 
     while (getline(inFile, str))
     {
         if (str.compare(hashedPW)==0){
-            new WText("Login Successful!", this);
-            return 1;
+            //redirect to profile page
+            return true;
         }
     }
     inFile.close();
-    return 0;
+    return false;
 }

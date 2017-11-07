@@ -5,6 +5,7 @@
 #include <Wt/WLineEdit>
 #include <Wt/WPushButton>
 #include <Wt/WBreak>
+#include <Wt/WRegExpValidator>
 
 class CreateAccountWidget: public Wt::WContainerWidget
 {
@@ -16,8 +17,15 @@ private:
     int writeCredentials(std::string username, std::string password);
     Wt::WLineEdit *username_; // account name text box
     Wt::WLineEdit *password_; // password text box
+    Wt::WLineEdit *confirmPassword_; // confirm password text box
     Wt::WPushButton *createAccountButton_; // submit account creation
+    Wt::WText *unsuccessfulPassword_;
+
+    Wt::WRegExpValidator *usernameValidator_;
+
+
     void submit();
+    bool validatePassword();
 };
 
 #endif //CREATE_ACCOUNT_WIDGET_H

@@ -53,7 +53,11 @@ void WelcomeScreen::handleInternalPath(const string &internalPath)
 
 void WelcomeScreen::createAccount()
 {
-    if (!create_) create_ = new CreateAccountWidget(mainStack_);
+    if (!create_) {
+            create_ = new CreateAccountWidget(mainStack_);
+
+    }
+
 
     mainStack_->setCurrentWidget(create_);
     create_->update();
@@ -61,8 +65,9 @@ void WelcomeScreen::createAccount()
 
 void WelcomeScreen::login()
 {
-    if (!login_) login_ = new LoginWidget(mainStack_);
-
+    if (!login_) {
+            login_ = new LoginWidget(mainStack_);
+    }
     mainStack_->setCurrentWidget(login_);
     login_->update();
 }

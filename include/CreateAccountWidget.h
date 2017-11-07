@@ -7,11 +7,11 @@
 #include <Wt/WBreak>
 #include <Wt/WLengthValidator>
 #include <Wt/WRegExpValidator>
-
+#include "WelcomeScreen.h"
 class CreateAccountWidget: public Wt::WContainerWidget
 {
 public:
-    CreateAccountWidget(Wt::WContainerWidget *parent = 0);
+    CreateAccountWidget(Wt::WContainerWidget *parent = 0, WelcomeScreen *main = 0);
 
     void update();
 private:
@@ -25,6 +25,8 @@ private:
 
     Wt::WRegExpValidator *usernameValidator_;
     Wt::WLengthValidator *passwordLengthValidator_;
+
+    WelcomeScreen *parent_;
 
 
     void submit();

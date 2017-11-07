@@ -10,6 +10,7 @@
 #include <Wt/WTableCell>
 #include <Wt/WServer>
 #include <Wt/WStackedWidget>
+#include <stdio.h>
 #include "Account.h"
 #include "CreateAccountWidget.h"
 #include "LoginWidget.h"
@@ -33,12 +34,12 @@ WelcomeScreen::WelcomeScreen(WContainerWidget *parent):
     createAnchor_ = new WAnchor("/create", "Create New Account ", links_);
     createAnchor_->setLink(WLink(WLink::InternalPath, "/create"));
 
-
     loginAnchor_ = new WAnchor("/login", "Login with Existing Account ", links_);
     loginAnchor_->setLink(WLink(WLink::InternalPath, "/login"));
 
     WApplication::instance()->internalPathChanged().connect(this, &WelcomeScreen::handleInternalPath);
 }
+
 
 void WelcomeScreen::handleInternalPath(const string &internalPath)
 {
@@ -55,19 +56,19 @@ void WelcomeScreen::handleInternalPath(const string &internalPath)
 void WelcomeScreen::createAccount()
 {
     if (!create_) {
-            create_ = new CreateAccountWidget(mainStack_);
+            create_ = new CreateAccountWidget(mainStack_, this);
 
     }
 
 
     mainStack_->setCurrentWidget(create_);
 
-    this->
     create_->update();
 }
 
 void WelcomeScreen::login()
 {
+    WApplication::instance()->setInternalPath("/login", true);
     if (!login_) {
             login_ = new LoginWidget(mainStack_);
     }

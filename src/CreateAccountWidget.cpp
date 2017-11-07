@@ -8,10 +8,11 @@ using namespace Wt;
 using namespace std;
 
 
-CreateAccountWidget::CreateAccountWidget(WContainerWidget *parent):
+CreateAccountWidget::CreateAccountWidget(WContainerWidget *parent, WelcomeScreen *main):
   WContainerWidget(parent)
 {
   setContentAlignment(AlignCenter);
+  parent_ = main;
 }
 
 void CreateAccountWidget::update()
@@ -78,8 +79,6 @@ void CreateAccountWidget::submit(){
                 unsuccessfulPassword_->setHidden(true);
     if (!unsuccessfulInput_->isHidden())
                 unsuccessfulInput_->setHidden(true);
-
-
     if (!CreateAccountWidget::validatePassword()) { // if the password != confirmed password
         unsuccessfulPassword_->setHidden(false); // show user that passwords don't match
       }
@@ -89,6 +88,7 @@ void CreateAccountWidget::submit(){
     else { // if password and confirmed password match
 
         CreateAccountWidget::writeCredentials(username_->text().toUTF8(), password_->text().toUTF8());
+        parent_->handleInternalPath("/login");
 
     }
 

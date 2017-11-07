@@ -4,6 +4,7 @@
 #include <Wt/WContainerWidget>
 #include <Wt/WLineEdit>
 #include <Wt/WPushButton>
+#include <string>
 
 namespace Wt {
   class WStackedWidget;
@@ -18,7 +19,9 @@ class WelcomeScreen : public Wt::WContainerWidget
 public:
     WelcomeScreen(Wt::WContainerWidget *parent = 0);
 
+
     void handleInternalPath(const std::string &internalPath);
+
 
 private:
     Wt::WStackedWidget *mainStack_;
@@ -27,8 +30,9 @@ private:
     CreateAccountWidget *create_;
     Wt::WAnchor *createAnchor_;
     Wt::WAnchor *loginAnchor_;
-
     void login();
+
+
     void createAccount();
 };
 

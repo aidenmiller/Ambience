@@ -33,10 +33,8 @@ private:
     Wt::WAnchor *createAnchor_;
     Wt::WAnchor *loginAnchor_;
     void login();
-
-
-
     void createAccount();
+    void dashboard();
 };
 
 #endif //WELCOME_SCREEN_H

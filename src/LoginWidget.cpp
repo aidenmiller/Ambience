@@ -14,10 +14,11 @@
 using namespace Wt;
 using namespace std;
 
-LoginWidget::LoginWidget(WContainerWidget *parent):
+LoginWidget::LoginWidget(WContainerWidget *parent, WelcomeScreen *main):
   WContainerWidget(parent)
 {
   setContentAlignment(AlignCenter);
+    parent_ = main;
 }
 
 void LoginWidget::update()
@@ -45,6 +46,9 @@ void LoginWidget::submit(){
     if(!LoginWidget::checkCredentials(idEdit_->text().toUTF8(),pwEdit_->text().toUTF8())){
         statusMessage_->setHidden(false);
     }
+    else {
+        parent_->handleInternalPath("/dashboard");
+    }
 }
 
 bool LoginWidget::checkCredentials(string username, string password) {
@@ -62,6 +66,7 @@ bool LoginWidget::checkCredentials(string username, string password) {
     {
         if (str.compare(hashedPW)==0){
             //redirect to profile page
+            //john: should close inFile here so we ensure it closes
             return true;
         }
     }

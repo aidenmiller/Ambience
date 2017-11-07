@@ -15,6 +15,7 @@
 #include "CreateAccountWidget.h"
 #include "LoginWidget.h"
 #include "WelcomeScreen.h"
+#include "Bridge.h"
 
 using namespace Wt;
 using namespace std;
@@ -50,6 +51,8 @@ void WelcomeScreen::handleInternalPath(const string &internalPath)
             createAccount();
         else if (internalPath == "/login")
             login();
+        else if (internalPath == "/dashboard")
+            dashboard();
     else
         WApplication::instance()->setInternalPath("/create", true);
     }
@@ -72,8 +75,17 @@ void WelcomeScreen::login()
 {
     WApplication::instance()->setInternalPath("/login", true);
     if (!login_) {
-            login_ = new LoginWidget(mainStack_);
+            login_ = new LoginWidget(mainStack_, this);
     }
     mainStack_->setCurrentWidget(login_);
     login_->update();
+}
+
+void WelcomeScreen::dashboard()
+{
+    //john: this call is making the dashboard() funct run twice.. not good
+    //WApplication::instance()->setInternalPath("/dashboard", true);
+    
+    //Bridge is an incomplete class just using to test the get method
+    Bridge *bridge_ = new Bridge();
 }

@@ -21,6 +21,7 @@ private:
     Wt::WLineEdit *confirmPassword_; // confirm password text box
     Wt::WPushButton *createAccountButton_; // submit account creation
     Wt::WText *unsuccessfulPassword_;
+    Wt::WText *unsuccessfulInput_;
 
     Wt::WRegExpValidator *usernameValidator_;
     Wt::WLengthValidator *passwordLengthValidator_;
@@ -28,6 +29,7 @@ private:
 
     void submit();
     bool validatePassword();
+    bool validateInputFields();
 };
 
 #endif //CREATE_ACCOUNT_WIDGET_H

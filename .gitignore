@@ -6,3 +6,4 @@
 *.gout*
 *.layout
 *.o
+/obj

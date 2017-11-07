@@ -15,7 +15,7 @@ WContainerWidget(parent)
     setContentAlignment(AlignCenter);
     parent_ = main;
     
-    string url = "http://192.168.0.29:80/api/newdeveloper";
+    string url = "http://172.30.75.112:80/api/newdeveloper";
     
     if (!url.empty()) {
         Wt::Http::Client *client = new Wt::Http::Client(this);

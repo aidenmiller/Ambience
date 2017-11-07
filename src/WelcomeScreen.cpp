@@ -10,6 +10,7 @@
 #include <Wt/WTableCell>
 #include <Wt/WServer>
 #include <Wt/WStackedWidget>
+#include <stdio.h>
 #include "Account.h"
 #include "CreateAccountWidget.h"
 #include "LoginWidget.h"
@@ -39,6 +40,7 @@ WelcomeScreen::WelcomeScreen(WContainerWidget *parent):
     WApplication::instance()->internalPathChanged().connect(this, &WelcomeScreen::handleInternalPath);
 }
 
+
 void WelcomeScreen::handleInternalPath(const string &internalPath)
 {
     if (true) { // change to if(loggedin = true)
@@ -53,16 +55,23 @@ void WelcomeScreen::handleInternalPath(const string &internalPath)
 
 void WelcomeScreen::createAccount()
 {
-    if (!create_) create_ = new CreateAccountWidget(mainStack_);
+    if (!create_) {
+            create_ = new CreateAccountWidget(mainStack_, this);
+
+    }
+
 
     mainStack_->setCurrentWidget(create_);
+
     create_->update();
 }
 
 void WelcomeScreen::login()
 {
-    if (!login_) login_ = new LoginWidget(mainStack_);
-
+    WApplication::instance()->setInternalPath("/login", true);
+    if (!login_) {
+            login_ = new LoginWidget(mainStack_);
+    }
     mainStack_->setCurrentWidget(login_);
     login_->update();
 }

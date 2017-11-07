@@ -10,7 +10,7 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
 {
     Wt::WApplication *app = new Wt::WApplication(env);
 
-    app->setTitle("Welcome Screen");
+    app->setTitle("Hue Light App- Team13");
 
     new WelcomeScreen(app->root());
     return app;

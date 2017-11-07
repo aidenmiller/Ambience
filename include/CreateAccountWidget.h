@@ -5,6 +5,7 @@
 #include <Wt/WLineEdit>
 #include <Wt/WPushButton>
 #include <Wt/WBreak>
+#include <Wt/WLengthValidator>
 #include <Wt/WRegExpValidator>
 
 class CreateAccountWidget: public Wt::WContainerWidget
@@ -22,6 +23,7 @@ private:
     Wt::WText *unsuccessfulPassword_;
 
     Wt::WRegExpValidator *usernameValidator_;
+    Wt::WLengthValidator *passwordLengthValidator_;
 
 
     void submit();

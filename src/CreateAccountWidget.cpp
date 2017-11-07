@@ -18,9 +18,11 @@ CreateAccountWidget::CreateAccountWidget(WContainerWidget *parent):
 void CreateAccountWidget::update()
 {
     clear();
+
     new WText("User ID: ", this);
     username_ = new WLineEdit();
-    username_->setPlaceholderText("someone@something.com");
+    username_->setTextSize(18);
+    username_->setPlaceholderText("person@xyz.com");
     addWidget(username_);
     new WBreak(this);
 
@@ -33,6 +35,11 @@ void CreateAccountWidget::update()
     password_ = new WLineEdit();
     password_->setEchoMode(WLineEdit::EchoMode::Password);
     addWidget(password_);
+
+    passwordLengthValidator_ = new WLengthValidator(6, 20, this);
+    passwordLengthValidator_->setInvalidTooShortText("Password must be at least 6 characters");
+    passwordLengthValidator_->setInvalidTooLongText("Password must be max 20 characters");
+    password_->setValidator(passwordLengthValidator_);
     new WBreak(this);
 
     new WText("Confirm Password: ", this);

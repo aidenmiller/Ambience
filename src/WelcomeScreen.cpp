@@ -33,6 +33,7 @@ WelcomeScreen::WelcomeScreen(WContainerWidget *parent):
     createAnchor_ = new WAnchor("/create", "Create New Account ", links_);
     createAnchor_->setLink(WLink(WLink::InternalPath, "/create"));
 
+
     loginAnchor_ = new WAnchor("/login", "Login with Existing Account ", links_);
     loginAnchor_->setLink(WLink(WLink::InternalPath, "/login"));
 
@@ -60,6 +61,8 @@ void WelcomeScreen::createAccount()
 
 
     mainStack_->setCurrentWidget(create_);
+
+    this->
     create_->update();
 }
 

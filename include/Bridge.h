@@ -32,16 +32,23 @@ using namespace Wt;
 class Bridge: public Wt::WContainerWidget {
 
 public:
-    Bridge(Wt::WContainerWidget *parent = 0,
+    Bridge(string name, string ip, string port, string username = "newdeveloper", Wt::WContainerWidget *parent = 0,
            WelcomeScreen *main = 0);
     
     virtual ~Bridge();
+    
+    void connect();
     
 private:
     void handleHttpResponse(Wt::Http::Client *client,
                             boost::system::error_code err,
                             const Wt::Http::Message& response) const;
+    
     WelcomeScreen *parent_;
+    string name_;
+    string ip_;
+    string port_;
+    string username_;
 };
 
 #endif

@@ -47,7 +47,7 @@ void LoginWidget::submit(){
         statusMessage_->setHidden(false);
     }
     else {
-        parent_->handleInternalPath("/dashboard");
+        parent_->handleInternalPath("/bridgescreen");
     }
 }
 

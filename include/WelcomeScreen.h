@@ -14,6 +14,7 @@ namespace Wt {
 
 class LoginWidget;
 class CreateAccountWidget;
+class BridgeScreenWidget;
 
 class WelcomeScreen : public Wt::WContainerWidget
 {
@@ -30,11 +31,12 @@ private:
     Wt::WContainerWidget *links_;
     LoginWidget *login_;
     CreateAccountWidget *create_;
+    BridgeScreenWidget *bridgeScreen_;
     Wt::WAnchor *createAnchor_;
     Wt::WAnchor *loginAnchor_;
     void login();
     void createAccount();
-    void dashboard();
+    void bridgeScreen();
 };
 
 #endif //WELCOME_SCREEN_H

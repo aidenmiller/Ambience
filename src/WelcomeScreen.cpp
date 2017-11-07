@@ -15,30 +15,31 @@
 #include "CreateAccountWidget.h"
 #include "LoginWidget.h"
 #include "WelcomeScreen.h"
-#include "Bridge.h"
+#include "BridgeScreenWidget.h"
 
 using namespace Wt;
 using namespace std;
 
 WelcomeScreen::WelcomeScreen(WContainerWidget *parent):
-  WContainerWidget(parent),
-  create_(0),
-  login_(0)
+WContainerWidget(parent),
+create_(0),
+login_(0),
+bridgeScreen_(0)
 {
     serverMessage_ = new WText("You are connected to the Team 13 Production Server", this);
     mainStack_ = new WStackedWidget();
     addWidget(mainStack_);
-
+    
     links_ = new WContainerWidget();
     links_->show();
     addWidget(links_);
-
+    
     createAnchor_ = new WAnchor("/create", "Create New Account ", links_);
     createAnchor_->setLink(WLink(WLink::InternalPath, "/create"));
-
+    
     loginAnchor_ = new WAnchor("/login", "Login with Existing Account ", links_);
     loginAnchor_->setLink(WLink(WLink::InternalPath, "/login"));
-
+    
     WApplication::instance()->internalPathChanged().connect(this, &WelcomeScreen::handleInternalPath);
 }
 
@@ -51,23 +52,22 @@ void WelcomeScreen::handleInternalPath(const string &internalPath)
             createAccount();
         else if (internalPath == "/login")
             login();
-        else if (internalPath == "/dashboard")
-            dashboard();
-    else
-        WApplication::instance()->setInternalPath("/create", true);
+        else if (internalPath == "/bridgescreen")
+            bridgeScreen();
+        else
+            WApplication::instance()->setInternalPath("/create", true);
     }
 }
 
 void WelcomeScreen::createAccount()
 {
     if (!create_) {
-            create_ = new CreateAccountWidget(mainStack_, this);
-
+        create_ = new CreateAccountWidget(mainStack_, this);
+        
     }
-
-
+    
     mainStack_->setCurrentWidget(create_);
-
+    
     create_->update();
 }
 
@@ -75,17 +75,20 @@ void WelcomeScreen::login()
 {
     WApplication::instance()->setInternalPath("/login", true);
     if (!login_) {
-            login_ = new LoginWidget(mainStack_, this);
+        login_ = new LoginWidget(mainStack_, this);
     }
     mainStack_->setCurrentWidget(login_);
     login_->update();
 }
 
-void WelcomeScreen::dashboard()
+void WelcomeScreen::bridgeScreen()
 {
     //john: this call is making the dashboard() funct run twice.. not good
-    //WApplication::instance()->setInternalPath("/dashboard", true);
+    WApplication::instance()->setInternalPath("/bridgescreen", true);
     
-    //Bridge is an incomplete class just using to test the get method
-    Bridge *bridge_ = new Bridge();
+    if (!bridgeScreen_) {
+        bridgeScreen_ = new BridgeScreenWidget(mainStack_, this);
+    }
+    mainStack_->setCurrentWidget(bridgeScreen_);
+    bridgeScreen_->update();
 }

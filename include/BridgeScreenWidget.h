@@ -1,5 +1,5 @@
-#ifndef CREATE_ACCOUNT_WIDGET_H
-#define CREATE_ACCOUNT_WIDGET_H
+#ifndef BRIDGE_SCREEN_WIDGET_H
+#define BRIDGE_SCREEN_WIDGET_H
 
 #include <Wt/WContainerWidget>
 #include <Wt/WLineEdit>
@@ -15,23 +15,20 @@ public:
 
     void update();
 private:
-    int writeCredentials(std::string username, std::string password);
-    Wt::WLineEdit *username_; // account name text box
-    Wt::WLineEdit *password_; // password text box
-    Wt::WLineEdit *confirmPassword_; // confirm password text box
-    Wt::WPushButton *createAccountButton_; // submit account creation
-    Wt::WText *unsuccessfulPassword_;
-    Wt::WText *unsuccessfulInput_;
-
-    Wt::WRegExpValidator *usernameValidator_;
-    Wt::WLengthValidator *passwordLengthValidator_;
 
     WelcomeScreen *parent_;
-
-
-    void submit();
-    bool validatePassword();
+    Wt::WLineEdit *bridgename_;
+    Wt::WLineEdit *ip_;
+    Wt::WLineEdit *port_;
+    Wt::WLineEdit *username_;
+    
+    Wt::WPushButton *createBridgeButton_;
+    
     bool validateInputFields();
+    Wt::WRegExpValidator *ipValidator_;
+    
+    void addBridge();
+    
 };
 
-#endif //CREATE_ACCOUNT_WIDGET_H
+#endif //BRIDGE_SCREEN_WIDGET_H

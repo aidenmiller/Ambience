@@ -24,6 +24,7 @@ WelcomeScreen::WelcomeScreen(WContainerWidget *parent):
   create_(0),
   login_(0)
 {
+    serverMessage_ = new WText("You are connected to the Team 13 Production Server", this);
     mainStack_ = new WStackedWidget();
     addWidget(mainStack_);
 
@@ -44,6 +45,7 @@ WelcomeScreen::WelcomeScreen(WContainerWidget *parent):
 void WelcomeScreen::handleInternalPath(const string &internalPath)
 {
     if (true) { // change to if(loggedin = true)
+        serverMessage_->setHidden(true);
         if (internalPath == "/create")
             createAccount();
         else if (internalPath == "/login")

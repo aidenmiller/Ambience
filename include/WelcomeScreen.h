@@ -3,6 +3,7 @@
 
 #include <Wt/WContainerWidget>
 #include <Wt/WLineEdit>
+#include <Wt/WText>
 #include <Wt/WPushButton>
 #include <string>
 
@@ -24,6 +25,7 @@ public:
 
 
 private:
+    Wt::WText *serverMessage_;
     Wt::WStackedWidget *mainStack_;
     Wt::WContainerWidget *links_;
     LoginWidget *login_;
@@ -31,6 +33,7 @@ private:
     Wt::WAnchor *createAnchor_;
     Wt::WAnchor *loginAnchor_;
     void login();
+
 
 
     void createAccount();

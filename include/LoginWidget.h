@@ -14,11 +14,11 @@ public:
     void update();
 
 private:
-    Wt::WLineEdit *idEdit_;
-    Wt::WLineEdit *pwEdit_;
-    Wt::WPushButton *loginButton_;
-    Wt::WText *statusMessage_;
-    
+    Wt::WLineEdit *idEdit_; // id text box
+    Wt::WLineEdit *pwEdit_; // password texrt box
+    Wt::WPushButton *loginButton_; // login button
+    Wt::WText *statusMessage_; // message to warn user if user or password incorrect
+
     WelcomeScreen *parent_;
 
     void submit();

@@ -8,8 +8,8 @@
  *
  *  @section    DESCRIPTION
  *
- *              TO BE FILLED
- *
+ *              This class represents the main screen of the application. All internal path changes
+ *              as well as any persistent widgets will be handled here.
  */
 
 #include <string>
@@ -34,6 +34,11 @@
 using namespace Wt;
 using namespace std;
 
+/**
+*   @brief  Main Screen constructor
+*
+*   @param  *parent is a pointer the the containerwidget that stores this widget
+*/
 WelcomeScreen::WelcomeScreen(WContainerWidget *parent):
 WContainerWidget(parent),
 create_(0),
@@ -44,40 +49,53 @@ bridgeScreen_(0)
     mainStack_ = new WStackedWidget();
     addWidget(mainStack_);
 
+    // links container
     links_ = new WContainerWidget();
     links_->show();
     addWidget(links_);
 
+    // create anchor will re-direct to internal path /create when clicked, stored in links container
     createAnchor_ = new WAnchor("/create", "Create New Account ", links_);
     createAnchor_->setLink(WLink(WLink::InternalPath, "/create"));
 
+    // login anchor will re-direct to internal path /login when clicked, stored in links container
     loginAnchor_ = new WAnchor("/login", "Login with Existing Account ", links_);
     loginAnchor_->setLink(WLink(WLink::InternalPath, "/login"));
 
+    // detects any changes to the internal path and sends to the handle internal path function
     WApplication::instance()->internalPathChanged().connect(this, &WelcomeScreen::handleInternalPath);
 }
 
-
+/**
+*   @brief  Handle Internal Path function, checks for any changes to the internal
+*           path and redirects the page according to internalPath
+*   @param  internalPath is the page name to be re-directed to
+*   @return  void
+*/
 void WelcomeScreen::handleInternalPath(const string &internalPath)
 {
     if (true) { // change to if(loggedin = true)
-        serverMessage_->setHidden(true);
-        if (internalPath == "/create")
+        serverMessage_->setHidden(true); // hide server message when changing pages
+        if (internalPath == "/create") // opens create page
             createAccount();
-        else if (internalPath == "/login")
+        else if (internalPath == "/login") // opens login page
             login();
-        else if (internalPath == "/bridgescreen")
+        else if (internalPath == "/bridges") // opens bridge page
             bridgeScreen();
-        else
+        else // opens create page by default for any other path changes
             WApplication::instance()->setInternalPath("/create", true);
     }
 }
 
+/**
+*   @brief  Create Account function, updates the page to the
+*           creation screen
+*   @return void
+*/
 void WelcomeScreen::createAccount()
 {
     if (!create_) {
         create_ = new CreateAccountWidget(mainStack_, this);
-
     }
 
     mainStack_->setCurrentWidget(create_);
@@ -85,6 +103,11 @@ void WelcomeScreen::createAccount()
     create_->update();
 }
 
+/**
+*   @brief  Login function, updates the page to the
+*           login screen
+*   @return void
+*/
 void WelcomeScreen::login()
 {
     WApplication::instance()->setInternalPath("/login", true);
@@ -95,10 +118,15 @@ void WelcomeScreen::login()
     login_->update();
 }
 
+/**
+*   @brief  Bridge function, updates the page to the
+*           bridge control screen
+*   @return void
+*/
 void WelcomeScreen::bridgeScreen()
 {
     //john: this call is making the dashboard() funct run twice.. not good
-    WApplication::instance()->setInternalPath("/bridgescreen", true);
+    WApplication::instance()->setInternalPath("/bridges", true);
 
     if (!bridgeScreen_) {
         bridgeScreen_ = new BridgeScreenWidget(mainStack_, this);

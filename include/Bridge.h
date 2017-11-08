@@ -24,6 +24,8 @@
 #include <regex>
 #include <Wt/Http/Response>
 #include <Wt/Http/Client>
+#include <sstream>
+#include <fstream>
 #include <string>
 
 using namespace std;
@@ -34,21 +36,30 @@ class Bridge: public Wt::WContainerWidget {
 public:
     Bridge(string name, string ip, string port, string username = "newdeveloper", Wt::WContainerWidget *parent = 0,
            WelcomeScreen *main = 0);
-    
+
     virtual ~Bridge();
-    
+
+    void write();
+
+    //GETTER METHODS
+    string getName();
+    string getIP();
+    string getPort();
+    string getUserName();
+
+    //SETTER METHODS
+    void setName(string bName);
+    void setIP(string bIP);
+    void setPort(string bPort);
+    void setUsername(string bUsername);
+
     void connect();
-    
-    string getName() {return name_;};
-    string getIP() {return ip_;};
-    string getPort() {return port_;};
-    string getUsername() {return username_;};
-    
+
 private:
     void handleHttpResponse(Wt::Http::Client *client,
                             boost::system::error_code err,
                             const Wt::Http::Message& response) const;
-    
+
     WelcomeScreen *parent_;
     string name_;
     string ip_;

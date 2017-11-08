@@ -81,5 +81,6 @@ void BridgeScreenWidget::addBridge(){
     addWidget(new Wt::WText(bridge_->getIP()));
     addWidget(new Wt::WText(bridge_->getPort()));
     addWidget(new Wt::WText(bridge_->getUsername()));
+    
     new WBreak(this);
 }

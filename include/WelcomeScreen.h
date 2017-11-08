@@ -6,6 +6,7 @@
 #include <Wt/WText>
 #include <Wt/WPushButton>
 #include <string>
+#include "Account.h"
 
 namespace Wt {
   class WStackedWidget;
@@ -21,6 +22,9 @@ class WelcomeScreen : public Wt::WContainerWidget
 public:
     WelcomeScreen(Wt::WContainerWidget *parent = 0);
     void handleInternalPath(const std::string &internalPath);
+    
+    Account getAccount() {return account_;};
+    void setAccount(Account account) {account_ = account;};
 
 private:
     Wt::WText *serverMessage_;
@@ -34,6 +38,8 @@ private:
     void login();
     void createAccount();
     void bridgeScreen();
+    
+    Account account_;
 };
 
 #endif //WELCOME_SCREEN_H

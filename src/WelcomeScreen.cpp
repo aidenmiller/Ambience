@@ -12,7 +12,9 @@
  *              as well as any persistent widgets will be handled here.
  */
 
+#include "WelcomeScreen.h"
 #include <string>
+#include <stdio.h>
 #include <Wt/WAnchor>
 #include <Wt/WApplication>
 #include <Wt/WBreak>
@@ -24,11 +26,8 @@
 #include <Wt/WTableCell>
 #include <Wt/WServer>
 #include <Wt/WStackedWidget>
-#include <stdio.h>
-#include "Account.h"
 #include "CreateAccountWidget.h"
 #include "LoginWidget.h"
-#include "WelcomeScreen.h"
 #include "BridgeScreenWidget.h"
 
 using namespace Wt;
@@ -43,7 +42,8 @@ WelcomeScreen::WelcomeScreen(WContainerWidget *parent):
 WContainerWidget(parent),
 create_(0),
 login_(0),
-bridgeScreen_(0)
+bridgeScreen_(0),
+account_("","","","")
 {
     serverMessage_ = new WText("You are connected to the Team 13 Production Server", this);
     mainStack_ = new WStackedWidget();

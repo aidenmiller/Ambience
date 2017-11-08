@@ -1,3 +1,20 @@
+/**
+ *  @file       Hash.cpp
+ *  @author     CS 3307 - Team 13
+ *  @date       10/7/2017
+ *  @version    1.0
+ *
+ *  @brief      CS 3307, Hue Light Application password encryption hash function
+ *
+ *  @section    DESCRIPTION
+ *
+ *              This class represents the Hash function. A SHA256 cryptographic hashing function which the password can be run through before storage.
+ *              Two of the same passwords run through the same function would return the same hash, however, it is near impossible to reverse-engineer
+ *              this function to take the hash and return the plain-text password
+ *
+ */
+
+
 #include "Hash.h"
 #include <iomanip>
 #include <iostream>
@@ -6,8 +23,13 @@
 
 using namespace std;
 
-
-
+/**
+*   @brief  sha256_hash function, a static function which takes a plaintext string and outputs an encrypted string
+*
+*   @param  string of plain-text
+*   @return string (encrypted)
+*
+*/
 string Hash::sha256_hash(const string str)
 {
 
@@ -29,3 +51,4 @@ string Hash::sha256_hash(const string str)
 
     return ss.str();
 }
+

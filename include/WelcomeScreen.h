@@ -20,20 +20,17 @@ class WelcomeScreen : public Wt::WContainerWidget
 {
 public:
     WelcomeScreen(Wt::WContainerWidget *parent = 0);
-
-
     void handleInternalPath(const std::string &internalPath);
-
 
 private:
     Wt::WText *serverMessage_;
-    Wt::WStackedWidget *mainStack_;
-    Wt::WContainerWidget *links_;
-    LoginWidget *login_;
-    CreateAccountWidget *create_;
-    BridgeScreenWidget *bridgeScreen_;
-    Wt::WAnchor *createAnchor_;
-    Wt::WAnchor *loginAnchor_;
+    Wt::WStackedWidget *mainStack_; // main stack of the application
+    Wt::WContainerWidget *links_; // links container that stores anchors
+    LoginWidget *login_; // login widget
+    CreateAccountWidget *create_; // create widget
+    BridgeScreenWidget *bridgeScreen_; // bridge widget
+    Wt::WAnchor *createAnchor_; // anchor for create link
+    Wt::WAnchor *loginAnchor_; // anchor for login link
     void login();
     void createAccount();
     void bridgeScreen();

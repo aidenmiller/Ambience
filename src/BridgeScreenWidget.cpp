@@ -72,8 +72,14 @@ void BridgeScreenWidget::update()
 
 void BridgeScreenWidget::addBridge(){
     
-    Bridge *bridge_ = new Bridge(bridgename_->text().toUTF8(), ip_->text().toUTF8(),
-                                 port_->text().toUTF8(), username_->text().toUTF8());
+    Bridge *bridge_ = new Bridge(bridgename_->text().toUTF8(), ip_->text().toUTF8(), port_->text().toUTF8(), username_->text().toUTF8());
     
     bridge_->connect();
+    
+    //display info that was just created
+    addWidget(new Wt::WText(bridge_->getName()));
+    addWidget(new Wt::WText(bridge_->getIP()));
+    addWidget(new Wt::WText(bridge_->getPort()));
+    addWidget(new Wt::WText(bridge_->getUsername()));
+    new WBreak(this);
 }

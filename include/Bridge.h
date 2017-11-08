@@ -27,6 +27,7 @@
 #include <sstream>
 #include <fstream>
 #include <string>
+#include <Wt/Json/Object>
 
 using namespace std;
 using namespace Wt;
@@ -39,13 +40,13 @@ public:
 
     virtual ~Bridge();
 
-    void write();
+    void writeBridge(string data);
 
     //GETTER METHODS
     string getName();
     string getIP();
     string getPort();
-    string getUserName();
+    string getUsername();
 
     //SETTER METHODS
     void setName(string bName);
@@ -56,9 +57,8 @@ public:
     void connect();
 
 private:
-    void handleHttpResponse(Wt::Http::Client *client,
-                            boost::system::error_code err,
-                            const Wt::Http::Message& response) const;
+    void handleHttpResponse(boost::system::error_code err,
+                            const Wt::Http::Message &response);
 
     WelcomeScreen *parent_;
     string name_;

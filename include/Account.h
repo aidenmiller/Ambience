@@ -6,28 +6,34 @@ Header for Account.cpp
 #define ACCOUNT_H
 #include <string>
 
+using namespace std;
+
 class Account
 {
-    std::string firstName;
-    std::string lastName;
-    std::string email;
-    std::string password;
-    bool isAuth;
+private:
+    string firstName_;
+    string lastName_;
+    string email_;
+    string password_;
+    bool auth_;
 
 public:
-    Account(std::string firstName, std::string lastName, std::string email, std::string password);
+    Account(string fn, string ln, string em, string pw);
     virtual ~Account();
 
     //Name, email, and password getters/setters
-    std::string getFirstName() {return firstName;}
-    std::string getLastName() {return lastName;}
-    std::string getEmail() {return email;}
-    std::string getPassword() {return password;}
+    string getFirstName() {return firstName_;}
+    string getLastName() {return lastName_;}
+    string getEmail() {return email_;}
+    string getPassword() {return password_;}
+    bool isAuth() {return auth_;}
 
-    std::string setFirstName(std::string first) {firstName = first;}
-    std::string setLasttName(std::string last) {lastName = last;}
-    std::string setEmail(std::string e) {email = e;}
-    std::string setPassword(std::string pw) {password = pw;}
+    void setFirstName(string fn) {firstName_ = fn;}
+    void setLasttName(string ln) {lastName_ = ln;}
+    void setEmail(string em) {email_ = em;}
+    void setPassword(string pw) {password_ = pw;}
+    void setAuth(bool val) {auth_ = val;}
+    
 };
 
 #endif // ACCOUNT_H

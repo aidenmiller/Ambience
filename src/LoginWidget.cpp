@@ -92,7 +92,7 @@ void LoginWidget::submit(){
         statusMessage_->setHidden(false);
     }
     else { // if successful, redirects to bridge page
-        parent_->handleInternalPath("/bridgescreen");
+        parent_->handleInternalPath("/bridges");
     }
 }
 
@@ -106,7 +106,7 @@ void LoginWidget::submit(){
 bool LoginWidget::checkCredentials(string username, string password) {
     ifstream inFile;
     string str;
-    string filename = "credentials/" + username+".txt";
+    string filename = "credentials/" + username + ".txt";
     inFile.open(filename.c_str()); // opens username.txt
     string hashedPW = Hash::sha256_hash(password); // cryptographically hash password
 

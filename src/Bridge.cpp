@@ -14,7 +14,7 @@ WContainerWidget(parent)
 {
     setContentAlignment(AlignCenter);
     parent_ = main;
-
+    
     name_ = name;
     ip_ = ip;
     port_ = port;
@@ -23,88 +23,95 @@ WContainerWidget(parent)
 
 // Destructor
 Bridge::~Bridge() {
-
-}
-
-void Brdge::write(){
-  ofstream myfile;
-
-  //CREATES UNIQUE FILE NAME
-  myfile.open (name_ + ip_ + port_ + ".txt");
-
-  myfile << ("<Name>" + name_ + "</Name> <IP>"
-   + ip_ + "</IP> <Port>" + port_ + "</Port> <Username>"
-   + username_ + "</Username>\n");
-
-
-  myfile.close();
+    
 }
 
 //GETTER METHODS
 string Bridge::getName(){
-  return (name_);
+    return (name_);
 }
 
 string Bridge::getIP(){
-  return (ip_);
+    return (ip_);
 }
 
 string Bridge::getPort(){
-  return (port_);
+    return (port_);
 }
 
-string Bridge::getUserName(){
-  return (username_);
+string Bridge::getUsername(){
+    return (username_);
 }
 
 
 //SETTER METHODS
 void Bridge::setName(string bName){
- name_ = bName;
+    name_ = bName;
 }
 
 void Bridge::setIP(string bIP){
- ip_= bIP;
+    ip_= bIP;
 }
 
 void Bridge::setPort(string bPort){
- port_ = bPort;
+    port_ = bPort;
 }
 
 void Bridge::setUsername(string bUsername){
- username_ = bUsername;
+    username_ = bUsername;
 }
 
 void Bridge::connect() {
     //string url_ = "http://172.30.75.112:80/api/newdeveloper";
     string url_ = "http://" + ip_ + ":" + port_ + "/api/" + username_;
-
+    
     if (!url_.empty()) {
         cout << "\n\nBegin connect to: "  + url_ + "\n\n\n";
         Wt::Http::Client *client = new Wt::Http::Client(this);
         client->setTimeout(15);
         client->setMaximumResponseSize(1000000);
         client->done().connect(boost::bind(&Bridge::handleHttpResponse,
-                                           this, client, _1, _2));
-        client->get(url_);
-    }
-    else {
-        cout << "no url provided\n";
+                                           this, _1, _2));
+        if(client->get(url_)) WApplication::instance()->deferRendering();
     }
 }
 
-void Bridge::handleHttpResponse(Wt::Http::Client *client,
-                                boost::system::error_code err,
-                                const Wt::Http::Message& response) const
+void Bridge::handleHttpResponse(boost::system::error_code err,
+                                const Wt::Http::Message &response)
 {
-    if (err || response.status() != 200) {
-        std::cerr << "Error: " << err.message() << ", " << response.status()
-        << std::endl;
-    }
-    else {
-        Json::Object result();
-        //Json::parse(response.body(), result);
+    WApplication::instance()->resumeRendering();
+    if (!err && response.status() == 200) {
         cout << response.body() << "\n";
+        
+        this->writeBridge(response.body());
     }
-    delete client;
+}
+
+void Bridge::writeBridge(string data){
+    /* WRITE INDIVIDUAL BRIDGE TO FILE */
+    const int dir_err = system("mkdir -p bridges");
+    if (-1 == dir_err)
+    {
+        cout << "ERROR - Could not create directory\n";
+        exit(1);
+    }
+    
+    ofstream writefile;
+    string file = "bridges/" + username_ + "-" +
+    ip_ + "-" + port_ +".txt";
+    
+    writefile.open(file.c_str());
+    writefile << data;
+    
+    writefile.close();
+    
+    /* WRITE BRIDGE REFERENCE TO USER ACCOUNT */
+    //string filename = "credentials/" + parent_->getAccount().getEmail() + ".txt";
+    string filename = "credentials/a@b.com.txt";
+
+    //open the credentials file to append the bridge textfile name to it
+    writefile.open(filename.c_str(), ios::out | ios::app);
+    writefile << "\n" << username_ + "-" + ip_ + "-" + port_ +".txt";
+    writefile.close();
+    
 }

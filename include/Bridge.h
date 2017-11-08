@@ -39,6 +39,11 @@ public:
     
     void connect();
     
+    string getName() {return name_;};
+    string getIP() {return ip_;};
+    string getPort() {return port_;};
+    string getUsername() {return username_;};
+    
 private:
     void handleHttpResponse(Wt::Http::Client *client,
                             boost::system::error_code err,

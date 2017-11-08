@@ -14,7 +14,7 @@ WContainerWidget(parent)
 {
     setContentAlignment(AlignCenter);
     parent_ = main;
-    
+
     name_ = name;
     ip_ = ip;
     port_ = port;
@@ -23,13 +23,62 @@ WContainerWidget(parent)
 
 // Destructor
 Bridge::~Bridge() {
-    
+
+}
+
+void Brdge::write(){
+  ofstream myfile;
+
+  //CREATES UNIQUE FILE NAME
+  myfile.open (name_ + ip_ + port_ + ".txt");
+
+  myfile << ("<Name>" + name_ + "</Name> <IP>"
+   + ip_ + "</IP> <Port>" + port_ + "</Port> <Username>"
+   + username_ + "</Username>\n");
+
+
+  myfile.close();
+}
+
+//GETTER METHODS
+string Bridge::getName(){
+  return (name_);
+}
+
+string Bridge::getIP(){
+  return (ip_);
+}
+
+string Bridge::getPort(){
+  return (port_);
+}
+
+string Bridge::getUserName(){
+  return (username_);
+}
+
+
+//SETTER METHODS
+void Bridge::setName(string bName){
+ name_ = bName;
+}
+
+void Bridge::setIP(string bIP){
+ ip_= bIP;
+}
+
+void Bridge::setPort(string bPort){
+ port_ = bPort;
+}
+
+void Bridge::setUsername(string bUsername){
+ username_ = bUsername;
 }
 
 void Bridge::connect() {
     //string url_ = "http://172.30.75.112:80/api/newdeveloper";
     string url_ = "http://" + ip_ + ":" + port_ + "/api/" + username_;
-    
+
     if (!url_.empty()) {
         cout << "\n\nBegin connect to: "  + url_ + "\n\n\n";
         Wt::Http::Client *client = new Wt::Http::Client(this);

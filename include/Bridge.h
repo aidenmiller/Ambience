@@ -40,7 +40,8 @@ public:
 
     virtual ~Bridge();
 
-    void writeBridge(string data);
+    bool writeBridge(string data);
+    bool readBridge(string url);
 
     //GETTER METHODS
     string getName();

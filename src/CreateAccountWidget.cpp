@@ -69,16 +69,23 @@ void CreateAccountWidget::update()
     usernameValidator_->setInvalidNoMatchText("Username must be valid email address");
     username_->setValidator(usernameValidator_);
 
+    inputNotEmpty_ = new WValidator(this);
+    inputNotEmpty_->setMandatory(true);
+    username_->setValidator(inputNotEmpty_);
+
+
     new WText("First Name: ", this);
     firstName_ = new WLineEdit();
     firstName_->setTextSize(18);
     addWidget(firstName_);
+    firstName_->setValidator(inputNotEmpty_);
     new WBreak(this);
 
 
     new WText("Last Name: ", this);
     lastName_ = new WLineEdit();
     lastName_->setTextSize(18);
+    lastName_->setValidator(inputNotEmpty_);
     addWidget(lastName_);
     new WBreak(this);
 

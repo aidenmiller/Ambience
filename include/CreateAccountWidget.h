@@ -27,6 +27,7 @@ private:
 
     Wt::WRegExpValidator *usernameValidator_;
     Wt::WLengthValidator *passwordLengthValidator_;
+    Wt::WValidator *inputNotEmpty_;
 
     WelcomeScreen *parent_;
 

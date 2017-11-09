@@ -15,8 +15,10 @@ public:
 
     void update();
 private:
-    void writeCredentials(std::string username, std::string password);
+    void writeUserInfo(std::string username, std::string password, std::string first, std::string last);
     Wt::WLineEdit *username_; // account name text box
+    Wt::WLineEdit *firstName_;
+    Wt::WLineEdit *lastName_;
     Wt::WLineEdit *password_; // password text box
     Wt::WLineEdit *confirmPassword_; // confirm password text box
     Wt::WPushButton *createAccountButton_; // submit account creation

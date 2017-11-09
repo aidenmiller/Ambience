@@ -9,12 +9,8 @@
 #include "Bridge.h"
 
 // Constructor
-Bridge::Bridge(string name, string ip, string port, string username, WContainerWidget *parent, WelcomeScreen *main):
-WContainerWidget(parent)
+Bridge::Bridge(string name, string ip, string port, string username)
 {
-    setContentAlignment(AlignCenter);
-    parent_ = main;
-    
     name_ = name;
     ip_ = ip;
     port_ = port;
@@ -26,41 +22,7 @@ Bridge::~Bridge() {
     
 }
 
-//GETTER METHODS
-string Bridge::getName(){
-    return (name_);
-}
-
-string Bridge::getIP(){
-    return (ip_);
-}
-
-string Bridge::getPort(){
-    return (port_);
-}
-
-string Bridge::getUsername(){
-    return (username_);
-}
-
-
-//SETTER METHODS
-void Bridge::setName(string bName){
-    name_ = bName;
-}
-
-void Bridge::setIP(string bIP){
-    ip_= bIP;
-}
-
-void Bridge::setPort(string bPort){
-    port_ = bPort;
-}
-
-void Bridge::setUsername(string bUsername){
-    username_ = bUsername;
-}
-
+/*
 void Bridge::connect() {
     //string url_ = "http://172.30.75.112:80/api/newdeveloper";
     string url_ = "http://" + ip_ + ":" + port_ + "/api/" + username_;
@@ -72,7 +34,8 @@ void Bridge::connect() {
         client->setMaximumResponseSize(1000000);
         client->done().connect(boost::bind(&Bridge::handleHttpResponse,
                                            this, _1, _2));
-        if(client->get(url_)) WApplication::instance()->deferRendering();
+        if(client->get(url_))
+            WApplication::instance()->deferRendering();
     }
 }
 
@@ -86,8 +49,9 @@ void Bridge::handleHttpResponse(boost::system::error_code err,
         this->writeBridge(response.body());
     }
 }
+*/
 
-bool Bridge::writeBridge(string data) {
+bool Bridge::writeBridge(string email, string data) {
     /* WRITE INDIVIDUAL BRIDGE TO FILE */
     const int dir_err = system("mkdir -p bridges");
     if (-1 == dir_err)
@@ -109,13 +73,13 @@ bool Bridge::writeBridge(string data) {
     
     /* WRITE BRIDGE REFERENCE TO USER ACCOUNT */
     //string filename = "credentials/" + parent_->getAccount().getEmail() + ".txt";
-    string filename = "credentials/a@b.com.txt";
+    string filename = "credentials/" + email + ".txt";
     
     //open the credentials file to append the bridge textfile name to it
     writefile.open(filename.c_str(), ios::out | ios::app);
     if (!writefile)
         return false; //error writing to file
-    writefile << "\n" << username_ + "-" + ip_ + "-" + port_ +".txt";
+    writefile << username_ + "-" + ip_ + "-" + port_ +".txt\n";
     writefile.close();
     
     return true;
@@ -131,11 +95,11 @@ bool Bridge::readBridge(string fileName) {
         return false ; // file not found
     
     cout << "\n\n***READING FILE***\n";
-    while (getline(inFile, str)) // reads each line in username.txt
+    while (getline(inFile, str))
     {
         cout << str << "\n";
     }
-    cout << "\n\n***END READING FILE***\n";
+    cout << "***END READING FILE***\n\n\n";
     inFile.close();
     return true;
 }

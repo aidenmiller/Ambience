@@ -8,7 +8,7 @@ lastName_(ln),
 email_(em),
 password_(pw),
 auth_(false){
-
+    bridges.reserve(15);
 }
 
 // Destructor

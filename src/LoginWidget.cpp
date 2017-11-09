@@ -26,6 +26,8 @@
 
 #include "LoginWidget.h"
 #include "Hash.h"
+#include "Account.h"
+#include "Bridge.h"
 
 using namespace Wt;
 using namespace std;
@@ -37,11 +39,12 @@ using namespace std;
 *   @param  *main is a pointer to the app's welcome screen
 */
 
-LoginWidget::LoginWidget(WContainerWidget *parent, WelcomeScreen *main):
+LoginWidget::LoginWidget(WContainerWidget *parent, Account *account, WelcomeScreen *main):
   WContainerWidget(parent)
 {
-  setContentAlignment(AlignCenter);
+    setContentAlignment(AlignCenter);
     parent_ = main;
+    account_ = account;
 }
 
 /**
@@ -100,6 +103,7 @@ void LoginWidget::submit(){
         statusMessage_->setHidden(false);
     }
     else { // if successful, redirects to bridge page
+        account_->setAuth(true);
         parent_->handleInternalPath("/bridges");
     }
 }
@@ -121,14 +125,20 @@ bool LoginWidget::checkCredentials(string username, string password) {
     if (!inFile) {
         return(false); // file not found
     }
-
-    while (getline(inFile, str)) // reads each line in username.txt
-    {
-        if (str.compare(hashedPW)==0){ // passwords match
-            //redirect to profile page
-            inFile.close();
-            return true;
+    
+    getline(inFile, str); //read hashed password from username.txt
+    if(str.compare(hashedPW) == 0) {
+        account_->setEmail(username);
+        getline(inFile, str);
+        account_->setFirstName(str);
+        getline(inFile, str);
+        account_->setLastName(str);
+        while(getline(inFile, str)) {
+            Bridge *bridge = new Bridge();
+            bridge->readBridge(str);
+            account_->addBridge(*bridge);
         }
+        return true;
     }
     inFile.close();
     return false;

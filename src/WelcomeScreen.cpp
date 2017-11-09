@@ -74,15 +74,24 @@ account_("","","","")
 */
 void WelcomeScreen::handleInternalPath(const string &internalPath)
 {
-    if (true) { // change to if(loggedin = true)
-        serverMessage_->setHidden(true); // hide server message when changing pages
+    if (account_.isAuth()) { // change to if(loggedin = true)
+        serverMessage_->setText(account_.getFirstName() + " " + account_.getLastName());
+        createAnchor_->setHidden(true);
+        loginAnchor_->setHidden(true);
+        if (internalPath == "/bridges") // opens bridge page
+            bridgeScreen();
+        else // opens create page by default for any other path changes
+            WApplication::instance()->setInternalPath("/bridges", true);
+    }
+    else {
+        serverMessage_->setText("You are connected to the Team 13 Production Server");
+        createAnchor_->setHidden(false);
+        loginAnchor_->setHidden(false);
         if (internalPath == "/create") // opens create page
             createAccount();
         else if (internalPath == "/login") // opens login page
             login();
-        else if (internalPath == "/bridges") // opens bridge page
-            bridgeScreen();
-        else // opens create page by default for any other path changes
+        else
             WApplication::instance()->setInternalPath("/create", true);
     }
 }
@@ -95,7 +104,7 @@ void WelcomeScreen::handleInternalPath(const string &internalPath)
 void WelcomeScreen::createAccount()
 {
     if (!create_) {
-        create_ = new CreateAccountWidget(mainStack_, this);
+        create_ = new CreateAccountWidget(mainStack_, &account_, this);
     }
 
     mainStack_->setCurrentWidget(create_);
@@ -112,7 +121,7 @@ void WelcomeScreen::login()
 {
     WApplication::instance()->setInternalPath("/login", true);
     if (!login_) {
-        login_ = new LoginWidget(mainStack_, this);
+        login_ = new LoginWidget(mainStack_, &account_, this);
     }
     mainStack_->setCurrentWidget(login_);
     login_->update();
@@ -129,7 +138,7 @@ void WelcomeScreen::bridgeScreen()
     WApplication::instance()->setInternalPath("/bridges", true);
 
     if (!bridgeScreen_) {
-        bridgeScreen_ = new BridgeScreenWidget(mainStack_, this);
+        bridgeScreen_ = new BridgeScreenWidget(mainStack_, &account_, this);
     }
     mainStack_->setCurrentWidget(bridgeScreen_);
     bridgeScreen_->update();

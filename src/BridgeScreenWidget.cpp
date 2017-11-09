@@ -111,6 +111,7 @@ void BridgeScreenWidget::connectBridge(Bridge *bridge) {
         account_->addBridge(*bridge);
         
         BridgeScreenWidget::update();
+        //todo: instead of updating maybe i should just append this new bridge to a WTable defined initially when i looped through the vector. that would be much better than updating the entire screen i think
     }
     
 }

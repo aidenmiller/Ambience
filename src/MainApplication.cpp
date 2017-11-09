@@ -12,6 +12,8 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
 
     app->setTitle("Hue Light App- Team13");
 
+    app->useStyleSheet("style/stylesheet.css");
+
     new WelcomeScreen(app->root());
     return app;
 }

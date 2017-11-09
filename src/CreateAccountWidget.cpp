@@ -69,6 +69,19 @@ void CreateAccountWidget::update()
     usernameValidator_->setInvalidNoMatchText("Username must be valid email address");
     username_->setValidator(usernameValidator_);
 
+    new WText("First Name: ", this);
+    firstName_ = new WLineEdit();
+    firstName_->setTextSize(18);
+    addWidget(firstName_);
+    new WBreak(this);
+
+
+    new WText("Last Name: ", this);
+    lastName_ = new WLineEdit();
+    lastName_->setTextSize(18);
+    addWidget(lastName_);
+    new WBreak(this);
+
 
     // Password box: create a valid password
     new WText("Password: ", this);
@@ -133,7 +146,7 @@ void CreateAccountWidget::submit(){
     }
     else { // if password and confirmed password match
 
-        CreateAccountWidget::writeCredentials(username_->text().toUTF8(), password_->text().toUTF8()); // write the user's credentials to file
+        CreateAccountWidget::writeUserInfo(username_->text().toUTF8(), password_->text().toUTF8(), firstName_->text().toUTF8(), lastName_->text().toUTF8()); // write the user's credentials to file
         parent_->handleInternalPath("/login"); // go back to login screen and change the path back to /login
 
     }
@@ -146,7 +159,7 @@ void CreateAccountWidget::submit(){
  *   @param  username is a string representing the user's inputted username
  *   @param  password is a string representing the user's inputted password
  */
-void CreateAccountWidget::writeCredentials(string username, string password) {
+void CreateAccountWidget::writeUserInfo(string username, string password, string firstName, string lastName) {
 
     // creates credentials folder if one does not exist
     const int dir_err = system("mkdir -p credentials");
@@ -161,7 +174,10 @@ void CreateAccountWidget::writeCredentials(string username, string password) {
 
     writefile.open(file.c_str());
 
-    writefile << Hash::sha256_hash(password); // cryptographically hash password
+    writefile << Hash::sha256_hash(password) <<endl; // cryptographically hash password
+
+    writefile<< firstName << endl;
+    writefile<< lastName << endl;
 
     writefile.close();
     //TODO: Error handling in the file write

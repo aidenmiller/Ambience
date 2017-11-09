@@ -19,6 +19,8 @@
 #include <Wt/WText>
 #include <Wt/WTable>
 #include <fstream> // writing new accounts to a file
+#include <string>
+#include <unistd.h>
 #include "CreateAccountWidget.h"
 #include "Hash.h" // for password encryption
 
@@ -69,16 +71,23 @@ void CreateAccountWidget::update()
     usernameValidator_->setInvalidNoMatchText("Username must be valid email address");
     username_->setValidator(usernameValidator_);
 
+    inputNotEmpty_ = new WValidator(this);
+    inputNotEmpty_->setMandatory(true);
+    username_->setValidator(inputNotEmpty_);
+
+
     new WText("First Name: ", this);
     firstName_ = new WLineEdit();
     firstName_->setTextSize(18);
     addWidget(firstName_);
+    firstName_->setValidator(inputNotEmpty_);
     new WBreak(this);
 
 
     new WText("Last Name: ", this);
     lastName_ = new WLineEdit();
     lastName_->setTextSize(18);
+    lastName_->setValidator(inputNotEmpty_);
     addWidget(lastName_);
     new WBreak(this);
 
@@ -118,6 +127,10 @@ void CreateAccountWidget::update()
     unsuccessfulInput_->setStyleClass("error");
     addWidget(unsuccessfulInput_);
     unsuccessfulInput_->setHidden(true);
+    accountExists_ = new WText("Sorry, username already in use"); // if password not 6-20 characters or username does not follow name@domain.tld
+    accountExists_->setStyleClass("error");
+    addWidget(accountExists_);
+    accountExists_->setHidden(true);
 
     // user create account button connects with helper function
     createAccountButton_->clicked().connect(this, &CreateAccountWidget::submit); // run login function when button is clicked
@@ -138,11 +151,17 @@ void CreateAccountWidget::submit(){
         unsuccessfulPassword_->setHidden(true);
     if (!unsuccessfulInput_->isHidden())
         unsuccessfulInput_->setHidden(true);
+    if (!accountExists_->isHidden())
+        accountExists_->setHidden(true);
     if (!CreateAccountWidget::validatePassword()) { // if the password != confirmed password
         unsuccessfulPassword_->setHidden(false); // show user that passwords don't match
     }
     else if (!CreateAccountWidget::validateInputFields()) {
         unsuccessfulInput_->setHidden(false);
+    }
+    else if (!CreateAccountWidget::checkNewUserid(username_->text().toUTF8())){
+
+        accountExists_->setHidden(false);
     }
     else { // if password and confirmed password match
 
@@ -152,6 +171,18 @@ void CreateAccountWidget::submit(){
     }
 
 }
+
+/**
+ *   @brief  checkNewUserId() function, checks to see if the user's inputted id already exists in the system
+ *
+ *   @param  userid is a string representing the user's inputted username
+ *   @return  bool: true if the username is "new" false if already exists
+ */
+ bool CreateAccountWidget::checkNewUserid(string userid) {
+     string file = "credentials/" + userid + ".txt";
+     ifstream f(file.c_str());
+     return !f.good();
+ }
 
 /**
  *   @brief  writeCredentials() function, writes an encrypted version of the user's password

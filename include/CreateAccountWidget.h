@@ -24,9 +24,11 @@ private:
     Wt::WPushButton *createAccountButton_; // submit account creation
     Wt::WText *unsuccessfulPassword_;
     Wt::WText *unsuccessfulInput_;
+    Wt::WText *accountExists_;
 
     Wt::WRegExpValidator *usernameValidator_;
     Wt::WLengthValidator *passwordLengthValidator_;
+    Wt::WValidator *inputNotEmpty_;
 
     WelcomeScreen *parent_;
 
@@ -34,6 +36,7 @@ private:
     void submit();
     bool validatePassword();
     bool validateInputFields();
+    bool checkNewUserid(std::string userid);
 };
 
 #endif //CREATE_ACCOUNT_WIDGET_H

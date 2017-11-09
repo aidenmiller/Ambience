@@ -56,6 +56,12 @@ void LoginWidget::update()
 {
     clear(); // everytime you come back to page, reset the widgets
 
+    // Page title
+    WText *title = new WText("Login to account", this);
+    title->setStyleClass("title");
+
+    new WBreak(this);
+
     // Username box: enter a username that is a valid email address
     new WText("User ID: ", this);
     idEdit_ = new WLineEdit();
@@ -72,12 +78,14 @@ void LoginWidget::update()
     // login with provided user and password
     loginButton_ = new WPushButton("Login");
     addWidget(loginButton_);
+    new WBreak(this);
 
     // submit user details to log in
     loginButton_->clicked().connect(this, &LoginWidget::submit);
 
     // message that warns user incorrect user or password when login fails
     statusMessage_ = new WText("Incorrect username or password!",this);
+    statusMessage_->setStyleClass("error");
     statusMessage_->setHidden(true); // becomes visible if wrong credentials
 }
 

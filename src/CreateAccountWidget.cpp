@@ -21,6 +21,7 @@
 #include <fstream> // writing new accounts to a file
 #include "CreateAccountWidget.h"
 #include "Hash.h" // for password encryption
+#include "Account.h"
 
 using namespace Wt;
 using namespace std;
@@ -31,11 +32,12 @@ using namespace std;
  *   @param  *parent is a pointer the the containerwidget that stores this widget
  *   @param  *main is a pointer to the app's welcome screen
  */
-CreateAccountWidget::CreateAccountWidget(WContainerWidget *parent, WelcomeScreen *main):
+CreateAccountWidget::CreateAccountWidget(WContainerWidget *parent, Account *account, WelcomeScreen *main):
 WContainerWidget(parent)
 {
     setContentAlignment(AlignCenter);
     parent_ = main;
+    account_ = account;
 }
 
 

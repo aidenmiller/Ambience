@@ -10,7 +10,9 @@
 class LoginWidget: public Wt::WContainerWidget
 {
 public:
-    LoginWidget(Wt::WContainerWidget *parent = 0, WelcomeScreen *main = 0);
+    LoginWidget(Wt::WContainerWidget *parent = 0,
+                Account *account = 0,
+                WelcomeScreen *main = 0);
     void update();
 
 private:
@@ -20,6 +22,7 @@ private:
     Wt::WText *statusMessage_; // message to warn user if user or password incorrect
 
     WelcomeScreen *parent_;
+    Account *account_;
 
     void submit();
     bool checkCredentials(std::string username, std::string password);

@@ -11,7 +11,9 @@
 class CreateAccountWidget: public Wt::WContainerWidget
 {
 public:
-    CreateAccountWidget(Wt::WContainerWidget *parent = 0, WelcomeScreen *main = 0);
+    CreateAccountWidget(Wt::WContainerWidget *parent = 0,
+                        Account *account = 0,
+                        WelcomeScreen *main = 0);
 
     void update();
 private:
@@ -29,6 +31,7 @@ private:
     Wt::WLengthValidator *passwordLengthValidator_;
 
     WelcomeScreen *parent_;
+    Account *account_;
 
 
     void submit();

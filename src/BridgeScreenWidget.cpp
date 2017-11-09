@@ -5,16 +5,18 @@
 #include "Bridge.h"
 #include "Hash.h" // for password encryption
 #include <string>
+#include "Account.h"
 
 using namespace Wt;
 using namespace std;
 
 
-BridgeScreenWidget::BridgeScreenWidget(WContainerWidget *parent, WelcomeScreen *main):
+BridgeScreenWidget::BridgeScreenWidget(WContainerWidget *parent, Account *account, WelcomeScreen *main):
 WContainerWidget(parent)
 {
     setContentAlignment(AlignCenter);
     parent_ = main;
+    account_ = account;
 }
 
 void BridgeScreenWidget::update()
@@ -67,20 +69,68 @@ void BridgeScreenWidget::update()
     
     new WBreak(this);
     
+    statusMessage_ = new WText("", this);
+    statusMessage_->setStyleClass("error");
+    statusMessage_->setHidden(true);
+    
+    new WBreak(this);
+    
+    for(auto &bridge : account_->getBridges()) {
+        //display info that was just created
+        addWidget(new Wt::WText(bridge.getName()));
+        addWidget(new Wt::WText(bridge.getIP()));
+        addWidget(new Wt::WText(bridge.getPort()));
+        addWidget(new Wt::WText(bridge.getUsername()));
+        new WBreak(this);
+    }
+    
     createBridgeButton_->clicked().connect(this, &BridgeScreenWidget::addBridge);
 }
 
 void BridgeScreenWidget::addBridge(){
     
-    Bridge *bridge_ = new Bridge(bridgename_->text().toUTF8(), ip_->text().toUTF8(), port_->text().toUTF8(), username_->text().toUTF8());
+    Bridge bridge_(bridgename_->text().toUTF8(), ip_->text().toUTF8(), port_->text().toUTF8(), username_->text().toUTF8());
     
-    bridge_->connect();
+    BridgeScreenWidget::connectBridge(&bridge_);
+}
+
+void BridgeScreenWidget::connectBridge(Bridge *bridge) {
+    //string url_ = "http://172.30.75.112:80/api/newdeveloper";
+    string url_ = "http://" + bridge->getIP() + ":" + bridge->getPort() + "/api/" + bridge->getUsername();
     
-    //display info that was just created
-    addWidget(new Wt::WText(bridge_->getName()));
-    addWidget(new Wt::WText(bridge_->getIP()));
-    addWidget(new Wt::WText(bridge_->getPort()));
-    addWidget(new Wt::WText(bridge_->getUsername()));
+    cout << "\n\nBegin connect to: "  + url_ + "\n\n\n";
+    Wt::Http::Client *client = new Wt::Http::Client(this);
+    client->setTimeout(15);
+    client->setMaximumResponseSize(1000000);
+    client->done().connect(boost::bind(&BridgeScreenWidget::handleHttpResponse, this, bridge, _1, _2));
     
-    new WBreak(this);
+    if(client->get(url_)) {
+        WApplication::instance()->deferRendering();
+        
+        bridge->writeBridge(account_->getEmail(), json_);
+        account_->addBridge(*bridge);
+        
+        BridgeScreenWidget::update();
+    }
+    
+}
+
+void BridgeScreenWidget::handleHttpResponse(Bridge *bridge, boost::system::error_code err, const Wt::Http::Message &response)
+{
+    WApplication::instance()->resumeRendering();
+    if (!err && response.status() == 200) {
+        cout << response.body() << "\n";
+        
+        statusMessage_->setText("Successfully connected!");
+        statusMessage_->setHidden(false);
+        
+        json_ = response.body();
+    }
+    else {
+        cerr << "Error: " << err.message() << ", " << response.status()
+        << "\n";
+        // message that warns user of failed connection
+        statusMessage_->setText("Error: Unable to connect to Bridge (" + err.message() + ").");
+        statusMessage_->setHidden(false);
+    }
 }

@@ -19,7 +19,6 @@
 #include <Wt/WBreak>
 #include <Wt/WLengthValidator>
 #include <Wt/WRegExpValidator>
-#include "WelcomeScreen.h"
 #include <iostream>
 #include <regex>
 #include <Wt/Http/Response>
@@ -32,36 +31,35 @@
 using namespace std;
 using namespace Wt;
 
-class Bridge: public Wt::WContainerWidget {
+class Bridge {
 
 public:
-    Bridge(string name, string ip, string port, string username = "newdeveloper", Wt::WContainerWidget *parent = 0,
-           WelcomeScreen *main = 0);
+    Bridge() {
+        name_ = "Default";
+        ip_ = "0.0.0.0";
+        port_ = "00";
+        username_ = "default";
+    };
+    Bridge(string name, string ip, string port, string username = "newdeveloper");
 
     virtual ~Bridge();
 
-    bool writeBridge(string data);
+    bool writeBridge(string email, string data);
     bool readBridge(string url);
 
     //GETTER METHODS
-    string getName();
-    string getIP();
-    string getPort();
-    string getUsername();
+    string getName() {return name_;}
+    string getIP() {return ip_;}
+    string getPort() {return port_;}
+    string getUsername() {return username_;}
 
     //SETTER METHODS
-    void setName(string bName);
-    void setIP(string bIP);
-    void setPort(string bPort);
-    void setUsername(string bUsername);
-
-    void connect();
+    void setName(string name) {name_ = name;}
+    void setIP(string ip) {ip_ = ip;}
+    void setPort(string port) {port_ = port;}
+    void setUsername(string username) {username_ = username;}
 
 private:
-    void handleHttpResponse(boost::system::error_code err,
-                            const Wt::Http::Message &response);
-
-    WelcomeScreen *parent_;
     string name_;
     string ip_;
     string port_;

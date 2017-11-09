@@ -5,6 +5,8 @@ Header for Account.cpp
 #ifndef ACCOUNT_H
 #define ACCOUNT_H
 #include <string>
+#include "Bridge.h"
+#include <vector>
 
 using namespace std;
 
@@ -16,6 +18,7 @@ private:
     string email_;
     string password_;
     bool auth_;
+    vector<Bridge> bridges;
 
 public:
     Account(string fn, string ln, string em, string pw);
@@ -27,12 +30,14 @@ public:
     string getEmail() {return email_;}
     string getPassword() {return password_;}
     bool isAuth() {return auth_;}
+    vector<Bridge> getBridges() {return bridges;}
 
     void setFirstName(string fn) {firstName_ = fn;}
-    void setLasttName(string ln) {lastName_ = ln;}
+    void setLastName(string ln) {lastName_ = ln;}
     void setEmail(string em) {email_ = em;}
     void setPassword(string pw) {password_ = pw;}
     void setAuth(bool val) {auth_ = val;}
+    void addBridge(Bridge br) {bridges.push_back(br);}
     
 };
 

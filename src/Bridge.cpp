@@ -87,7 +87,7 @@ void Bridge::handleHttpResponse(boost::system::error_code err,
     }
 }
 
-void Bridge::writeBridge(string data){
+bool Bridge::writeBridge(string data) {
     /* WRITE INDIVIDUAL BRIDGE TO FILE */
     const int dir_err = system("mkdir -p bridges");
     if (-1 == dir_err)
@@ -101,6 +101,8 @@ void Bridge::writeBridge(string data){
     ip_ + "-" + port_ +".txt";
     
     writefile.open(file.c_str());
+    if (!writefile)
+        return false; //error writing to file
     writefile << data;
     
     writefile.close();
@@ -108,10 +110,32 @@ void Bridge::writeBridge(string data){
     /* WRITE BRIDGE REFERENCE TO USER ACCOUNT */
     //string filename = "credentials/" + parent_->getAccount().getEmail() + ".txt";
     string filename = "credentials/a@b.com.txt";
-
+    
     //open the credentials file to append the bridge textfile name to it
     writefile.open(filename.c_str(), ios::out | ios::app);
+    if (!writefile)
+        return false; //error writing to file
     writefile << "\n" << username_ + "-" + ip_ + "-" + port_ +".txt";
     writefile.close();
     
+    return true;
+}
+
+bool Bridge::readBridge(string fileName) {
+    ifstream inFile;
+    string str;
+    string filename = "bridges/" + fileName;
+    
+    inFile.open(filename.c_str());
+    if (!inFile)
+        return false ; // file not found
+    
+    cout << "\n\n***READING FILE***\n";
+    while (getline(inFile, str)) // reads each line in username.txt
+    {
+        cout << str << "\n";
+    }
+    cout << "\n\n***END READING FILE***\n";
+    inFile.close();
+    return true;
 }

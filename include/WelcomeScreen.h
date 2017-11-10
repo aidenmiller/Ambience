@@ -39,7 +39,9 @@ private:
     ProfileWidget *profileScreen_;
     Wt::WAnchor *createAnchor_; // anchor for create link
     Wt::WAnchor *loginAnchor_; // anchor for login link
+    Wt::WAnchor *logoutAnchor_; // anchor for logout link
     void login();
+    void logout();
     void createAccount();
     void bridgeScreen();
     void profileScreen();

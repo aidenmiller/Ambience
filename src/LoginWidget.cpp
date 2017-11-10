@@ -136,9 +136,11 @@ bool LoginWidget::checkCredentials(string username, string password) {
         account_->setLastName(str);
         while(getline(inFile, str)) {
             Bridge *bridge = new Bridge();
-            bridge->readBridge(str);
-            account_->addBridge(*bridge);
+            if(bridge->readBridge(str))
+                account_->addBridge(*bridge);
         }
+        account_->writeFile(); //quick fix
+        inFile.close();
         return true;
     }
     inFile.close();

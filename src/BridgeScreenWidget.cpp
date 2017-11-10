@@ -6,6 +6,7 @@
 #include "Hash.h" // for password encryption
 #include <string>
 #include "Account.h"
+#include <Wt/Json/Value>
 
 using namespace Wt;
 using namespace std;
@@ -79,7 +80,7 @@ void BridgeScreenWidget::update()
     
     new WBreak(this);
     
-    createBridgeButton_ = new WPushButton("Create Bridge");
+    createBridgeButton_ = new WPushButton("Register Bridge");
     addWidget(createBridgeButton_);
     
     new WBreak(this);
@@ -106,39 +107,30 @@ void BridgeScreenWidget::update()
         new WBreak(this);
     }
     
-    createBridgeButton_->clicked().connect(this, &BridgeScreenWidget::addBridge);
+    createBridgeButton_->clicked().connect(this, &BridgeScreenWidget::connectBridge);
 }
 
-void BridgeScreenWidget::addBridge(){
+void BridgeScreenWidget::connectBridge() {
+    bridge_ = new Bridge(bridgename_->text().toUTF8(), location_->text().toUTF8(), ip_->text().toUTF8(), port_->text().toUTF8(), username_->text().toUTF8());
     
-    Bridge bridge_(bridgename_->text().toUTF8(), location_->text().toUTF8(), ip_->text().toUTF8(), port_->text().toUTF8(), username_->text().toUTF8());
+    string url_ = "http://" + bridge_->getIP() + ":" + bridge_->getPort() + "/api/" + bridge_->getUsername() + "/config"; //fuck trevor
     
-    BridgeScreenWidget::connectBridge(&bridge_);
-}
-
-void BridgeScreenWidget::connectBridge(Bridge *bridge) {
-    //string url_ = "http://172.30.75.112:80/api/newdeveloper";
-    string url_ = "http://" + bridge->getIP() + ":" + bridge->getPort() + "/api/" + bridge->getUsername();
-    
-    cout << "\n\nBegin connect to: "  + url_ + "\n\n\n";
+    cout << "\nBegin connect to: "  + url_ + "\n";
     Wt::Http::Client *client = new Wt::Http::Client(this);
     client->setTimeout(15);
     client->setMaximumResponseSize(1000000);
-    client->done().connect(boost::bind(&BridgeScreenWidget::handleHttpResponse, this, bridge, _1, _2));
+    client->done().connect(boost::bind(&BridgeScreenWidget::handleHttpResponse, this, _1, _2));
     
     if(client->get(url_)) {
         WApplication::instance()->deferRendering();
-        
-        bridge->writeBridge(account_->getEmail(), json_);
-        account_->addBridge(*bridge);
-        
-        BridgeScreenWidget::update();
-        //todo: instead of updating maybe i should just append this new bridge to a WTable defined initially when i looped through the vector. that would be much better than updating the entire screen i think
+    }
+    else {
+        cout << "\nERROR in URL\n\n";
     }
     
 }
 
-void BridgeScreenWidget::handleHttpResponse(Bridge *bridge, boost::system::error_code err, const Wt::Http::Message &response)
+void BridgeScreenWidget::handleHttpResponse(boost::system::error_code err, const Wt::Http::Message &response)
 {
     WApplication::instance()->resumeRendering();
     if (!err && response.status() == 200) {
@@ -147,7 +139,15 @@ void BridgeScreenWidget::handleHttpResponse(Bridge *bridge, boost::system::error
         statusMessage_->setText("Successfully connected!");
         statusMessage_->setHidden(false);
         
-        json_ = response.body();
+        //Json::Value jsonValue = Json::Value(response.body());
+        //Json::Object result;
+        //Json::parse(response.body(), result);
+        //cout << "\n\n" << result.get("ipaddress") << "\n\n\n";
+        
+        bridge_->writeBridge(account_->getEmail(), response.body());
+        account_->addBridge(*bridge_);
+        
+        BridgeScreenWidget::update();
     }
     else {
         cerr << "Error: " << err.message() << ", " << response.status()

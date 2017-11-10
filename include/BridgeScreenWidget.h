@@ -34,15 +34,13 @@ private:
     Wt::WText *statusMessage_;
     Wt::WPushButton *createBridgeButton_;
     
-    string json_;
+    //bool validateInputFields();
+    //Wt::WRegExpValidator *ipValidator_;
     
-    bool validateInputFields();
-    Wt::WRegExpValidator *ipValidator_;
+    Bridge *bridge_;
     
-    void addBridge();
-    
-    void connectBridge(Bridge *bridge);
-    void handleHttpResponse(Bridge *bridge, boost::system::error_code err, const Wt::Http::Message &response);
+    void connectBridge();
+    void handleHttpResponse(boost::system::error_code err, const Wt::Http::Message &response);
     
 };
 

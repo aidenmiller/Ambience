@@ -3,7 +3,7 @@ SRC_DIR = src
 OBJ_DIR = obj
 INC_DIR = include
 
-OBJS = MainApplication.o Hash.o WelcomeScreen.o Account.o LoginWidget.o CreateAccountWidget.o Bridge.o BridgeScreenWidget.o
+OBJS = MainApplication.o Hash.o WelcomeScreen.o Account.o LoginWidget.o CreateAccountWidget.o Bridge.o BridgeScreenWidget.o ProfileWidget.o
 CC = g++
 DEBUG = -g
 CFLAGS = -Wall -c -std=c++11 -Iinclude -L/usr/local/lib $(DEBUG)
@@ -32,6 +32,9 @@ CreateAccountWidget.o : $(INC_DIR)/CreateAccountWidget.h $(SRC_DIR)/CreateAccoun
 
 BridgeScreenWidget.o : $(INC_DIR)/BridgeScreenWidget.h $(SRC_DIR)/BridgeScreenWidget.cpp
 	$(CC) $(CFLAGS) $(SRC_DIR)/BridgeScreenWidget.cpp
+
+ProfileWidget.o : $(INC_DIR)/ProfileWidget.h $(SRC_DIR)/ProfileWidget.cpp
+	$(CC) $(CFLAGS) $(SRC_DIR)/ProfileWidget.cpp
 
 Bridge.o : $(INC_DIR)/Bridge.h $(SRC_DIR)/Bridge.cpp
 	$(CC) $(CFLAGS) $(SRC_DIR)/Bridge.cpp

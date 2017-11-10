@@ -7,6 +7,8 @@
 #include <string>
 #include "Account.h"
 #include <Wt/Json/Value>
+#include <Wt/Json/Object>
+#include <Wt/Json/Parser>
 
 using namespace Wt;
 using namespace std;
@@ -139,10 +141,15 @@ void BridgeScreenWidget::handleHttpResponse(boost::system::error_code err, const
         statusMessage_->setText("Successfully connected!");
         statusMessage_->setHidden(false);
         
-        //Json::Value jsonValue = Json::Value(response.body());
-        //Json::Object result;
-        //Json::parse(response.body(), result);
-        //cout << "\n\n" << result.get("ipaddress") << "\n\n\n";
+        Json::Object result;
+        Json::parse(response.body(), result);
+        cout << "\n\nISNULL: " << result.isNull("ipaddress") << "\n\n\n";
+        cout << "\n\nCONTAINS: " << result.contains("ipaddress") << "\n\n\n";
+        cout << "\n\nTYPE: " << result.type("ipaddress") << "\n\n\n";
+        
+        Json::Value jsonValue = result.get("ipaddress");
+        cout << "\n\nVALUETYPE: " << jsonValue.type() << "\n\n\n";
+        
         
         bridge_->writeBridge(account_->getEmail(), response.body());
         account_->addBridge(*bridge_);

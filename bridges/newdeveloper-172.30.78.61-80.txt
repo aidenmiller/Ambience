@@ -1,6 +1,0 @@
-HAHAH
-LOLOL
-172.30.78.61
-80
-newdeveloper
-{"portalservices":false,"gateway":"192.168.2.1","mac":"00:00:88:00:bb:ee","swversion":"01005215","linkbutton":false,"ipaddress":"172.30.78.61:80","proxyport":0,"swupdate":{"text":"","notify":false,"updatestate":0,"url":""},"netmask":"255.255.255.0","name":"Philips hue","dhcp":true,"proxyaddress":"","whitelist":{"newdeveloper":{"name":"test user","last use date":"2017-11-10T16:30:35","create date":"2012-10-29T12:00:00"}},"UTC":"2012-10-29T12:05:00"}

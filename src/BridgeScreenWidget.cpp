@@ -23,12 +23,27 @@ void BridgeScreenWidget::update()
 {
     clear(); // everytime you come back to page, reset the widgets
     
+    // Page title
+    WText *title = new WText("Register a bridge", this);
+    title->setStyleClass("title");
+    
+    new WBreak(this);
+    
     //Bridge Name
     new WText("Bridge Name: ", this);
     bridgename_ = new WLineEdit();
     bridgename_->setTextSize(10); // to hold placeholder text
     bridgename_->setPlaceholderText("MyBridge"); // placeholder text
     addWidget(bridgename_);
+    
+    new WBreak(this);
+    
+    //Bridge Location
+    new WText("Location: ", this);
+    location_ = new WLineEdit();
+    location_->setTextSize(10); // to hold placeholder text
+    location_->setPlaceholderText("Bedroom"); // placeholder text
+    addWidget(location_);
     
     new WBreak(this);
     
@@ -75,9 +90,16 @@ void BridgeScreenWidget::update()
     
     new WBreak(this);
     
+    // Page title
+    WText *title2 = new WText("Your Bridges", this);
+    title2->setStyleClass("title");
+    
+    new WBreak(this);
+    
     for(auto &bridge : account_->getBridges()) {
         //display info that was just created
         addWidget(new Wt::WText(bridge.getName()));
+        addWidget(new Wt::WText(bridge.getLocation()));
         addWidget(new Wt::WText(bridge.getIP()));
         addWidget(new Wt::WText(bridge.getPort()));
         addWidget(new Wt::WText(bridge.getUsername()));
@@ -89,7 +111,7 @@ void BridgeScreenWidget::update()
 
 void BridgeScreenWidget::addBridge(){
     
-    Bridge bridge_(bridgename_->text().toUTF8(), ip_->text().toUTF8(), port_->text().toUTF8(), username_->text().toUTF8());
+    Bridge bridge_(bridgename_->text().toUTF8(), location_->text().toUTF8(), ip_->text().toUTF8(), port_->text().toUTF8(), username_->text().toUTF8());
     
     BridgeScreenWidget::connectBridge(&bridge_);
 }

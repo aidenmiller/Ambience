@@ -72,6 +72,11 @@ account_("","","","")
     // login anchor will re-direct to internal path /login when clicked, stored in links container
     loginAnchor_ = new WAnchor("/login", "Login with Existing Account ", links_);
     loginAnchor_->setLink(WLink(WLink::InternalPath, "/login"));
+    
+    // login anchor will re-direct to internal path /login when clicked, stored in links container
+    logoutAnchor_ = new WAnchor("/logout", "Logout", links_);
+    logoutAnchor_->setLink(WLink(WLink::InternalPath, "/logout"));
+    logoutAnchor_->setHidden(true);
 
     // detects any changes to the internal path and sends to the handle internal path function
     WApplication::instance()->internalPathChanged().connect(this, &WelcomeScreen::handleInternalPath);
@@ -91,12 +96,16 @@ void WelcomeScreen::handleInternalPath(const string &internalPath)
         homeAnchor_->setHidden(true);
         createAnchor_->setHidden(true);
         loginAnchor_->setHidden(true);
+        logoutAnchor_->setHidden(false);
         if (internalPath == "/bridges") // opens bridge page
             bridgeScreen();
-        if (internalPath == "/profile") {
+        else if (internalPath == "/profile") {
             profileScreen();
             homeAnchor_->setHidden(false);
             profileAnchor_->setHidden(true);
+        }
+        else if (internalPath == "/logout") {
+            logout();
         }
         else // opens create page by default for any other path changes
             WApplication::instance()->setInternalPath("/bridges", true);
@@ -105,6 +114,9 @@ void WelcomeScreen::handleInternalPath(const string &internalPath)
         serverMessage_->setText("You are connected to the Team 13 Production Server");
         createAnchor_->setHidden(false);
         loginAnchor_->setHidden(false);
+        logoutAnchor_->setHidden(true);
+        profileAnchor_->setHidden(true);
+        homeAnchor_->setHidden(true);
         if (internalPath == "/create") // opens create page
             createAccount();
         else if (internalPath == "/login") // opens login page
@@ -160,6 +172,17 @@ void WelcomeScreen::login()
     }
     mainStack_->setCurrentWidget(login_);
     login_->update();
+}
+
+/**
+ *   @brief  Logout function, updates the page to the
+ *           login screen
+ *   @return void
+ */
+void WelcomeScreen::logout()
+{
+    account_.logout();
+    WApplication::instance()->setInternalPath("/login", true);
 }
 
 /**

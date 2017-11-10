@@ -39,6 +39,7 @@ public:
     void setAuth(bool val) {auth_ = val;}
     void addBridge(Bridge br) {bridges.push_back(br);}
     void writeFile();
+    void logout();
 
 };
 

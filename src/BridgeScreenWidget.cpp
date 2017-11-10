@@ -115,7 +115,7 @@ void BridgeScreenWidget::update()
 void BridgeScreenWidget::connectBridge() {
     bridge_ = new Bridge(bridgename_->text().toUTF8(), location_->text().toUTF8(), ip_->text().toUTF8(), port_->text().toUTF8(), username_->text().toUTF8());
     
-    string url_ = "http://" + bridge_->getIP() + ":" + bridge_->getPort() + "/api/" + bridge_->getUsername() + "/config"; //fuck trevor
+    string url_ = "http://" + bridge_->getIP() + ":" + bridge_->getPort() + "/api/" + bridge_->getUsername();
     
     cout << "\nBegin connect to: "  + url_ + "\n";
     Wt::Http::Client *client = new Wt::Http::Client(this);

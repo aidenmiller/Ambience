@@ -1,5 +1,5 @@
  /**
- *  @file       LoginWidgt.cpp
+ *  @file       LoginWidget.cpp
  *  @author     CS 3307 - Team 13
  *  @date       11/7/2017
  *  @version    1.0
@@ -125,9 +125,10 @@ bool LoginWidget::checkCredentials(string username, string password) {
     if (!inFile) {
         return(false); // file not found
     }
-    
+
     getline(inFile, str); //read hashed password from username.txt
     if(str.compare(hashedPW) == 0) {
+        account_->setPassword(hashedPW);
         account_->setEmail(username);
         getline(inFile, str);
         account_->setFirstName(str);

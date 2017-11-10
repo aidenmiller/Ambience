@@ -31,13 +31,20 @@ private:
     Wt::WLineEdit *port_;
     Wt::WLineEdit *username_;
     
+    Wt::WLineEdit *bridgeIndex_;
+    
     Wt::WText *statusMessage_;
     Wt::WPushButton *createBridgeButton_;
+    Wt::WPushButton *editBridgeButton_;
+    Wt::WPushButton *removeBridgeButton_;
     
     //bool validateInputFields();
     //Wt::WRegExpValidator *ipValidator_;
+    Wt::WValidator *inputNotEmpty_;
     
     Bridge *bridge_;
+    
+    void removeBridge();
     
     void connectBridge();
     void handleHttpResponse(boost::system::error_code err, const Wt::Http::Message &response);

@@ -29,6 +29,7 @@
 #include "CreateAccountWidget.h"
 #include "LoginWidget.h"
 #include "BridgeScreenWidget.h"
+#include "ProfileWidget.h"
 
 using namespace Wt;
 using namespace std;
@@ -43,9 +44,19 @@ WContainerWidget(parent),
 create_(0),
 login_(0),
 bridgeScreen_(0),
+profileScreen_(0),
 account_("","","","")
 {
     serverMessage_ = new WText("You are connected to the Team 13 Production Server", this);
+    new WBreak(this);
+    profileAnchor_ = new WAnchor("/profile", "Edit your profile", this);
+    profileAnchor_->setLink(WLink(WLink::InternalPath, "/profile"));
+    profileAnchor_->setHidden(true);
+
+    homeAnchor_ = new WAnchor("/bridges", "Go back", this);
+    homeAnchor_->setLink(WLink(WLink::InternalPath, "/bridges"));
+    homeAnchor_->setHidden(true);
+
     mainStack_ = new WStackedWidget();
     addWidget(mainStack_);
 
@@ -75,11 +86,18 @@ account_("","","","")
 void WelcomeScreen::handleInternalPath(const string &internalPath)
 {
     if (account_.isAuth()) { // change to if(loggedin = true)
-        serverMessage_->setText(account_.getFirstName() + " " + account_.getLastName());
+        serverMessage_->setText("Hello, " + account_.getFirstName() + " " + account_.getLastName());
+        profileAnchor_->setHidden(false);
+        homeAnchor_->setHidden(true);
         createAnchor_->setHidden(true);
         loginAnchor_->setHidden(true);
         if (internalPath == "/bridges") // opens bridge page
             bridgeScreen();
+        if (internalPath == "/profile") {
+            profileScreen();
+            homeAnchor_->setHidden(false);
+            profileAnchor_->setHidden(true);
+        }
         else // opens create page by default for any other path changes
             WApplication::instance()->setInternalPath("/bridges", true);
     }
@@ -110,6 +128,23 @@ void WelcomeScreen::createAccount()
     mainStack_->setCurrentWidget(create_);
 
     create_->update();
+}
+
+/**
+*   @brief  profile screen function, updates the page to the
+*           profile management screen
+*   @return void
+*/
+void WelcomeScreen::profileScreen()
+{
+    if (!profileScreen_) {
+        profileScreen_ = new ProfileWidget(mainStack_, &account_, this);
+    }
+
+
+    mainStack_->setCurrentWidget(profileScreen_);
+
+    profileScreen_->update();
 }
 
 /**

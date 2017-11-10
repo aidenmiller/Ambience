@@ -32,13 +32,14 @@ public:
     bool isAuth() {return auth_;}
     vector<Bridge> getBridges() {return bridges;}
 
-    void setFirstName(string fn) {firstName_ = fn;}
-    void setLastName(string ln) {lastName_ = ln;}
+    void setFirstName(string fn);
+    void setLastName(string ln);
     void setEmail(string em) {email_ = em;}
-    void setPassword(string pw) {password_ = pw;}
+    void setPassword(string pw);
     void setAuth(bool val) {auth_ = val;}
     void addBridge(Bridge br) {bridges.push_back(br);}
-    
+    void writeFile();
+
 };
 
 #endif // ACCOUNT_H

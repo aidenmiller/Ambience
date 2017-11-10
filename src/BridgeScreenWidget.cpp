@@ -141,14 +141,14 @@ void BridgeScreenWidget::handleHttpResponse(boost::system::error_code err, const
         statusMessage_->setText("Successfully connected!");
         statusMessage_->setHidden(false);
         
-        Json::Object result;
+        /*Json::Object result;
         Json::parse(response.body(), result);
         cout << "\n\nISNULL: " << result.isNull("ipaddress") << "\n\n\n";
         cout << "\n\nCONTAINS: " << result.contains("ipaddress") << "\n\n\n";
         cout << "\n\nTYPE: " << result.type("ipaddress") << "\n\n\n";
         
         Json::Value jsonValue = result.get("ipaddress");
-        cout << "\n\nVALUETYPE: " << jsonValue.type() << "\n\n\n";
+        cout << "\n\nVALUETYPE: " << jsonValue.type() << "\n\n\n";*/
         
         
         bridge_->writeBridge(account_->getEmail(), response.body());

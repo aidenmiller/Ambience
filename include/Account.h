@@ -31,13 +31,17 @@ public:
     string getPassword() {return password_;}
     bool isAuth() {return auth_;}
     vector<Bridge> getBridges() {return bridges;}
+    int getNumBridges() {return bridges.size();}
 
     void setFirstName(string fn);
     void setLastName(string ln);
     void setEmail(string em) {email_ = em;}
     void setPassword(string pw);
     void setAuth(bool val) {auth_ = val;}
+    
     void addBridge(Bridge br) {bridges.push_back(br);}
+    void removeBridge(int index) {bridges.erase(bridges.begin() + index - 1);}
+    
     void writeFile();
     void logout();
 

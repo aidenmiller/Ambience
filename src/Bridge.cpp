@@ -81,7 +81,7 @@ bool Bridge::writeBridge(string email, string data) {
     cout << port_ << "\n";
     cout << username_ << "\n";
     writefile << data;
-    cout << "\n***END WRITING BRIDGE***\n";
+    cout << "***END WRITING BRIDGE***\n\n";
     
     writefile.close();
     

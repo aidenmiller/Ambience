@@ -5,6 +5,7 @@
 #include "Bridge.h"
 #include "Hash.h" // for password encryption
 #include <string>
+#include <vector>
 #include "Account.h"
 #include <Wt/Json/Value>
 #include <Wt/Json/Object>
@@ -26,6 +27,9 @@ void BridgeScreenWidget::update()
 {
     clear(); // everytime you come back to page, reset the widgets
     
+    inputNotEmpty_ = new WValidator(this);
+    inputNotEmpty_->setMandatory(true);
+    
     // Page title
     WText *title = new WText("Register a bridge", this);
     title->setStyleClass("title");
@@ -38,6 +42,7 @@ void BridgeScreenWidget::update()
     bridgename_->setTextSize(10); // to hold placeholder text
     bridgename_->setPlaceholderText("MyBridge"); // placeholder text
     addWidget(bridgename_);
+    bridgename_->setValidator(inputNotEmpty_);
     
     new WBreak(this);
     
@@ -47,6 +52,7 @@ void BridgeScreenWidget::update()
     location_->setTextSize(10); // to hold placeholder text
     location_->setPlaceholderText("Bedroom"); // placeholder text
     addWidget(location_);
+    location_->setValidator(inputNotEmpty_);
     
     new WBreak(this);
     
@@ -56,6 +62,7 @@ void BridgeScreenWidget::update()
     ip_->setTextSize(18); // to hold placeholder text
     ip_->setPlaceholderText("127.0.0.1"); // placeholder text
     addWidget(ip_);
+    ip_->setValidator(inputNotEmpty_);
     
     //ip address validator
     //ipValidator_ = new WRegExpValidator("[0-9]+.[0-9]+.[0-9]+.[0-9]",this);
@@ -70,6 +77,7 @@ void BridgeScreenWidget::update()
     port_->setTextSize(6); // to hold placeholder text
     port_->setPlaceholderText("80"); // placeholder text
     addWidget(port_);
+    port_->setValidator(inputNotEmpty_);
     
     new WBreak(this);
     
@@ -79,6 +87,7 @@ void BridgeScreenWidget::update()
     username_->setTextSize(18); // to hold placeholder text
     username_->setPlaceholderText("newdeveloper"); // placeholder text
     addWidget(username_);
+    username_->setValidator(inputNotEmpty_);
     
     new WBreak(this);
     
@@ -99,8 +108,11 @@ void BridgeScreenWidget::update()
     
     new WBreak(this);
     
+    int bridgeIndex = 0;
     for(auto &bridge : account_->getBridges()) {
         //display info that was just created
+        bridgeIndex++;
+        addWidget(new Wt::WText(boost::lexical_cast<string>(bridgeIndex)));
         addWidget(new Wt::WText(bridge.getName()));
         addWidget(new Wt::WText(bridge.getLocation()));
         addWidget(new Wt::WText(bridge.getIP()));
@@ -110,6 +122,18 @@ void BridgeScreenWidget::update()
     }
     
     createBridgeButton_->clicked().connect(this, &BridgeScreenWidget::connectBridge);
+    
+    new WBreak(this);
+    
+    //input field for removing a bridge
+    bridgeIndex_ = new WLineEdit();
+    bridgeIndex_->setInputMask("99");
+    addWidget(bridgeIndex_);
+    bridgeIndex_->setValidator(inputNotEmpty_);
+    
+    removeBridgeButton_ = new WPushButton("Remove Bridge");
+    addWidget(removeBridgeButton_);
+    removeBridgeButton_->clicked().connect(this, &BridgeScreenWidget::removeBridge);
 }
 
 void BridgeScreenWidget::connectBridge() {
@@ -132,6 +156,34 @@ void BridgeScreenWidget::connectBridge() {
     
 }
 
+// remove the bridge given index of vector
+void BridgeScreenWidget::removeBridge(){
+    int index;
+    
+    if(bridgeIndex_->text().toUTF8().compare("") == 0) {
+        index = 0;
+    }
+    else {
+        index = boost::lexical_cast<int>(bridgeIndex_->text());
+    }
+    
+    if(account_->getNumBridges() == 0) {
+        statusMessage_->setText("No bridges to delete!");
+        statusMessage_->setHidden(false);
+    }
+    else if (index > account_->getNumBridges() || index < 1){
+        string errorMessage = "Enter number between 1 and " + boost::lexical_cast<string>(account_->getNumBridges());
+        statusMessage_->setText(errorMessage);
+        statusMessage_->setHidden(false);
+    }
+    else {
+        account_->removeBridge(index);
+        
+        account_->writeFile();
+        BridgeScreenWidget::update();
+    }
+}
+
 void BridgeScreenWidget::handleHttpResponse(boost::system::error_code err, const Wt::Http::Message &response)
 {
     WApplication::instance()->resumeRendering();
@@ -142,13 +194,13 @@ void BridgeScreenWidget::handleHttpResponse(boost::system::error_code err, const
         statusMessage_->setHidden(false);
         
         /*Json::Object result;
-        Json::parse(response.body(), result);
-        cout << "\n\nISNULL: " << result.isNull("ipaddress") << "\n\n\n";
-        cout << "\n\nCONTAINS: " << result.contains("ipaddress") << "\n\n\n";
-        cout << "\n\nTYPE: " << result.type("ipaddress") << "\n\n\n";
-        
-        Json::Value jsonValue = result.get("ipaddress");
-        cout << "\n\nVALUETYPE: " << jsonValue.type() << "\n\n\n";*/
+         Json::parse(response.body(), result);
+         cout << "\n\nISNULL: " << result.isNull("ipaddress") << "\n\n\n";
+         cout << "\n\nCONTAINS: " << result.contains("ipaddress") << "\n\n\n";
+         cout << "\n\nTYPE: " << result.type("ipaddress") << "\n\n\n";
+         
+         Json::Value jsonValue = result.get("ipaddress");
+         cout << "\n\nVALUETYPE: " << jsonValue.type() << "\n\n\n";*/
         
         
         bridge_->writeBridge(account_->getEmail(), response.body());

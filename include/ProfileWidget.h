@@ -4,6 +4,9 @@
 #include <Wt/WContainerWidget>
 #include <Wt/WText>
 #include <Wt/WInPlaceEdit>
+#include <Wt/WValidator>
+#include <Wt/WLengthValidator>
+#include <Wt/WDialog>
 #include "WelcomeScreen.h"
 
 
@@ -21,9 +24,22 @@ private:
     Account *account_;
     Wt::WInPlaceEdit *editableFirstName_;
     Wt::WInPlaceEdit *editableLastName_;
+    Wt::WPushButton *updatePassword_;
+    Wt::WDialog *passwordDialog_;
+    Wt::WLineEdit *currentPass_;
+    Wt::WLineEdit *newPass_;
+    Wt::WLineEdit *confirmNewPass_;
+    Wt::WText *passwordError_;
+    Wt::WText *passwordSuccess_;
+
+    Wt::WValidator *inputNotEmpty_;
+    Wt::WLengthValidator *passwordLengthValidator_;
 
     void updateFirstName();
     void updateLastName();
+    void showPasswordDialog();
+    bool checkValidPassword(std::string pass);
+    void updatePassword();
 
 };
 

@@ -26,6 +26,7 @@ private:
     Account *account_;
     
     Wt::WLineEdit *bridgename_;
+    Wt::WLineEdit *location_;
     Wt::WLineEdit *ip_;
     Wt::WLineEdit *port_;
     Wt::WLineEdit *username_;

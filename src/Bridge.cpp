@@ -9,10 +9,12 @@
 #include "Bridge.h"
 
 // Constructor
-Bridge::Bridge(string name, string ip, string port, string username)
+Bridge::Bridge(string name, string location,
+               string ip, string port, string username)
 {
-    name_ = name;
+    bridgename_ = name;
     ip_ = ip;
+    location_ = location;
     port_ = port;
     username_ = username;
 }
@@ -67,7 +69,19 @@ bool Bridge::writeBridge(string email, string data) {
     writefile.open(file.c_str());
     if (!writefile)
         return false; //error writing to file
+    cout << "\n***WRITING BRIDGE***\n";
+    writefile << bridgename_ << "\n";
+    writefile << location_ << "\n";
+    writefile << ip_ << "\n";
+    writefile << port_ << "\n";
+    writefile << username_ << "\n";
+    cout << bridgename_ << "\n";
+    cout << location_ << "\n";
+    cout << ip_ << "\n";
+    cout << port_ << "\n";
+    cout << username_ << "\n";
     writefile << data;
+    cout << "\n***END WRITING BRIDGE***\n";
     
     writefile.close();
     
@@ -94,12 +108,27 @@ bool Bridge::readBridge(string fileName) {
     if (!inFile)
         return false ; // file not found
     
-    cout << "\n\n***READING FILE***\n";
+    cout << "\n***READING BRIDGE***\n";
+    getline(inFile, str);
+    bridgename_ = str;
+    getline(inFile, str);
+    location_ = str;
+    getline(inFile, str);
+    ip_ = str;
+    getline(inFile, str);
+    port_ = str;
+    getline(inFile, str);
+    username_ = str;
+    cout << bridgename_ << "\n";
+    cout << location_ << "\n";
+    cout << ip_ << "\n";
+    cout << port_ << "\n";
+    cout << username_ << "\n";
     while (getline(inFile, str))
     {
         cout << str << "\n";
     }
-    cout << "***END READING FILE***\n\n\n";
+    cout << "***END READING BRIDGE***\n\n";
     inFile.close();
     return true;
 }

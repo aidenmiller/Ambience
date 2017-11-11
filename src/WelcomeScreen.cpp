@@ -192,7 +192,6 @@ void WelcomeScreen::logout()
 */
 void WelcomeScreen::bridgeScreen()
 {
-    //john: this call is making the dashboard() funct run twice.. not good
     WApplication::instance()->setInternalPath("/bridges", true);
 
     if (!bridgeScreen_) {

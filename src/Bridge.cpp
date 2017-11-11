@@ -1,14 +1,32 @@
-//
-//  Bridge.cpp
-//
-//
-//  Created by John Abed on 2017-11-06.
-//
-//
+/**
+ *  @file       Bridge.cpp
+ *  @author     CS 3307 - Team 13
+ *  @date       10/7/2017
+ *  @version    1.0
+ *
+ *  @brief      CS 3307, Hue Light Application Bridge class to store a Bridge object
+ *
+ *  @section    DESCRIPTION
+ *
+ *              This class stores the user-provided information of the Bridge they are
+ *              connecting to, if the connection is successful. It allows reading and
+ *              writing of data found in the user account file and references it with
+ *              the serialized Bridge object to construct a Bridge and add it to the
+ *              user account.
+ */
 
 #include "Bridge.h"
 
-// Constructor
+/**
+ *   @brief  Bridge constructor
+ *
+ *   @param  name is the name of the bridge
+ *   @param  location is the location of the bridge
+ *   @param  ip is the ip of the bridge URL
+ *   @param  port is the port of the bridge URL
+ *   @param  username is the username of the bridge URL, default 'newdeveloper'
+ *
+ */
 Bridge::Bridge(string name, string location,
                string ip, string port, string username)
 {
@@ -19,40 +37,23 @@ Bridge::Bridge(string name, string location,
     username_ = username;
 }
 
-// Destructor
+/**
+ *   @brief  Bridge destructor
+ *
+ */
 Bridge::~Bridge() {
     
 }
 
-/*
-void Bridge::connect() {
-    //string url_ = "http://172.30.75.112:80/api/newdeveloper";
-    string url_ = "http://" + ip_ + ":" + port_ + "/api/" + username_;
-    
-    if (!url_.empty()) {
-        cout << "\n\nBegin connect to: "  + url_ + "\n\n\n";
-        Wt::Http::Client *client = new Wt::Http::Client(this);
-        client->setTimeout(15);
-        client->setMaximumResponseSize(1000000);
-        client->done().connect(boost::bind(&Bridge::handleHttpResponse,
-                                           this, _1, _2));
-        if(client->get(url_))
-            WApplication::instance()->deferRendering();
-    }
-}
-
-void Bridge::handleHttpResponse(boost::system::error_code err,
-                                const Wt::Http::Message &response)
-{
-    WApplication::instance()->resumeRendering();
-    if (!err && response.status() == 200) {
-        cout << response.body() << "\n";
-        
-        this->writeBridge(response.body());
-    }
-}
-*/
-
+/**
+ *   @brief  Write Bridge object to the user account file and to the bridge data file
+ *
+ *   @param  email the email of the user registering the bridge
+ *   @param  data the output from querying the URL to store in the bridge file
+ *
+ *   @return bool false if either file accessed does not exist, true otherwise
+ *
+ */
 bool Bridge::writeBridge(string email, string data) {
     /* WRITE INDIVIDUAL BRIDGE TO FILE */
     const int dir_err = system("mkdir -p bridges");
@@ -99,6 +100,14 @@ bool Bridge::writeBridge(string email, string data) {
     return true;
 }
 
+/**
+ *   @brief  Reads Bridge data from a file and assigns it to this Bridge object
+ *
+ *   @param  fileName the name of the bridge file to read
+ *
+ *   @return bool false if file accessed does not exist, true otherwise
+ *
+ */
 bool Bridge::readBridge(string fileName) {
     ifstream inFile;
     string str;

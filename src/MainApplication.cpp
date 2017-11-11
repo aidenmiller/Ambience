@@ -1,3 +1,17 @@
+/**
+ *  @file       MainApplication.cpp
+ *  @author     CS 3307 - Team 13
+ *  @date       10/7/2017
+ *  @version    1.0
+ *
+ *  @brief      CS 3307, Hue Light Application main application environment
+ *
+ *  @section    DESCRIPTION
+ *
+ *              Main application that starts the WApplication and WServer to host the Wt server
+ *              for the Hue Light App
+ */
+
 #include <Wt/WApplication>
 #include <Wt/WServer>
 

@@ -8,12 +8,12 @@
  *
  *  @section    DESCRIPTION
  *
- *              This class represents the Hash function. A SHA256 cryptographic hashing function which the password can be run through before storage.
- *              Two of the same passwords run through the same function would return the same hash, however, it is near impossible to reverse-engineer
- *              this function to take the hash and return the plain-text password
- *
+ *              This class represents the Hash function. A SHA256 cryptographic hashing function which the 
+ *              password can be run through before storage.
+ *              Two of the same passwords run through the same function would return the same hash, 
+ *              however, it is near impossible to reverse-engineer this function to take the hash 
+ *              and return the plain-text password
  */
-
 
 #include "Hash.h"
 #include <iomanip>

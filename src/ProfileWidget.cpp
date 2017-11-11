@@ -1,4 +1,4 @@
- /**
+/**
  *  @file       ProfileWidget.cpp
  *  @author     CS 3307 - Team 13
  *  @date       11/7/2017
@@ -9,9 +9,7 @@
  *  @section    DESCRIPTION
  *
  *              This class represents the profile management screen, the user can change their name or password
- *
  */
-
 
 #include <Wt/WApplication>
 #include <Wt/WBreak>

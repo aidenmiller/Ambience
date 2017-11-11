@@ -12,9 +12,7 @@
  *              the user can come to this screen or the login screen. This screen accepts
  *              a username, password, confirms password. And then stores the user's credentials
  *              to a file.
- *
  */
-
 
 #include <Wt/WText>
 #include <Wt/WTable>
@@ -32,6 +30,7 @@ using namespace std;
  *   @brief  Create Account Widget constructor
  *
  *   @param  *parent is a pointer the the containerwidget that stores this widget
+ *   @param  *account is a pointer to the user account object
  *   @param  *main is a pointer to the app's welcome screen
  */
 CreateAccountWidget::CreateAccountWidget(WContainerWidget *parent, Account *account, WelcomeScreen *main):

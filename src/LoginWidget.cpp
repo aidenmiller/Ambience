@@ -1,4 +1,4 @@
- /**
+/**
  *  @file       LoginWidget.cpp
  *  @author     CS 3307 - Team 13
  *  @date       11/7/2017
@@ -10,9 +10,7 @@
  *
  *              This class represents the login screen. This screen accepts a username,
  *              password and confirms authentication.
- *
  */
-
 
 #include <Wt/WApplication>
 #include <Wt/WBreak>
@@ -33,12 +31,12 @@ using namespace Wt;
 using namespace std;
 
 /**
-*   @brief  Login Widget constructor
-*
-*   @param  *parent is a pointer the the containerwidget that stores this widget
-*   @param  *main is a pointer to the app's welcome screen
-*/
-
+ *   @brief  Login Widget constructor
+ *
+ *   @param  *parent is a pointer the the containerwidget that stores this widget
+ *   @param  *account is a pointer to the user account object
+ *   @param  *main is a pointer to the app's welcome screen
+ */
 LoginWidget::LoginWidget(WContainerWidget *parent, Account *account, WelcomeScreen *main):
   WContainerWidget(parent)
 {
@@ -54,7 +52,6 @@ LoginWidget::LoginWidget(WContainerWidget *parent, Account *account, WelcomeScre
 *   @return  void
 *
 */
-
 void LoginWidget::update()
 {
     clear(); // everytime you come back to page, reset the widgets

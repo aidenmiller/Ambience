@@ -1,13 +1,3 @@
-/*
- * CS3307a Assignment 1
- *
- * Bridge.h
- * Header class for Bridge
- *
- * @author John Abed
- * @date 30/09/2017
- */
-
 #ifndef Bridge_H
 #define Bridge_H
 

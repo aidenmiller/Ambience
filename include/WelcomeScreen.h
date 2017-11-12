@@ -33,8 +33,8 @@ private:
     Wt::WAnchor *homeAnchor_;
     Wt::WStackedWidget *mainStack_; // main stack of the application
     Wt::WContainerWidget *links_; // links container that stores anchors
-    LoginWidget *login_; // login widget
     CreateAccountWidget *create_; // create widget
+    LoginWidget *login_; // login widget
     BridgeScreenWidget *bridgeScreen_; // bridge widget
     ProfileWidget *profileScreen_;
     Wt::WAnchor *createAnchor_; // anchor for create link

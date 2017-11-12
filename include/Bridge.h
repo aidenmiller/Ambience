@@ -36,7 +36,7 @@ public:
 
     virtual ~Bridge();
 
-    bool writeBridge(string email, string data);
+    bool writeBridge(string data);
     bool readBridge(string url);
 
     //GETTER METHODS

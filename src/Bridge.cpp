@@ -54,8 +54,8 @@ Bridge::~Bridge() {
  *   @return bool false if either file accessed does not exist, true otherwise
  *
  */
-bool Bridge::writeBridge(string email, string data) {
-    /* WRITE INDIVIDUAL BRIDGE TO FILE */
+bool Bridge::writeBridge(string data) {
+    //create bridges directory if non-existent
     const int dir_err = system("mkdir -p bridges");
     if (-1 == dir_err)
     {
@@ -70,31 +70,15 @@ bool Bridge::writeBridge(string email, string data) {
     writefile.open(file.c_str());
     if (!writefile)
         return false; //error writing to file
-    cout << "\n***WRITING BRIDGE***\n";
+    cout << "***WRITING BRIDGE***\n";
     writefile << bridgename_ << "\n";
     writefile << location_ << "\n";
     writefile << ip_ << "\n";
     writefile << port_ << "\n";
     writefile << username_ << "\n";
-    cout << bridgename_ << "\n";
-    cout << location_ << "\n";
-    cout << ip_ << "\n";
-    cout << port_ << "\n";
-    cout << username_ << "\n";
-    writefile << data;
-    cout << "***END WRITING BRIDGE***\n\n";
+    writefile << data << "\n";
+    cout << "***END WRITING BRIDGE***\n";
     
-    writefile.close();
-    
-    /* WRITE BRIDGE REFERENCE TO USER ACCOUNT */
-    //string filename = "credentials/" + parent_->getAccount().getEmail() + ".txt";
-    string filename = "credentials/" + email + ".txt";
-    
-    //open the credentials file to append the bridge textfile name to it
-    writefile.open(filename.c_str(), ios::out | ios::app);
-    if (!writefile)
-        return false; //error writing to file
-    writefile << username_ + "-" + ip_ + "-" + port_ +".txt\n";
     writefile.close();
     
     return true;
@@ -128,11 +112,6 @@ bool Bridge::readBridge(string fileName) {
     port_ = str;
     getline(inFile, str);
     username_ = str;
-    cout << bridgename_ << "\n";
-    cout << location_ << "\n";
-    cout << ip_ << "\n";
-    cout << port_ << "\n";
-    cout << username_ << "\n";
     while (getline(inFile, str))
     {
         cout << str << "\n";

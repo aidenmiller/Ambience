@@ -202,7 +202,7 @@ void CreateAccountWidget::writeUserInfo(string username, string password, string
     }
 
     ofstream writefile;
-    string file = "credentials/" + username+".txt"; // password will be stored in username.txt
+    string file = "credentials/" + username + ".txt";
 
     writefile.open(file.c_str());
 

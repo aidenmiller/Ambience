@@ -46,21 +46,29 @@ Account::~Account() {
 
 
 /**
- *   @brief  Write Account object to the user account data
+ *   @brief  Write Account object to the user account data file stored in application
  *
  *   @return void
  *
  */
 void Account::writeFile() {
+    
+    // creates credentials folder if one does not exist
+    const int dir_err = system("mkdir -p credentials");
+    if (-1 == dir_err)
+    {
+        cout << "ERROR - Could not create directory\n";
+        exit(1);
+    }
+    
     ofstream writefile;
-    string file = "credentials/" + getEmail() +".txt"; // password will be stored in username.txt
+    string file = "credentials/" + getEmail() +".txt";
     
     writefile.open(file.c_str());
     
-    writefile << getPassword() <<endl; // cryptographically hashed password
-    
-    writefile<< getFirstName() << endl;
-    writefile<< getLastName() << endl;
+    writefile << getPassword() << endl; // cryptographically hashed password
+    writefile << getFirstName() << endl;
+    writefile << getLastName() << endl;
     
     for(auto &bridge : getBridges()) { //loop through all bridges
         writefile << bridge.getUsername() << "-" << bridge.getIP() << "-" << bridge.getPort() << ".txt\n";
@@ -119,4 +127,28 @@ void Account::logout() {
     password_ = "";
     auth_ = false;
     bridges.clear();
+}
+
+/**
+ *   @brief  Add a Bridge to the user account
+ *
+ *   @return void
+ *
+ */
+void Account::addBridge(Bridge br) {
+    bridges.push_back(br);
+    writeFile();
+}
+
+/**
+ *   @brief  Remove a Bridge from the user account
+ *
+ *   @param  index the position of the Bridge in the vector to remove
+ *
+ *   @return void
+ *
+ */
+void Account::removeBridge(int index) {
+    bridges.erase(bridges.begin() + index - 1);
+    writeFile();
 }

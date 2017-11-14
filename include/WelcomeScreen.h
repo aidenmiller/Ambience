@@ -4,6 +4,9 @@
 #include <Wt/WContainerWidget>
 #include <Wt/WLineEdit>
 #include <Wt/WText>
+#include <Wt/WMenu>
+#include <Wt/WMenuItem>
+#include <Wt/WNavigationBar>
 #include <Wt/WPushButton>
 #include <string>
 #include "Account.h"
@@ -28,6 +31,10 @@ public:
     void setAccount(Account account) {account_ = account;};
 
 private:
+    Wt::WMenu *leftMenu_;
+    Wt::WMenuItem *profileMenuItem_;
+    Wt::WNavigationBar *loggedOutNavBar_;
+    Wt::WNavigationBar *navBar_;
     Wt::WText *serverMessage_;
     Wt::WAnchor *profileAnchor_;
     Wt::WAnchor *homeAnchor_;

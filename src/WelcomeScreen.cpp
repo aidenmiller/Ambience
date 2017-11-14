@@ -23,6 +23,7 @@
 #include <Wt/WLineEdit>
 #include <Wt/WPushButton>
 #include <Wt/WText>
+#include <Wt/WMenu>
 #include <Wt/WTableCell>
 #include <Wt/WServer>
 #include <Wt/WStackedWidget>
@@ -47,36 +48,34 @@ bridgeScreen_(0),
 profileScreen_(0),
 account_("","","","")
 {
-    serverMessage_ = new WText("You are connected to the Team 13 Production Server", this);
-    new WBreak(this);
-    profileAnchor_ = new WAnchor("/profile", "Edit your profile", this);
-    profileAnchor_->setLink(WLink(WLink::InternalPath, "/profile"));
-    profileAnchor_->setHidden(true);
+    loggedOutNavBar_ = new WNavigationBar(this);
+    loggedOutNavBar_->setTitle("Smart Lights");
+    loggedOutNavBar_->setResponsive(true);
+    WMenu *loggedOutLeftMenu = new WMenu();
+    loggedOutNavBar_->addMenu(loggedOutLeftMenu);
+    loggedOutLeftMenu->addItem("Login")->setLink(WLink(WLink::InternalPath, "/login"));
+    loggedOutLeftMenu->addItem("Create Account")->setLink(WLink(WLink::InternalPath, "/create"));
 
-    homeAnchor_ = new WAnchor("/bridges", "Go back", this);
-    homeAnchor_->setLink(WLink(WLink::InternalPath, "/bridges"));
-    homeAnchor_->setHidden(true);
+    navBar_ = new WNavigationBar(this);
+    navBar_->setTitle("Smart Lights");
+    navBar_->setResponsive(true);
+
+
+    leftMenu_ = new WMenu();
+    navBar_->addMenu(leftMenu_);
+    profileMenuItem_ = new WMenuItem("Profile");
+    profileMenuItem_->setLink(WLink(WLink::InternalPath, "/profile"));
+    leftMenu_->addItem(profileMenuItem_);
+    leftMenu_->addItem("Bridges")->setLink(WLink(WLink::InternalPath, "/bridges"));
+    leftMenu_->addItem("Logout")->setLink(WLink(WLink::InternalPath, "/logout"));
+    navBar_->setHidden(true);
+
+
+    serverMessage_ = new WText("You are connected to the Team 13 Production Server", this);
 
     mainStack_ = new WStackedWidget();
     addWidget(mainStack_);
 
-    // links container
-    links_ = new WContainerWidget();
-    links_->show();
-    addWidget(links_);
-
-    // create anchor will re-direct to internal path /create when clicked, stored in links container
-    createAnchor_ = new WAnchor("/create", "Create New Account ", links_);
-    createAnchor_->setLink(WLink(WLink::InternalPath, "/create"));
-
-    // login anchor will re-direct to internal path /login when clicked, stored in links container
-    loginAnchor_ = new WAnchor("/login", "Login with Existing Account ", links_);
-    loginAnchor_->setLink(WLink(WLink::InternalPath, "/login"));
-    
-    // login anchor will re-direct to internal path /login when clicked, stored in links container
-    logoutAnchor_ = new WAnchor("/logout", "Logout", links_);
-    logoutAnchor_->setLink(WLink(WLink::InternalPath, "/logout"));
-    logoutAnchor_->setHidden(true);
 
     // detects any changes to the internal path and sends to the handle internal path function
     WApplication::instance()->internalPathChanged().connect(this, &WelcomeScreen::handleInternalPath);
@@ -91,32 +90,30 @@ account_("","","","")
 void WelcomeScreen::handleInternalPath(const string &internalPath)
 {
     if (account_.isAuth()) { // change to if(loggedin = true)
+        loggedOutNavBar_->setHidden(true);
+        navBar_->setHidden(false);
+
+
+        profileMenuItem_->setText(account_.getFirstName() + " " + account_.getLastName());
         serverMessage_->setText("Hello, " + account_.getFirstName() + " " + account_.getLastName());
-        profileAnchor_->setHidden(false);
-        homeAnchor_->setHidden(true);
-        createAnchor_->setHidden(true);
-        loginAnchor_->setHidden(true);
-        logoutAnchor_->setHidden(false);
-        if (internalPath == "/bridges") // opens bridge page
+        if (internalPath == "/bridges") { // opens bridge page
+            leftMenu_->select(1);
             bridgeScreen();
+        }
         else if (internalPath == "/profile") {
             profileScreen();
-            homeAnchor_->setHidden(false);
-            profileAnchor_->setHidden(true);
         }
         else if (internalPath == "/logout") {
             logout();
         }
-        else // opens create page by default for any other path changes
+        else  {// opens create page by default for any other path changes
             WApplication::instance()->setInternalPath("/bridges", true);
+        }
     }
     else {
+        loggedOutNavBar_->setHidden(false);
+        navBar_->setHidden(true);
         serverMessage_->setText("You are connected to the Team 13 Production Server");
-        createAnchor_->setHidden(false);
-        loginAnchor_->setHidden(false);
-        logoutAnchor_->setHidden(true);
-        profileAnchor_->setHidden(true);
-        homeAnchor_->setHidden(true);
         if (internalPath == "/create") // opens create page
             createAccount();
         else if (internalPath == "/login") // opens login page

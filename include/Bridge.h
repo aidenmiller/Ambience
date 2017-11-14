@@ -24,20 +24,10 @@ using namespace Wt;
 class Bridge {
 
 public:
-    Bridge() {
-        bridgename_ = "Default Bridgename";
-        location_ = "Default Location";
-        ip_ = "0.0.0.0";
-        port_ = "00";
-        username_ = "Default Username";
-    };
     Bridge(string name, string location, string ip,
            string port, string username = "newdeveloper");
 
     virtual ~Bridge();
-
-    bool writeBridge(string data);
-    bool readBridge(string url);
 
     //GETTER METHODS
     string getName() {return bridgename_;}

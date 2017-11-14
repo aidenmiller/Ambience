@@ -36,6 +36,8 @@ public:
     void setAuth(bool val) {auth_ = val;}
     
     void addBridge(Bridge br);
+    void addBridge(string bname, string bloc, string bip,
+                   string bport, string buser);
     void removeBridge(int index);
     
     void writeFile();

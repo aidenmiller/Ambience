@@ -71,7 +71,11 @@ void Account::writeFile() {
     writefile << getLastName() << endl;
     
     for(auto &bridge : getBridges()) { //loop through all bridges
-        writefile << bridge.getUsername() << "-" << bridge.getIP() << "-" << bridge.getPort() << ".txt\n";
+        writefile << bridge.getName() << ", "
+        << bridge.getLocation() << ", "
+        << bridge.getIP() << ", "
+        << bridge.getPort() << ", "
+        << bridge.getUsername() << "\n";
     }
     
     writefile.close();
@@ -132,11 +136,32 @@ void Account::logout() {
 /**
  *   @brief  Add a Bridge to the user account
  *
+ *   @param  br an instantiated Bridge object to add to the account
+ *
  *   @return void
  *
  */
 void Account::addBridge(Bridge br) {
     bridges.push_back(br);
+    writeFile();
+}
+
+/**
+ *   @brief  Add a Bridge to the user account
+ *
+ *   @param  bname name of bridge to add to user account
+ *   @param  bloc location of bridge to add to user account
+ *   @param  bip ip of bridge to add to user account
+ *   @param  bport port of bridge to add to user account
+ *   @param  buser username of bridge to add to user account
+ *
+ *   @return void
+ *
+ */
+void Account::addBridge(string bname, string bloc, string bip,
+                        string bport, string buser) {
+    Bridge *br = new Bridge(bname, bloc, bip, bport, buser);
+    bridges.push_back(*br);
     writeFile();
 }
 

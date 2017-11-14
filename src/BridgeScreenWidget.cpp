@@ -200,14 +200,8 @@ void BridgeScreenWidget::handleHttpResponse(boost::system::error_code err, const
         statusMessage_->setText("Successfully connected!");
         statusMessage_->setHidden(false);
         
-        //create Bridge object to store connection information
-        bridge_ = new Bridge(bridgename_->text().toUTF8(), location_->text().toUTF8(), ip_->text().toUTF8(), port_->text().toUTF8(), username_->text().toUTF8());
-        
-        //add Bridge to account and create Bridge data file
-        account_->addBridge(*bridge_);
-        bridge_->writeBridge(response.body());
-        
-       
+        //add Bridge to user account
+        account_->addBridge(bridgename_->text().toUTF8(), location_->text().toUTF8(), ip_->text().toUTF8(), port_->text().toUTF8(), username_->text().toUTF8());
         
         cout << "\nJSON OUTPUT TESTING\n";
         Json::Object result;
@@ -242,8 +236,6 @@ void BridgeScreenWidget::handleHttpResponse(boost::system::error_code err, const
             
             i++;
         }
-        
-        
         
         BridgeScreenWidget::updateBridgeTable();
     }
@@ -311,7 +303,7 @@ void BridgeScreenWidget::updateBridgeTable(){
         tableRow->elementAt(3)->addWidget(new Wt::WText("IP Address"));
         tableRow->elementAt(4)->addWidget(new Wt::WText("Port"));
         tableRow->elementAt(5)->addWidget(new Wt::WText("Username"));
-        //tableRow->elementAt(6)->addWidget(new Wt::WText("Actions"));
+        tableRow->elementAt(6)->addWidget(new Wt::WText("Actions"));
         
         
         //populate each row with user account bridges
@@ -328,20 +320,19 @@ void BridgeScreenWidget::updateBridgeTable(){
             tableRow->elementAt(4)->addWidget(new Wt::WText(bridge.getPort()));
             tableRow->elementAt(5)->addWidget(new Wt::WText(bridge.getUsername()));
             
-            /* Trying to get in-line buttons to work but the connect() requirement for WPushButton is really limiting me...
-             WPushButton *viewBridgeButton = new WPushButton("View");
-             viewBridgeButton->clicked().connect(this, &BridgeScreenWidget::removeBridge);
-             
-             WPushButton *editBridgeButton = new WPushButton("Edit");
-             editBridgeButton->clicked().connect(this, &BridgeScreenWidget::removeBridge);
-             
-             WPushButton *removeBridgeButton = new WPushButton("Remove");
-             removeBridgeButton->clicked().connect(this, &BridgeScreenWidget::removeBridge);
-             
-             tableRow->elementAt(6)->addWidget(viewBridgeButton);
-             tableRow->elementAt(6)->addWidget(editBridgeButton);
-             tableRow->elementAt(6)->addWidget(removeBridgeButton);
-             */
+            /* Trying to get in-line buttons to work but the connect() requirement for WPushButton is really limiting me... */
+            WPushButton *viewBridgeButton = new WPushButton("View");
+            viewBridgeButton->clicked().connect(this, &BridgeScreenWidget::removeBridge);
+            
+            WPushButton *editBridgeButton = new WPushButton("Edit");
+            editBridgeButton->clicked().connect(this, &BridgeScreenWidget::removeBridge);
+            
+            WPushButton *removeBridgeButton = new WPushButton("Remove");
+            removeBridgeButton->clicked().connect(this, &BridgeScreenWidget::removeBridge);
+            
+            tableRow->elementAt(6)->addWidget(viewBridgeButton);
+            tableRow->elementAt(6)->addWidget(editBridgeButton);
+            tableRow->elementAt(6)->addWidget(removeBridgeButton);
         }
     }
 }

@@ -35,6 +35,7 @@ public:
     string getIP() {return ip_;}
     string getPort() {return port_;}
     string getUsername() {return username_;}
+    bool isConnected() {return connected_;}
 
     //SETTER METHODS
     void setName(string name) {bridgename_ = name;}
@@ -42,6 +43,7 @@ public:
     void setIP(string ip) {ip_ = ip;}
     void setPort(string port) {port_ = port;}
     void setUsername(string username) {username_ = username;}
+    void setConnected(bool val) {connected_ = val;}
 
 private:
     string bridgename_;
@@ -49,6 +51,7 @@ private:
     string ip_;
     string port_;
     string username_;
+    bool connected_;
 };
 
 #endif

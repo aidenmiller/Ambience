@@ -26,6 +26,9 @@ public:
 
     Account getAccount() {return account_;};
     void setAccount(Account account) {account_ = account;};
+    
+    void connectBridge();
+    void handleHttpResponse(boost::system::error_code err, const Wt::Http::Message &response);
 
 private:
     Wt::WText *serverMessage_;

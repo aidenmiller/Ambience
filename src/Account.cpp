@@ -82,43 +82,6 @@ void Account::writeFile() {
 }
 
 /**
- *   @brief  Set first name of user and update the data file
- *
- *   @param  fn the name to change first name to
- *   @return void
- *
- */
-void Account::setFirstName(string fn) {
-    firstName_ = fn;
-    writeFile();
-}
-
-/**
- *   @brief  Set last name of user and update the data file
- *
- *   @param  ln the name to change last name to
- *   @return void
- *
- */
-void Account::setLastName(string ln) {
-    lastName_ = ln;
-    writeFile();
-}
-
-/**
- *   @brief  Set password of user and update the data file
- *
- *   @param  pw the hashed password to change the password to
- *
- *   @return void
- *
- */
-void Account::setPassword(string pw) {
-    password_ = pw;
-    writeFile();
-}
-
-/**
  *   @brief  Logout of user account and clear existing user data
  *
  *   @return void
@@ -143,7 +106,6 @@ void Account::logout() {
  */
 void Account::addBridge(Bridge br) {
     bridges.push_back(br);
-    writeFile();
 }
 
 /**
@@ -162,7 +124,6 @@ void Account::addBridge(string bname, string bloc, string bip,
                         string bport, string buser) {
     Bridge *br = new Bridge(bname, bloc, bip, bport, buser);
     bridges.push_back(*br);
-    writeFile();
 }
 
 /**
@@ -175,5 +136,4 @@ void Account::addBridge(string bname, string bloc, string bip,
  */
 void Account::removeBridge(int index) {
     bridges.erase(bridges.begin() + index - 1);
-    writeFile();
 }

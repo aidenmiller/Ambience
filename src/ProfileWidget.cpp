@@ -113,6 +113,7 @@ void ProfileWidget::update()
 */
 void ProfileWidget::updateFirstName() {
     account_->setFirstName(editableFirstName_->text().toUTF8()); // call setter to change account first name
+    account_->writeFile(); //update credentials file
 }
 
 
@@ -123,6 +124,7 @@ void ProfileWidget::updateFirstName() {
 */
 void ProfileWidget::updateLastName() {
     account_->setLastName(editableLastName_->text().toUTF8()); // call setter to change the account last name
+    account_->writeFile(); //update credentials file
 }
 
 /**
@@ -213,6 +215,7 @@ void ProfileWidget::updatePassword() {
         if (newPass_->validate() && (!confirmNewPass_->text().toUTF8().compare("") == 0)) { // if length requirements of new password are met
             if (newPassword.compare(confirmNewPassword) == 0) { // if password is equal to the confirmed password
                 account_->setPassword(Hash::sha256_hash(newPassword)); // then hash their inputed password, and update Account details
+                account_->writeFile(); //update credentials file
                 passwordSuccess_->setHidden(false); // show the success message
                 }
             else {

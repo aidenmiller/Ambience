@@ -197,3 +197,11 @@ void WelcomeScreen::bridgeScreen()
     mainStack_->setCurrentWidget(bridgeScreen_);
     bridgeScreen_->update();
 }
+
+
+
+
+
+
+
+

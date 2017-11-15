@@ -35,6 +35,7 @@ Bridge::Bridge(string name, string location,
     location_ = location;
     port_ = port;
     username_ = username;
+    connected_ = false;
 }
 
 /**
@@ -43,80 +44,4 @@ Bridge::Bridge(string name, string location,
  */
 Bridge::~Bridge() {
     
-}
-
-/**
- *   @brief  Write Bridge object to the user account file and to the bridge data file
- *
- *   @param  email the email of the user registering the bridge
- *   @param  data the output from querying the URL to store in the bridge file
- *
- *   @return bool false if either file accessed does not exist, true otherwise
- *
- */
-bool Bridge::writeBridge(string data) {
-    //create bridges directory if non-existent
-    const int dir_err = system("mkdir -p bridges");
-    if (-1 == dir_err)
-    {
-        cout << "ERROR - Could not create directory\n";
-        exit(1);
-    }
-    
-    ofstream writefile;
-    string file = "bridges/" + username_ + "-" +
-    ip_ + "-" + port_ +".txt";
-    
-    writefile.open(file.c_str());
-    if (!writefile)
-        return false; //error writing to file
-    cout << "***WRITING BRIDGE***\n";
-    writefile << bridgename_ << "\n";
-    writefile << location_ << "\n";
-    writefile << ip_ << "\n";
-    writefile << port_ << "\n";
-    writefile << username_ << "\n";
-    writefile << data << "\n";
-    cout << "***END WRITING BRIDGE***\n";
-    
-    writefile.close();
-    
-    return true;
-}
-
-/**
- *   @brief  Reads Bridge data from a file and assigns it to this Bridge object
- *
- *   @param  fileName the name of the bridge file to read
- *
- *   @return bool false if file accessed does not exist, true otherwise
- *
- */
-bool Bridge::readBridge(string fileName) {
-    ifstream inFile;
-    string str;
-    string filename = "bridges/" + fileName;
-    
-    inFile.open(filename.c_str());
-    if (!inFile)
-        return false ; // file not found
-    
-    cout << "\n***READING BRIDGE***\n";
-    getline(inFile, str);
-    bridgename_ = str;
-    getline(inFile, str);
-    location_ = str;
-    getline(inFile, str);
-    ip_ = str;
-    getline(inFile, str);
-    port_ = str;
-    getline(inFile, str);
-    username_ = str;
-    while (getline(inFile, str))
-    {
-        cout << str << "\n";
-    }
-    cout << "***END READING BRIDGE***\n\n";
-    inFile.close();
-    return true;
 }

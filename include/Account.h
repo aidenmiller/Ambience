@@ -29,13 +29,15 @@ public:
     vector<Bridge> getBridges() {return bridges;}
     int getNumBridges() {return bridges.size();}
 
-    void setFirstName(string fn);
-    void setLastName(string ln);
+    void setFirstName(string fn) {firstName_ = fn;}
+    void setLastName(string ln) {lastName_ = ln;}
     void setEmail(string em) {email_ = em;}
-    void setPassword(string pw);
+    void setPassword(string pw) {password_ = pw;}
     void setAuth(bool val) {auth_ = val;}
     
     void addBridge(Bridge br);
+    void addBridge(string bname, string bloc, string bip,
+                   string bport, string buser);
     void removeBridge(int index);
     
     void writeFile();

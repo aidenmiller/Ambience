@@ -35,8 +35,8 @@ public:
     void setPassword(string pw);
     void setAuth(bool val) {auth_ = val;}
     
-    void addBridge(Bridge br) {bridges.push_back(br);}
-    void removeBridge(int index) {bridges.erase(bridges.begin() + index - 1);}
+    void addBridge(Bridge br);
+    void removeBridge(int index);
     
     void writeFile();
     void logout();

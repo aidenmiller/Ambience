@@ -14,6 +14,7 @@
 
 #include <Wt/WApplication>
 #include <Wt/WServer>
+#include <Wt/WBootstrapTheme>
 
 #include "WelcomeScreen.h"
 
@@ -26,6 +27,8 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
 
     app->setTitle("Hue Light App- Team13");
 
+
+    app->setTheme(new Wt::WBootstrapTheme(app));
     app->useStyleSheet("style/stylesheet.css");
 
     new WelcomeScreen(app->root());

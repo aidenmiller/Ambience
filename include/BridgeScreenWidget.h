@@ -31,6 +31,7 @@ private:
     Wt::WLineEdit *port_;
     Wt::WLineEdit *username_;
     
+    WTable *bridgeTable_;
     Wt::WLineEdit *bridgeIndex_;
     
     Wt::WText *statusMessage_;
@@ -45,6 +46,8 @@ private:
     Bridge *bridge_;
     
     void removeBridge();
+    
+    void updateBridgeTable();
     
     void connectBridge();
     void handleHttpResponse(boost::system::error_code err, const Wt::Http::Message &response);

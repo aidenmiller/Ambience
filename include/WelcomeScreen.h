@@ -4,6 +4,9 @@
 #include <Wt/WContainerWidget>
 #include <Wt/WLineEdit>
 #include <Wt/WText>
+#include <Wt/WMenu>
+#include <Wt/WMenuItem>
+#include <Wt/WNavigationBar>
 #include <Wt/WPushButton>
 #include <string>
 #include "Account.h"
@@ -28,13 +31,17 @@ public:
     void setAccount(Account account) {account_ = account;};
 
 private:
+    Wt::WMenu *leftMenu_;
+    Wt::WMenuItem *profileMenuItem_;
+    Wt::WNavigationBar *loggedOutNavBar_;
+    Wt::WNavigationBar *navBar_;
     Wt::WText *serverMessage_;
     Wt::WAnchor *profileAnchor_;
     Wt::WAnchor *homeAnchor_;
     Wt::WStackedWidget *mainStack_; // main stack of the application
     Wt::WContainerWidget *links_; // links container that stores anchors
-    LoginWidget *login_; // login widget
     CreateAccountWidget *create_; // create widget
+    LoginWidget *login_; // login widget
     BridgeScreenWidget *bridgeScreen_; // bridge widget
     ProfileWidget *profileScreen_;
     Wt::WAnchor *createAnchor_; // anchor for create link

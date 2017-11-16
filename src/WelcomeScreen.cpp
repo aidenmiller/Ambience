@@ -18,6 +18,7 @@
 #include <Wt/WAnchor>
 #include <Wt/WApplication>
 #include <Wt/WBreak>
+#include <regex>
 #include <Wt/WComboBox>
 #include <Wt/WContainerWidget>
 #include <Wt/WLineEdit>
@@ -31,6 +32,7 @@
 #include "LoginWidget.h"
 #include "BridgeScreenWidget.h"
 #include "ProfileWidget.h"
+#include "LightManagementWidget.h"
 
 using namespace Wt;
 using namespace std;
@@ -67,7 +69,10 @@ account_("","","","")
     profileMenuItem_->setLink(WLink(WLink::InternalPath, "/profile"));
     leftMenu_->addItem(profileMenuItem_);
     leftMenu_->addItem("Bridges")->setLink(WLink(WLink::InternalPath, "/bridges"));
-    leftMenu_->addItem("Logout")->setLink(WLink(WLink::InternalPath, "/logout"));
+
+    rightMenu_ = new WMenu();
+    navBar_->addMenu(rightMenu_, AlignmentFlag::AlignRight);
+    rightMenu_->addItem("Logout")->setLink(WLink(WLink::InternalPath, "/logout"));
     navBar_->setHidden(true);
 
 
@@ -92,6 +97,7 @@ void WelcomeScreen::handleInternalPath(const string &internalPath)
     if (account_.isAuth()) { // change to if(loggedin = true)
         loggedOutNavBar_->setHidden(true);
         navBar_->setHidden(false);
+        regex re("/bridges/(\\d{1,3})");
 
 
         profileMenuItem_->setText(account_.getFirstName() + " " + account_.getLastName());
@@ -99,6 +105,12 @@ void WelcomeScreen::handleInternalPath(const string &internalPath)
         if (internalPath == "/bridges") { // opens bridge page
             leftMenu_->select(1);
             bridgeScreen();
+        }
+        else if (regex_match(internalPath, re)) {
+            smatch match;
+            regex_match(internalPath, match, re);
+            string result = match.str(1);
+            lightManagementScreen(stoi(result));
         }
         else if (internalPath == "/profile") {
             profileScreen();
@@ -121,6 +133,15 @@ void WelcomeScreen::handleInternalPath(const string &internalPath)
         else
             WApplication::instance()->setInternalPath("/create", true);
     }
+}
+
+void WelcomeScreen::lightManagementScreen(int index) {
+    WApplication::instance()->setInternalPath("/bridges/" + to_string(index), true);
+    if (lightManage_[index] == NULL) {
+        lightManage_[index] = new LightManagementWidget(mainStack_, &account_, this);
+    }
+    mainStack_->setCurrentWidget(lightManage_[index]);
+    lightManage_[index]->update();
 }
 
 /**

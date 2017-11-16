@@ -20,6 +20,7 @@ class LoginWidget;
 class CreateAccountWidget;
 class BridgeScreenWidget;
 class ProfileWidget;
+class LightManagementWidget;
 
 class WelcomeScreen : public Wt::WContainerWidget
 {
@@ -29,13 +30,15 @@ public:
 
     Account getAccount() {return account_;};
     void setAccount(Account account) {account_ = account;};
-    
+
     void connectBridge();
     void handleHttpResponse(boost::system::error_code err, const Wt::Http::Message &response);
 
 private:
     Wt::WMenu *leftMenu_;
+    Wt::WMenu *rightMenu_;
     Wt::WMenuItem *profileMenuItem_;
+    Wt::WMenuItem *bridgeManagement_;
     Wt::WNavigationBar *loggedOutNavBar_;
     Wt::WNavigationBar *navBar_;
     Wt::WText *serverMessage_;
@@ -55,7 +58,9 @@ private:
     void createAccount();
     void bridgeScreen();
     void profileScreen();
+    void lightManagementScreen(int index);
 
+    std::vector<LightManagementWidget*> lightManage_ = std::vector<LightManagementWidget*>(100, NULL); // max 100 bridges for now
     Account account_;
 };
 

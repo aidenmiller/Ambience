@@ -24,34 +24,35 @@ private:
 
     WelcomeScreen *parent_;
     Account *account_;
-    
+
     Wt::WLineEdit *bridgename_;
     Wt::WLineEdit *location_;
     Wt::WLineEdit *ip_;
     Wt::WLineEdit *port_;
     Wt::WLineEdit *username_;
-    
+
     WTable *bridgeTable_;
     Wt::WLineEdit *bridgeIndex_;
-    
+
     Wt::WText *statusMessage_;
     Wt::WPushButton *createBridgeButton_;
     Wt::WPushButton *editBridgeButton_;
     Wt::WPushButton *removeBridgeButton_;
-    
+
     //bool validateInputFields();
     //Wt::WRegExpValidator *ipValidator_;
     Wt::WValidator *inputNotEmpty_;
-    
+
     Bridge *bridge_;
-    
+
     void removeBridge();
-    
+
     void updateBridgeTable();
-    
+
     void connectBridge();
     void handleHttpResponse(boost::system::error_code err, const Wt::Http::Message &response);
-    
+    void buttonFunc(std::string path);
+
 };
 
 #endif //BRIDGE_SCREEN_WIDGET_H

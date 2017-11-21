@@ -1,12 +1,26 @@
 #ifndef Bridge_H
 #define Bridge_H
 
+#include <Wt/WResource>
+#include <Wt/WApplication>
+#include <Wt/WContainerWidget>
+#include <Wt/WLineEdit>
+#include <Wt/WPushButton>
+#include <Wt/WBreak>
+#include <Wt/WLengthValidator>
+#include <Wt/WRegExpValidator>
 #include <iostream>
 #include <regex>
+#include <Wt/Http/Response>
+#include <Wt/Http/Client>
 #include <sstream>
 #include <fstream>
 #include <string>
+#include <Wt/Json/Object>
 #include "Light.h"
+
+using namespace std;
+using namespace Wt;
 
 using namespace std;
 

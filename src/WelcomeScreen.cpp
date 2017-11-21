@@ -77,6 +77,10 @@ account_("","","","")
 
 
     serverMessage_ = new WText("You are connected to the Team 13 Production Server", this);
+    new WBreak(this);
+
+    welcome_image_ = new WImage(WLink("images/login_lights.jpeg"));
+    addWidget(welcome_image_);
 
     mainStack_ = new WStackedWidget();
     addWidget(mainStack_);
@@ -95,6 +99,7 @@ account_("","","","")
 void WelcomeScreen::handleInternalPath(const string &internalPath)
 {
     if (account_.isAuth()) {
+	welcome_image_->setHidden(true);
         loggedOutNavBar_->setHidden(true);
         navBar_->setHidden(false);
 
@@ -124,6 +129,7 @@ void WelcomeScreen::handleInternalPath(const string &internalPath)
         }
     }
     else {
+ 	welcome_image_->setHidden(true);
         loggedOutNavBar_->setHidden(false);
         navBar_->setHidden(true);
         

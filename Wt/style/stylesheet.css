@@ -19,7 +19,7 @@ input[type=text]:focus, input[type=password]:focus {
 button[type=button] {
     background-color: #1D72F9;
     border: none;
-    color: white;
+    color: black;
     padding: 8px 16px;
     text-decoration: none;
     margin: 4px 2px;

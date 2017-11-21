@@ -5,6 +5,7 @@
 #include <Wt/WLineEdit>
 #include <Wt/WText>
 #include <Wt/WMenu>
+#include <Wt/WImage>
 #include <Wt/WMenuItem>
 #include <Wt/WNavigationBar>
 #include <Wt/WPushButton>
@@ -36,6 +37,7 @@ public:
     void handleHttpResponse(boost::system::error_code err, const Wt::Http::Message &response);
 
 private:
+    Wt::WImage *welcome_image_;
     Wt::WMenu *leftMenu_;
     Wt::WMenu *rightMenu_;
     Wt::WMenuItem *profileMenuItem_;

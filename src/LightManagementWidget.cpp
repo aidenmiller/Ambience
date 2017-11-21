@@ -13,9 +13,13 @@
 
 #include <Wt/WText>
 #include <string>
+#include <vector>
 #include <unistd.h>
 #include "LightManagementWidget.h"
 #include "Account.h"
+#include <Wt/Json/Value>
+#include <Wt/Json/Object>
+#include <Wt/Json/Parser>
 
 using namespace Wt;
 using namespace std;
@@ -46,7 +50,7 @@ void LightManagementWidget::update()
 {
     clear(); // everytime you come back to page, reset the widgets
 
-        // Page title
+    // Page title
     WText *title = new WText("Light management screen", this);
     title->setStyleClass("title");
 

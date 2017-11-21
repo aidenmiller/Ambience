@@ -32,10 +32,9 @@ private:
     Wt::WLineEdit *username_;
 
     WTable *bridgeTable_;
-    Wt::WLineEdit *bridgeIndex_;
 
     Wt::WText *statusMessage_;
-    Wt::WPushButton *createBridgeButton_;
+    Wt::WPushButton *registerBridgeButton_;
 
     //bool validateInputFields();
     //Wt::WRegExpValidator *ipValidator_;

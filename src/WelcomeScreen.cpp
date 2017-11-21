@@ -94,14 +94,15 @@ account_("","","","")
 */
 void WelcomeScreen::handleInternalPath(const string &internalPath)
 {
-    if (account_.isAuth()) { // change to if(loggedin = true)
+    if (account_.isAuth()) {
         loggedOutNavBar_->setHidden(true);
         navBar_->setHidden(false);
-        regex re("/bridges/(\\d{1,3})");
-
 
         profileMenuItem_->setText(account_.getFirstName() + " " + account_.getLastName());
         serverMessage_->setText("Hello, " + account_.getFirstName() + " " + account_.getLastName());
+        
+        regex re("/bridges/(\\d{1,3})");
+        
         if (internalPath == "/bridges") { // opens bridge page
             leftMenu_->select(1);
             bridgeScreen();
@@ -118,20 +119,23 @@ void WelcomeScreen::handleInternalPath(const string &internalPath)
         else if (internalPath == "/logout") {
             logout();
         }
-        else  {// opens create page by default for any other path changes
-            WApplication::instance()->setInternalPath("/bridges", true);
+        else  { // defaults to profile page
+            WApplication::instance()->setInternalPath("/profile", true);
         }
     }
     else {
         loggedOutNavBar_->setHidden(false);
         navBar_->setHidden(true);
+        
         serverMessage_->setText("You are connected to the Team 13 Production Server");
+        
         if (internalPath == "/create") // opens create page
             createAccount();
         else if (internalPath == "/login") // opens login page
             login();
-        else
+        else { // opens create page by default for any other path changes
             WApplication::instance()->setInternalPath("/create", true);
+        }
     }
 }
 

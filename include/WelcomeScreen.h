@@ -9,6 +9,7 @@
 #include <Wt/WNavigationBar>
 #include <Wt/WPushButton>
 #include <string>
+#include <vector>
 #include "Account.h"
 
 namespace Wt {
@@ -46,10 +47,12 @@ private:
     Wt::WAnchor *homeAnchor_;
     Wt::WStackedWidget *mainStack_; // main stack of the application
     Wt::WContainerWidget *links_; // links container that stores anchors
+    
     CreateAccountWidget *create_; // create widget
     LoginWidget *login_; // login widget
     BridgeScreenWidget *bridgeScreen_; // bridge widget
     ProfileWidget *profileScreen_;
+    
     Wt::WAnchor *createAnchor_; // anchor for create link
     Wt::WAnchor *loginAnchor_; // anchor for login link
     Wt::WAnchor *logoutAnchor_; // anchor for logout link
@@ -60,7 +63,7 @@ private:
     void profileScreen();
     void lightManagementScreen(int index);
 
-    std::vector<LightManagementWidget*> lightManage_ = std::vector<LightManagementWidget*>(100, NULL); // max 100 bridges for now
+    vector<LightManagementWidget*> lightManage_ = vector<LightManagementWidget*>(100, NULL); // max 100 bridges for now
     Account account_;
 };
 

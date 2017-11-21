@@ -18,6 +18,7 @@
 #include <fstream> // writing new accounts to a file
 #include "BridgeScreenWidget.h"
 #include "Bridge.h"
+#include "Light.h"
 #include "Hash.h" // for password encryption
 #include <string>
 #include <vector>
@@ -119,9 +120,9 @@ void BridgeScreenWidget::update()
     new WBreak(this);
     
     //button for registering a bridge
-    createBridgeButton_ = new WPushButton("Register Bridge");
-    addWidget(createBridgeButton_);
-    createBridgeButton_->clicked().connect(this, &BridgeScreenWidget::registerBridge);
+    registerBridgeButton_ = new WPushButton("Register Bridge");
+    addWidget(registerBridgeButton_);
+    registerBridgeButton_->clicked().connect(this, &BridgeScreenWidget::registerBridge);
     
     new WBreak(this);
     
@@ -141,14 +142,6 @@ void BridgeScreenWidget::update()
     bridgeTable_ = new WTable(this);
     bridgeTable_->setHeaderCount(1); //set first row as header
     BridgeScreenWidget::updateBridgeTable();
-    
-    new WBreak(this);
-    
-    //input field for removing a bridge
-    bridgeIndex_ = new WLineEdit();
-    bridgeIndex_->setInputMask("99");
-    addWidget(bridgeIndex_);
-    bridgeIndex_->setValidator(inputNotEmpty_);
 }
 
 /**
@@ -163,7 +156,7 @@ void BridgeScreenWidget::registerBridge() {
     
     cout << "BRIDGE: Registering at URL " << url << "\n";
     Wt::Http::Client *client = new Wt::Http::Client(this);
-    client->setTimeout(5);
+    client->setTimeout(2); //2 second timeout of request
     client->setMaximumResponseSize(1000000);
     client->done().connect(boost::bind(&BridgeScreenWidget::registerBridgeHttp, this, _1, _2));
     
@@ -196,41 +189,6 @@ void BridgeScreenWidget::registerBridgeHttp(boost::system::error_code err, const
         //add Bridge to user account
         account_->addBridge(bridgename_->text().toUTF8(), location_->text().toUTF8(), ip_->text().toUTF8(), port_->text().toUTF8(), username_->text().toUTF8());
         account_->writeFile(); //update credentials file
-        
-        
-        cout << "\nJSON OUTPUT TESTING\n";
-        Json::Object result;
-        Json::parse(response.body(), result);
-        
-        Json::Object config = result.get("config");
-        cout << "ISNULL: " << config.isNull("ipaddress") << "\n";
-        cout << "CONTAINS: " << config.contains("ipaddress") << "\n";
-        cout << "TYPE: " << config.type("ipaddress") << "\n";
-        Json::Value jsonValue = config.get("ipaddress");
-        cout << "VALUETYPE: " << jsonValue.type() << "\n";
-        WString s = config.get("ipaddress");
-        cout << "IP ADDRESS: " << s << "\n";
-        
-        cout << "\nPARSING LIGHTS IN THE BRIDGE\n";
-        Json::Object lights = result.get("lights");
-        int i = 1;
-        while(true) {
-            if(lights.isNull(boost::lexical_cast<string>(i))) break;
-            Json::Object light = lights.get(boost::lexical_cast<string>(i));
-            cout << "***Light " << i << "***\n";
-            
-            WString outp = light.get("name");
-            cout << "Name: " << outp << "\n";
-            outp = light.get("type");
-            cout << "Type: " << outp << "\n";
-            
-            cout << "*State Info*\n";
-            Json::Object state = light.get("state");
-            bool outpbool = state.get("on");
-            cout << "On: " << outpbool << "\n";
-            
-            i++;
-        }
         
         BridgeScreenWidget::updateBridgeTable();
     }
@@ -307,7 +265,7 @@ void BridgeScreenWidget::viewBridge(int pos) {
     
     cout << "BRIDGE: Connecting to URL " << url << "\n";
     Wt::Http::Client *client = new Wt::Http::Client(this);
-    client->setTimeout(5);
+    client->setTimeout(2); //2 second timeout of request
     client->setMaximumResponseSize(1000000);
     client->done().connect(boost::bind(&BridgeScreenWidget::viewBridgeHttp, this, pos, _1, _2));
     
@@ -335,6 +293,41 @@ void BridgeScreenWidget::viewBridgeHttp(int pos, boost::system::error_code err, 
     if (!err && response.status() == 200) {
         statusMessage_->setText("Successfully Connected to Bridge");
         statusMessage_->setHidden(false);
+        
+        cout << "\nJSON OUTPUT TESTING\n";
+        Json::Object result;
+        Json::parse(response.body(), result);
+        
+        Json::Object config = result.get("config");
+        cout << "ISNULL: " << config.isNull("ipaddress") << "\n";
+        cout << "CONTAINS: " << config.contains("ipaddress") << "\n";
+        cout << "TYPE: " << config.type("ipaddress") << "\n";
+        Json::Value jsonValue = config.get("ipaddress");
+        cout << "VALUETYPE: " << jsonValue.type() << "\n";
+        WString s = config.get("ipaddress");
+        cout << "IP ADDRESS: " << s << "\n";
+        
+        cout << "\nPARSING LIGHTS IN THE BRIDGE\n";
+        Json::Object lights = result.get("lights");
+        int i = 1;
+        while(true) {
+            if(lights.isNull(boost::lexical_cast<string>(i))) break;
+            Json::Object light = lights.get(boost::lexical_cast<string>(i));
+            cout << "***Light " << i << "***\n";
+            
+            WString outp = light.get("name");
+            cout << "Name: " << outp << "\n";
+            outp = light.get("type");
+            cout << "Type: " << outp << "\n";
+            
+            cout << "*State Info*\n";
+            Json::Object state = light.get("state");
+            bool outpbool = state.get("on");
+            cout << "On: " << outpbool << "\n";
+            
+            i++;
+        }
+
         
         string path = "/bridges/" + to_string(pos);
         parent_->handleInternalPath(path);

@@ -17,7 +17,7 @@
 #include <fstream>
 #include <string>
 #include <Wt/Json/Object>
-#include "Light.h"
+//#include "Light.h" //todo: implement
 
 using namespace std;
 using namespace Wt;
@@ -38,10 +38,11 @@ public:
     string getIP() {return ip_;}
     string getPort() {return port_;}
     string getUsername() {return username_;}
+    string getJson() {return json_;}
     
-    vector<Light> getLights() {return lights;} //todo: implement
+    /*vector<Light> getLights() {return lights;} //todo: implement
     int getNumLights() {return lights.size();} //todo: implement
-    Light* getLightAt(int index); //todo: implement
+    Light* getLightAt(int index); //todo: implement*/
 
     //SETTER METHODS
     void setName(string name) {bridgename_ = name;}
@@ -50,10 +51,12 @@ public:
     void setPort(string port) {port_ = port;}
     void setUsername(string username) {username_ = username;}
     
-    void addLight(Light li); //todo: implement
+    void setJson(string json) {json_ = json;}
+    
+    /*void addLight(Light li); //todo: implement
     void addLight(string type, string name, string modelid,
                   string swversion, string uniqueid, struct state_t state); //todo: implement
-    void removeLightAt(int index); //todo: implement
+    void removeLightAt(int index); //todo: implement*/
 
 private:
     string bridgename_;
@@ -61,7 +64,8 @@ private:
     string ip_;
     string port_;
     string username_;
-    vector<Light> lights;
+    string json_;
+    //vector<Light> lights; //todo: implement
 };
 
 #endif

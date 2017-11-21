@@ -26,6 +26,7 @@
 #include <Wt/Json/Value>
 #include <Wt/Json/Object>
 #include <Wt/Json/Parser>
+#include <Wt/Json/Array>
 
 using namespace Wt;
 using namespace std;
@@ -294,41 +295,9 @@ void BridgeScreenWidget::viewBridgeHttp(int pos, boost::system::error_code err, 
         statusMessage_->setText("Successfully Connected to Bridge");
         statusMessage_->setHidden(false);
         
-        cout << "\nJSON OUTPUT TESTING\n";
-        Json::Object result;
-        Json::parse(response.body(), result);
-        
-        Json::Object config = result.get("config");
-        cout << "ISNULL: " << config.isNull("ipaddress") << "\n";
-        cout << "CONTAINS: " << config.contains("ipaddress") << "\n";
-        cout << "TYPE: " << config.type("ipaddress") << "\n";
-        Json::Value jsonValue = config.get("ipaddress");
-        cout << "VALUETYPE: " << jsonValue.type() << "\n";
-        WString s = config.get("ipaddress");
-        cout << "IP ADDRESS: " << s << "\n";
-        
-        cout << "\nPARSING LIGHTS IN THE BRIDGE\n";
-        Json::Object lights = result.get("lights");
-        int i = 1;
-        while(true) {
-            if(lights.isNull(boost::lexical_cast<string>(i))) break;
-            Json::Object light = lights.get(boost::lexical_cast<string>(i));
-            cout << "***Light " << i << "***\n";
-            
-            WString outp = light.get("name");
-            cout << "Name: " << outp << "\n";
-            outp = light.get("type");
-            cout << "Type: " << outp << "\n";
-            
-            cout << "*State Info*\n";
-            Json::Object state = light.get("state");
-            bool outpbool = state.get("on");
-            cout << "On: " << outpbool << "\n";
-            
-            i++;
-        }
+        Bridge *bridge = account_->getBridgeAt(pos);
+        bridge->setJson(response.body());
 
-        
         string path = "/bridges/" + to_string(pos);
         parent_->handleInternalPath(path);
     }

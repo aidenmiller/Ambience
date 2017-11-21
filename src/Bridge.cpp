@@ -35,7 +35,7 @@ Bridge::Bridge(string name, string location,
     location_ = location;
     port_ = port;
     username_ = username;
-    lights.reserve(15);
+    //lights.reserve(15); //todo: implement
 }
 
 /**

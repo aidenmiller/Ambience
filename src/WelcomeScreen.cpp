@@ -140,9 +140,11 @@ void WelcomeScreen::handleInternalPath(const string &internalPath)
 }
 
 void WelcomeScreen::lightManagementScreen(int index) {
+    Bridge *bridge = account_.getBridgeAt(index);
+    
     WApplication::instance()->setInternalPath("/bridges/" + to_string(index), true);
     if (lightManage_[index] == NULL) {
-        lightManage_[index] = new LightManagementWidget(mainStack_, &account_, this);
+        lightManage_[index] = new LightManagementWidget(mainStack_, bridge, this);
     }
     mainStack_->setCurrentWidget(lightManage_[index]);
     lightManage_[index]->update();

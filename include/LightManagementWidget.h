@@ -8,13 +8,17 @@ class LightManagementWidget: public Wt::WContainerWidget
 {
 public:
     LightManagementWidget(Wt::WContainerWidget *parent = 0,
-                        Account *account = 0,
+                        Bridge *bridge = 0,
                         WelcomeScreen *main = 0);
 
     void update();
 private:
     WelcomeScreen *parent_;
-    Account *account_;
+    Bridge *bridge_;
+    
+    void displayLights();
+    void displayGroups();
+    void displaySchedules();
 
 };
 

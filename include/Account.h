@@ -28,6 +28,7 @@ public:
     bool isAuth() {return auth_;}
     vector<Bridge> getBridges() {return bridges;}
     int getNumBridges() {return bridges.size();}
+    Bridge* getBridgeAt(int index);
 
     void setFirstName(string fn) {firstName_ = fn;}
     void setLastName(string ln) {lastName_ = ln;}
@@ -38,7 +39,7 @@ public:
     void addBridge(Bridge br);
     void addBridge(string bname, string bloc, string bip,
                    string bport, string buser);
-    void removeBridge(int index);
+    void removeBridgeAt(int index);
     
     void writeFile();
     void logout();

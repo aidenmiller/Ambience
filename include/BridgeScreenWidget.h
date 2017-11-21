@@ -36,8 +36,6 @@ private:
 
     Wt::WText *statusMessage_;
     Wt::WPushButton *createBridgeButton_;
-    //Wt::WPushButton *editBridgeButton_;
-    //Wt::WPushButton *removeBridgeButton_;
 
     //bool validateInputFields();
     //Wt::WRegExpValidator *ipValidator_;
@@ -47,10 +45,12 @@ private:
 
     void updateBridgeTable();
 
-    void connectBridge();
-    void handleHttpResponse(boost::system::error_code err, const Wt::Http::Message &response);
+    void registerBridge();
+    void registerBridgeHttp(boost::system::error_code err, const Wt::Http::Message &response);
     
-    void viewBridge(std::string path);
+    void viewBridge(int pos);
+    void viewBridgeHttp(int pos, boost::system::error_code err, const Wt::Http::Message &response);
+    
     void removeBridge(int pos);
 
 };

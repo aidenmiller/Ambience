@@ -127,6 +127,18 @@ void Account::addBridge(string bname, string bloc, string bip,
 }
 
 /**
+ *   @brief  Returns a pointer to a Bridge in the user account
+ *
+ *   @param  index the position of the Bridge in the vector to retrieve (0 is first position)
+ *
+ *   @return pointer to Bridge object in user account
+ *
+ */
+Bridge* Account::getBridgeAt(int index) {
+    return &bridges.at(index);
+}
+
+/**
  *   @brief  Remove a Bridge from the user account
  *
  *   @param  index the position of the Bridge in the vector to remove (0 is first position)
@@ -134,6 +146,6 @@ void Account::addBridge(string bname, string bloc, string bip,
  *   @return void
  *
  */
-void Account::removeBridge(int index) {
+void Account::removeBridgeAt(int index) {
     bridges.erase(bridges.begin() + index);
 }

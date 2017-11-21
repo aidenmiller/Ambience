@@ -35,7 +35,6 @@ Bridge::Bridge(string name, string location,
     location_ = location;
     port_ = port;
     username_ = username;
-    connected_ = false;
 }
 
 /**

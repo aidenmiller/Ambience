@@ -4,7 +4,6 @@ OBJ_DIR = obj
 INC_DIR = include
 
 OBJS = MainApplication.o Hash.o WelcomeScreen.o Account.o LoginWidget.o CreateAccountWidget.o Bridge.o BridgeScreenWidget.o ProfileWidget.o LightManagementWidget.o Light.o
-
 CC = g++
 DEBUG = -g
 CFLAGS = -Wall -c -std=c++11 -Iinclude -L/usr/local/lib $(DEBUG)

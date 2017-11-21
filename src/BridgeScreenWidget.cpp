@@ -293,7 +293,8 @@ void BridgeScreenWidget::updateBridgeTable(){
             //editBridgeButton->clicked().connect(this, &BridgeScreenWidget::removeBridge);
             
             WPushButton *removeBridgeButton = new WPushButton("Remove");
-            removeBridgeButton->clicked().connect(boost::bind(&BridgeScreenWidget::removeBridge, this, counter + 1));
+            removeBridgeButton->clicked().connect(boost::bind(&BridgeScreenWidget::removeBridge,
+                                                              this, counter));
             
             tableRow->elementAt(6)->addWidget(viewBridgeButton);
             tableRow->elementAt(6)->addWidget(editBridgeButton);
@@ -320,13 +321,8 @@ void BridgeScreenWidget::removeBridge(int pos){
         statusMessage_->setText("No bridges to delete!");
         statusMessage_->setHidden(false);
     }
-    else if (pos > account_->getNumBridges() || pos < 1){
-        string errorMessage = "Enter number between 1 and " + boost::lexical_cast<string>(account_->getNumBridges());
-        statusMessage_->setText(errorMessage);
-        statusMessage_->setHidden(false);
-    }
     else {
-        statusMessage_->setText("Bridge at position " + boost::lexical_cast<string>(pos) + " removed.");
+        statusMessage_->setText("Bridge successfully removed!");
         statusMessage_->setHidden(false);
         account_->removeBridge(pos);
         account_->writeFile(); //update credentials file

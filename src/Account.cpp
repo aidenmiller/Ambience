@@ -129,11 +129,11 @@ void Account::addBridge(string bname, string bloc, string bip,
 /**
  *   @brief  Remove a Bridge from the user account
  *
- *   @param  index the position of the Bridge in the vector to remove
+ *   @param  index the position of the Bridge in the vector to remove (0 is first position)
  *
  *   @return void
  *
  */
 void Account::removeBridge(int index) {
-    bridges.erase(bridges.begin() + index - 1);
+    bridges.erase(bridges.begin() + index);
 }

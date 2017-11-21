@@ -9,3 +9,5 @@
 /obj
 MainApp
 /bridges/*
+bin/
+obj/

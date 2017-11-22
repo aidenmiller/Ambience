@@ -114,6 +114,7 @@ void ProfileWidget::update()
 void ProfileWidget::updateFirstName() {
     account_->setFirstName(editableFirstName_->text().toUTF8()); // call setter to change account first name
     account_->writeFile(); //update credentials file
+    parent_->updateProfileName(); //display new name
 }
 
 
@@ -125,6 +126,7 @@ void ProfileWidget::updateFirstName() {
 void ProfileWidget::updateLastName() {
     account_->setLastName(editableLastName_->text().toUTF8()); // call setter to change the account last name
     account_->writeFile(); //update credentials file
+    parent_->updateProfileName(); //display new name
 }
 
 /**

@@ -56,6 +56,16 @@ void LoginWidget::update()
 {
     clear(); // everytime you come back to page, reset the widgets
     
+    // username validator - must be a valid email address
+    usernameValidator_ = new WRegExpValidator("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}", this);
+    usernameValidator_->setInvalidNoMatchText("Username must be valid email address");
+    usernameValidator_->setMandatory(true);
+    // password must be 6-20 characters in length
+    passwordLengthValidator_ = new WLengthValidator(6, 20, this);
+    passwordLengthValidator_->setInvalidTooShortText("Password must be at least 6 characters");
+    passwordLengthValidator_->setInvalidTooLongText("Password must be max 20 characters");
+    passwordLengthValidator_->setMandatory(true);
+    
     // Page title
     WText *title = new WText("Login to account", this);
     title->setStyleClass("title");
@@ -65,6 +75,7 @@ void LoginWidget::update()
     // Username box: enter a username that is a valid email address
     new WText("User ID: ", this);
     idEdit_ = new WLineEdit();
+    idEdit_->setValidator(usernameValidator_);
     addWidget(idEdit_);
     new WBreak(this);
     
@@ -72,6 +83,7 @@ void LoginWidget::update()
     new WText("Password: ", this);
     pwEdit_ = new WLineEdit();
     pwEdit_->setEchoMode(WLineEdit::EchoMode::Password); // hide password as you type and replace with *****
+    pwEdit_->setValidator(passwordLengthValidator_);
     addWidget(pwEdit_);
     new WBreak(this);
     
@@ -84,7 +96,7 @@ void LoginWidget::update()
     loginButton_->clicked().connect(this, &LoginWidget::submit);
     
     // message that warns user incorrect user or password when login fails
-    statusMessage_ = new WText("Incorrect username or password!",this);
+    statusMessage_ = new WText("Invalid!",this);
     statusMessage_->setStyleClass("error");
     statusMessage_->setHidden(true); // becomes visible if wrong credentials
 }
@@ -96,7 +108,12 @@ void LoginWidget::update()
  */
 void LoginWidget::submit(){
     // checks if provided user account and password exist, shows error message if not found
-    if(!LoginWidget::checkCredentials(idEdit_->text().toUTF8(),pwEdit_->text().toUTF8())){
+    if(idEdit_->validate() != 2 || pwEdit_->validate() != 2) {
+        statusMessage_->setText("Invalid format for username or password!");
+        statusMessage_->setHidden(false);
+    }
+    else if(!LoginWidget::checkCredentials(idEdit_->text().toUTF8(),pwEdit_->text().toUTF8())){
+        statusMessage_->setText("Invalid credentials!");
         statusMessage_->setHidden(false);
     }
     else { // if successful, redirects to bridge page

@@ -38,10 +38,10 @@ using namespace Wt;
 using namespace std;
 
 /**
-*   @brief  Main Screen constructor
-*
-*   @param  *parent is a pointer the the containerwidget that stores this widget
-*/
+ *   @brief  Main Screen constructor
+ *
+ *   @param  *parent is a pointer the the containerwidget that stores this widget
+ */
 WelcomeScreen::WelcomeScreen(WContainerWidget *parent):
 WContainerWidget(parent),
 create_(0),
@@ -57,54 +57,54 @@ account_("","","","")
     loggedOutNavBar_->addMenu(loggedOutLeftMenu);
     loggedOutLeftMenu->addItem("Login")->setLink(WLink(WLink::InternalPath, "/login"));
     loggedOutLeftMenu->addItem("Create Account")->setLink(WLink(WLink::InternalPath, "/create"));
-
+    
     navBar_ = new WNavigationBar(this);
     navBar_->setTitle("Smart Lights");
     navBar_->setResponsive(true);
-
-
+    
+    
     leftMenu_ = new WMenu();
     navBar_->addMenu(leftMenu_);
     profileMenuItem_ = new WMenuItem("Profile");
     profileMenuItem_->setLink(WLink(WLink::InternalPath, "/profile"));
     leftMenu_->addItem(profileMenuItem_);
     leftMenu_->addItem("Bridges")->setLink(WLink(WLink::InternalPath, "/bridges"));
-
+    
     rightMenu_ = new WMenu();
     navBar_->addMenu(rightMenu_, AlignmentFlag::AlignRight);
     rightMenu_->addItem("Logout")->setLink(WLink(WLink::InternalPath, "/logout"));
     navBar_->setHidden(true);
-
-
+    
+    
     serverMessage_ = new WText("You are connected to the Team 13 Production Server", this);
     new WBreak(this);
-
+    
     welcome_image_ = new WImage(WLink("images/login_lights.jpeg"));
     addWidget(welcome_image_);
-
+    
     mainStack_ = new WStackedWidget();
     addWidget(mainStack_);
-
-
+    
+    
     // detects any changes to the internal path and sends to the handle internal path function
     WApplication::instance()->internalPathChanged().connect(this, &WelcomeScreen::handleInternalPath);
 }
 
 /**
-*   @brief  Handle Internal Path function, checks for any changes to the internal
-*           path and redirects the page according to internalPath
-*   @param  internalPath is the page name to be re-directed to
-*   @return  void
-*/
+ *   @brief  Handle Internal Path function, checks for any changes to the internal
+ *           path and redirects the page according to internalPath
+ *   @param  internalPath is the page name to be re-directed to
+ *   @return  void
+ */
 void WelcomeScreen::handleInternalPath(const string &internalPath)
 {
     if (account_.isAuth()) {
-	welcome_image_->setHidden(true);
+        welcome_image_->setHidden(true);
         loggedOutNavBar_->setHidden(true);
         navBar_->setHidden(false);
-
-        profileMenuItem_->setText(account_.getFirstName() + " " + account_.getLastName());
-        serverMessage_->setText("Hello, " + account_.getFirstName() + " " + account_.getLastName());
+        serverMessage_->setHidden(true);
+        
+        updateProfileName();
         
         regex re("/bridges/(\\d{1,3})");
         
@@ -129,11 +129,11 @@ void WelcomeScreen::handleInternalPath(const string &internalPath)
         }
     }
     else {
- 	welcome_image_->setHidden(true);
+        welcome_image_->setHidden(true);
         loggedOutNavBar_->setHidden(false);
         navBar_->setHidden(true);
         
-        serverMessage_->setText("You are connected to the Team 13 Production Server");
+        serverMessage_->setHidden(false);
         
         if (internalPath == "/create") // opens create page
             createAccount();
@@ -157,43 +157,43 @@ void WelcomeScreen::lightManagementScreen(int index) {
 }
 
 /**
-*   @brief  Create Account function, updates the page to the
-*           creation screen
-*   @return void
-*/
+ *   @brief  Create Account function, updates the page to the
+ *           creation screen
+ *   @return void
+ */
 void WelcomeScreen::createAccount()
 {
     if (!create_) {
         create_ = new CreateAccountWidget(mainStack_, &account_, this);
     }
-
+    
     mainStack_->setCurrentWidget(create_);
-
+    
     create_->update();
 }
 
 /**
-*   @brief  profile screen function, updates the page to the
-*           profile management screen
-*   @return void
-*/
+ *   @brief  profile screen function, updates the page to the
+ *           profile management screen
+ *   @return void
+ */
 void WelcomeScreen::profileScreen()
 {
     if (!profileScreen_) {
         profileScreen_ = new ProfileWidget(mainStack_, &account_, this);
     }
-
-
+    
+    
     mainStack_->setCurrentWidget(profileScreen_);
-
+    
     profileScreen_->update();
 }
 
 /**
-*   @brief  Login function, updates the page to the
-*           login screen
-*   @return void
-*/
+ *   @brief  Login function, updates the page to the
+ *           login screen
+ *   @return void
+ */
 void WelcomeScreen::login()
 {
     WApplication::instance()->setInternalPath("/login", true);
@@ -216,14 +216,14 @@ void WelcomeScreen::logout()
 }
 
 /**
-*   @brief  Bridge function, updates the page to the
-*           bridge control screen
-*   @return void
-*/
+ *   @brief  Bridge function, updates the page to the
+ *           bridge control screen
+ *   @return void
+ */
 void WelcomeScreen::bridgeScreen()
 {
     WApplication::instance()->setInternalPath("/bridges", true);
-
+    
     if (!bridgeScreen_) {
         bridgeScreen_ = new BridgeScreenWidget(mainStack_, &account_, this);
     }
@@ -231,10 +231,13 @@ void WelcomeScreen::bridgeScreen()
     bridgeScreen_->update();
 }
 
-
-
-
-
-
+/**
+ *   @brief  Updates name of logged in user on the top menu bar
+ *
+ *   @return void
+ */
+void WelcomeScreen::updateProfileName() {
+    profileMenuItem_->setText("Profile (" + account_.getFirstName() + " " + account_.getLastName() + ")");
+}
 
 

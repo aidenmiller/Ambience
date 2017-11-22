@@ -14,7 +14,9 @@
  */
 
 #include <Wt/WText>
+#include <Wt/WLabel>
 #include <Wt/WTable>
+#include <Wt/WDialog>
 #include <fstream> // writing new accounts to a file
 #include "BridgeScreenWidget.h"
 #include "Bridge.h"
@@ -263,7 +265,7 @@ void BridgeScreenWidget::updateBridgeTable(){
             viewBridgeButton->clicked().connect(boost::bind(&BridgeScreenWidget::viewBridge, this, counter));
             
             WPushButton *editBridgeButton = new WPushButton("Edit");
-            //editBridgeButton->clicked().connect(this, &BridgeScreenWidget::removeBridge);
+            editBridgeButton->clicked().connect(boost::bind(&BridgeScreenWidget::editBridge, this, counter));
             
             WPushButton *removeBridgeButton = new WPushButton("Remove");
             removeBridgeButton->clicked().connect(boost::bind(&BridgeScreenWidget::removeBridge, this, counter));
@@ -329,6 +331,143 @@ void BridgeScreenWidget::viewBridgeHttp(int pos, boost::system::error_code err, 
     else {
         cerr << "Error: " << err.message() << ", " << response.status() << "\n";
         statusMessage_->setText("Unable to connect to Bridge");
+        statusMessage_->setHidden(false);
+    }
+}
+
+/**
+ *   @brief  Opens a WDialog box to edit info for specified Bridge
+ *
+ *   @param   pos the position of the Bridge in user account vector to view
+ *
+ *   @return  void
+ *
+ */
+void BridgeScreenWidget::editBridge(int pos) {
+    Bridge *bridge = account_->getBridgeAt(pos);
+    
+    bridgeEditDialog_ = new WDialog("Edit Bridge"); // title
+    
+    new WLabel("Bridge Name: ", bridgeEditDialog_->contents());
+    bridgeEditName_ = new WLineEdit(bridgeEditDialog_->contents());
+    bridgeEditName_->setValueText(bridge->getName());
+    bridgeEditName_->setValidator(stringValidator_);
+    new WBreak(bridgeEditDialog_->contents());
+    
+    new WLabel("Bridge Location: ", bridgeEditDialog_->contents());
+    bridgeEditLocation_ = new WLineEdit(bridgeEditDialog_->contents());
+    bridgeEditLocation_->setValueText(bridge->getLocation());
+    bridgeEditLocation_->setValidator(stringValidator_);
+    new WBreak(bridgeEditDialog_->contents());
+    
+    new WLabel("Bridge IP: ", bridgeEditDialog_->contents());
+    bridgeEditIP_ = new WLineEdit(bridgeEditDialog_->contents());
+    bridgeEditIP_->setValueText(bridge->getIP());
+    bridgeEditIP_->setValidator(ipValidator_);
+    new WBreak(bridgeEditDialog_->contents());
+    
+    new WLabel("Bridge Port: ", bridgeEditDialog_->contents());
+    bridgeEditPort_ = new WLineEdit(bridgeEditDialog_->contents());
+    bridgeEditPort_->setValueText(bridge->getPort());
+    bridgeEditPort_->setValidator(portValidator_);
+    new WBreak(bridgeEditDialog_->contents());
+    
+    new WLabel("Bridge Username: ", bridgeEditDialog_->contents());
+    bridgeEditUsername_ = new WLineEdit(bridgeEditDialog_->contents());
+    bridgeEditUsername_->setValueText(bridge->getUsername());
+    bridgeEditUsername_->setValidator(stringValidator_);
+    new WBreak(bridgeEditDialog_->contents());
+    
+    
+    // make okay and cancel buttons, cancel sends a reject dialogstate, okay sends an accept
+    WPushButton *ok = new WPushButton("OK", bridgeEditDialog_->contents());
+    WPushButton *cancel = new WPushButton("Cancel", bridgeEditDialog_->contents());
+    
+    ok->clicked().connect(bridgeEditDialog_, &WDialog::accept);
+    cancel->clicked().connect(bridgeEditDialog_, &WDialog::reject);
+    
+    // when the user is finished, call the updateBridge function
+    bridgeEditDialog_->finished().connect(boost::bind(&BridgeScreenWidget::updateBridge, this, pos));
+    bridgeEditDialog_->show();
+}
+
+/**
+ *   @brief  Edit specific Bridge connected to user account. Returns status message from Http method if the Bridge is unreachable.
+ *
+ *   @param   pos the position of the Bridge in user account vector to update
+ *
+ *   @return  void
+ *
+ */
+void BridgeScreenWidget::updateBridge(int pos) {
+    // if user clicked "cancel" in dialog box, don't do anything
+    if (bridgeEditDialog_->result() == WDialog::DialogCode::Rejected)
+        return;
+    
+    if(bridgeEditName_->validate() == 2 &&
+       bridgeEditLocation_->validate() == 2 &&
+       bridgeEditIP_->validate() == 2 &&
+       bridgeEditPort_->validate() == 2 &&
+       bridgeEditUsername_->validate() == 2) {
+        
+        string url = "http://" + bridgeEditIP_->text().toUTF8() + ":" + bridgeEditPort_->text().toUTF8() + "/api/" + bridgeEditUsername_->text().toUTF8();
+        
+        cout << "BRIDGE: Connecting to URL " << url << "\n";
+        Wt::Http::Client *client = new Wt::Http::Client(this);
+        client->setTimeout(2); //2 second timeout of request
+        client->setMaximumResponseSize(1000000);
+        client->done().connect(boost::bind(&BridgeScreenWidget::updateBridgeHttp, this, pos, _1, _2));
+        
+        if(client->get(url)) {
+            WApplication::instance()->deferRendering();
+        }
+        else {
+            cerr << "BRIDGE: Error in client->get(url) call\n";
+        }
+    }
+    else {
+        string errmsg = "Error updating Bridge: Invalid input for: ";
+        if(bridgeEditName_->validate() != 2) errmsg += "Name ";
+        if(bridgeEditLocation_->validate() != 2) errmsg += "Location ";
+        if(bridgeEditIP_->validate() != 2) errmsg += "IP ";
+        if(bridgeEditPort_->validate() != 2) errmsg += "Port ";
+        if(bridgeEditUsername_->validate() != 2) errmsg += "Username ";
+        
+        statusMessage_->setText(errmsg);
+        statusMessage_->setHidden(false);
+    }
+}
+
+/**
+ *   @brief  Function to handle the Http response generated by the Wt Http Client object in the updateBridge() function
+ *
+ *   @param  pos the position of the Bridge being accessed
+ *   @param  *err stores the error code generated by an Http request, null if request was successful
+ *   @param  &response stores the response message generated by the Http request
+ *
+ *   @return  void
+ *
+ */
+void BridgeScreenWidget::updateBridgeHttp(int pos, boost::system::error_code err, const Wt::Http::Message &response)
+{
+    WApplication::instance()->resumeRendering();
+    if (!err && response.status() == 200) {
+        statusMessage_->setText("Successfully updated Bridge.");
+        statusMessage_->setHidden(false);
+        
+        Bridge *bridge = account_->getBridgeAt(pos);
+        bridge->setName(bridgeEditName_->text().toUTF8());
+        bridge->setLocation(bridgeEditLocation_->text().toUTF8());
+        bridge->setIP(bridgeEditIP_->text().toUTF8());
+        bridge->setPort(bridgeEditPort_->text().toUTF8());
+        bridge->setUsername(bridgeEditUsername_->text().toUTF8());
+        
+        account_->writeFile();
+        BridgeScreenWidget::updateBridgeTable();
+    }
+    else {
+        cerr << "Error: " << err.message() << ", " << response.status() << "\n";
+        statusMessage_->setText("Error updating Bridge: Invalid connection info.");
         statusMessage_->setHidden(false);
     }
 }

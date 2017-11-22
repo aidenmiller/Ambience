@@ -20,7 +20,10 @@ private:
     Wt::WLineEdit *pwEdit_; // password texrt box
     Wt::WPushButton *loginButton_; // login button
     Wt::WText *statusMessage_; // message to warn user if user or password incorrect
-
+    
+    Wt::WRegExpValidator *usernameValidator_;
+    Wt::WLengthValidator *passwordLengthValidator_;
+    
     WelcomeScreen *parent_;
     Account *account_;
 

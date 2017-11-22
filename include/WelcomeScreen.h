@@ -35,13 +35,14 @@ public:
 
     void connectBridge();
     void handleHttpResponse(boost::system::error_code err, const Wt::Http::Message &response);
+    
+    void updateProfileName();
 
 private:
     Wt::WImage *welcome_image_;
     Wt::WMenu *leftMenu_;
     Wt::WMenu *rightMenu_;
     Wt::WMenuItem *profileMenuItem_;
-    Wt::WMenuItem *bridgeManagement_;
     Wt::WNavigationBar *loggedOutNavBar_;
     Wt::WNavigationBar *navBar_;
     Wt::WText *serverMessage_;

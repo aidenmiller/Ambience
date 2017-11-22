@@ -56,11 +56,21 @@ void BridgeScreenWidget::update()
 {
     clear(); // everytime you come back to page, reset the widgets
     
-    inputNotEmpty_ = new WValidator(this);
-    inputNotEmpty_->setMandatory(true);
+    //ip address validator - ensure non-empty proper IP format
+    ipValidator_ = new WRegExpValidator("(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])", this);
+    ipValidator_->setInvalidNoMatchText("Invalid IP Address");
+    ipValidator_->setMandatory(true);
+    //string validator - ensure non-empty string without commas
+    stringValidator_ = new WRegExpValidator("[^,]*",this);
+    stringValidator_->setInvalidNoMatchText("Invalid text");
+    stringValidator_->setMandatory(true);
+    //port validator - ensure non-empty valid port
+    portValidator_ = new WIntValidator(0, 65535, this);
+    portValidator_->setMandatory(true);
+    
     
     // Page title
-    WText *title = new WText("Register a bridge", this);
+    WText *title = new WText("Register a new Hue Bridge", this);
     title->setStyleClass("title");
     
     new WBreak(this);
@@ -69,9 +79,9 @@ void BridgeScreenWidget::update()
     new WText("Bridge Name: ", this);
     bridgename_ = new WLineEdit();
     bridgename_->setTextSize(10); // to hold placeholder text
-    bridgename_->setPlaceholderText("MyBridge"); // placeholder text
+    bridgename_->setPlaceholderText("Mr. Bridge"); // placeholder text
     addWidget(bridgename_);
-    bridgename_->setValidator(inputNotEmpty_);
+    bridgename_->setValidator(stringValidator_);
     
     new WBreak(this);
     
@@ -81,7 +91,7 @@ void BridgeScreenWidget::update()
     location_->setTextSize(10); // to hold placeholder text
     location_->setPlaceholderText("Bedroom"); // placeholder text
     addWidget(location_);
-    location_->setValidator(inputNotEmpty_);
+    location_->setValidator(stringValidator_);
     
     new WBreak(this);
     
@@ -91,12 +101,7 @@ void BridgeScreenWidget::update()
     ip_->setTextSize(18); // to hold placeholder text
     ip_->setPlaceholderText("127.0.0.1"); // placeholder text
     addWidget(ip_);
-    ip_->setValidator(inputNotEmpty_);
-    
-    //ip address validator
-    //ipValidator_ = new WRegExpValidator("[0-9]+.[0-9]+.[0-9]+.[0-9]",this);
-    //ipValidator_->setInvalidNoMatchText("Invalid IP Address");
-    //ipValidator_->setValidator(ipValidator_);
+    ip_->setValidator(ipValidator_);
     
     new WBreak(this);
     
@@ -106,7 +111,7 @@ void BridgeScreenWidget::update()
     port_->setTextSize(6); // to hold placeholder text
     port_->setPlaceholderText("80"); // placeholder text
     addWidget(port_);
-    port_->setValidator(inputNotEmpty_);
+    port_->setValidator(portValidator_);
     
     new WBreak(this);
     
@@ -114,9 +119,9 @@ void BridgeScreenWidget::update()
     new WText("Username: ", this);
     username_ = new WLineEdit();
     username_->setTextSize(18); // to hold placeholder text
-    username_->setPlaceholderText("newdeveloper"); // placeholder text
+    username_->setValueText("newdeveloper"); // placeholder text
     addWidget(username_);
-    username_->setValidator(inputNotEmpty_);
+    username_->setValidator(stringValidator_);
     
     new WBreak(this);
     
@@ -127,10 +132,12 @@ void BridgeScreenWidget::update()
     
     new WBreak(this);
     
+    //WText to handle any status messaging from user actions
     statusMessage_ = new WText("", this);
     statusMessage_->setStyleClass("error");
     statusMessage_->setHidden(true);
     
+    new WBreak(this);
     new WBreak(this);
     
     // Page title
@@ -153,20 +160,38 @@ void BridgeScreenWidget::update()
  */
 
 void BridgeScreenWidget::registerBridge() {
-    string url = "http://" + ip_->text().toUTF8() + ":" + port_->text().toUTF8() + "/api/" + username_->text().toUTF8();
-    
-    cout << "BRIDGE: Registering at URL " << url << "\n";
-    Wt::Http::Client *client = new Wt::Http::Client(this);
-    client->setTimeout(2); //2 second timeout of request
-    client->setMaximumResponseSize(1000000);
-    client->done().connect(boost::bind(&BridgeScreenWidget::registerBridgeHttp, this, _1, _2));
-    
-    if(client->get(url)) {
-        WApplication::instance()->deferRendering();
+    if(bridgename_->validate() == 2 &&
+       location_->validate() == 2 &&
+       ip_->validate() == 2 &&
+       port_->validate() == 2 &&
+       username_->validate() == 2) {
+        
+        string url = "http://" + ip_->text().toUTF8() + ":" + port_->text().toUTF8() + "/api/" + username_->text().toUTF8();
+        
+        cout << "BRIDGE: Registering at URL " << url << "\n";
+        Wt::Http::Client *client = new Wt::Http::Client(this);
+        client->setTimeout(2); //2 second timeout of request
+        client->setMaximumResponseSize(1000000);
+        client->done().connect(boost::bind(&BridgeScreenWidget::registerBridgeHttp, this, _1, _2));
+        
+        if(client->get(url)) {
+            WApplication::instance()->deferRendering();
+        }
+        else {
+            cerr << "BRIDGE: Error in client->get(url) call\n";
+            statusMessage_->setText("Unable to register bridge.");
+            statusMessage_->setHidden(false);
+        }
     }
     else {
-        cerr << "BRIDGE: Error in client->get(url) call\n";
-        statusMessage_->setText("Unable to register bridge.");
+        string errmsg = "Invalid input for: ";
+        if(bridgename_->validate() != 2) errmsg += "Name ";
+        if(location_->validate() != 2) errmsg += "Location ";
+        if(ip_->validate() != 2) errmsg += "IP ";
+        if(port_->validate() != 2) errmsg += "Port ";
+        if(username_->validate() != 2) errmsg += "Username ";
+        
+        statusMessage_->setText(errmsg);
         statusMessage_->setHidden(false);
     }
 }
@@ -297,7 +322,7 @@ void BridgeScreenWidget::viewBridgeHttp(int pos, boost::system::error_code err, 
         
         Bridge *bridge = account_->getBridgeAt(pos);
         bridge->setJson(response.body());
-
+        
         string path = "/bridges/" + to_string(pos);
         parent_->handleInternalPath(path);
     }

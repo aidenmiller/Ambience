@@ -10,6 +10,7 @@
 #include <Wt/WPushButton>
 #include <Wt/WBreak>
 #include <Wt/WLengthValidator>
+#include <Wt/WIntValidator>
 #include <Wt/WRegExpValidator>
 #include "WelcomeScreen.h"
 class BridgeScreenWidget: public Wt::WContainerWidget
@@ -36,9 +37,9 @@ private:
     Wt::WText *statusMessage_;
     Wt::WPushButton *registerBridgeButton_;
 
-    //bool validateInputFields();
-    //Wt::WRegExpValidator *ipValidator_;
-    Wt::WValidator *inputNotEmpty_;
+    Wt::WRegExpValidator *ipValidator_;
+    Wt::WRegExpValidator *stringValidator_;
+    Wt::WIntValidator *portValidator_;
 
     Bridge *bridge_;
 

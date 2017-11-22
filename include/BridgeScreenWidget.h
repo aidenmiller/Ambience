@@ -40,6 +40,13 @@ private:
     Wt::WRegExpValidator *ipValidator_;
     Wt::WRegExpValidator *stringValidator_;
     Wt::WIntValidator *portValidator_;
+    
+    Wt::WDialog *bridgeEditDialog_;
+    Wt::WLineEdit *bridgeEditName_;
+    Wt::WLineEdit *bridgeEditLocation_;
+    Wt::WLineEdit *bridgeEditIP_;
+    Wt::WLineEdit *bridgeEditPort_;
+    Wt::WLineEdit *bridgeEditUsername_;
 
     Bridge *bridge_;
 
@@ -51,8 +58,10 @@ private:
     void viewBridge(int pos);
     void viewBridgeHttp(int pos, boost::system::error_code err, const Wt::Http::Message &response);
     
+    void editBridge(int pos);
+    void updateBridge(int pos);
+    void updateBridgeHttp(int pos, boost::system::error_code err, const Wt::Http::Message &response);
     void removeBridge(int pos);
-
 };
 
 #endif //BRIDGE_SCREEN_WIDGET_H

@@ -51,6 +51,8 @@ public:
     void setUniqueid(string uniqueid) {uniqueid_ = uniqueid;}
     void setState(struct state_t state) {state_ = state;}
 
+    void toggleOnOff();
+
 private:
     string type_;
     string name_;

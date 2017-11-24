@@ -1,5 +1,5 @@
-#ifndef LIGHT_H
-#define LIGHT_H
+#ifndef GROUP_H
+#define GROUP_H
 
 #include <iostream>
 #include <regex>
@@ -16,18 +16,16 @@
 using namespace std;
 using namespace Wt;
 
-class Light {
+class Group {
     
 public:
-    Light(WString lightNum, Json::Object lightData);
+    Group(WString groupNum, Json::Object groupData);
     
-    virtual ~Light();
+    virtual ~Group();
     
     //GETTERS
-    WString getLightnum() {return lightnum_;}
+    WString getGroupnum() {return groupnum_;}
     WString getName() {return name_;}
-    WString getType() {return type_;}
-    WString getModelid() {return modelid_;}
     WString getAlert() {return alert_;}
     int getBri() {return bri_;}
     WString getColormode() {return colormode_;}
@@ -39,12 +37,12 @@ public:
     int getSat() {return sat_;}
     double getX() {return xy_[0];}
     double getY() {return xy_[1];}
+    vector<WString> getLights() {return lights_;}
+    int getNumLights() {return lights_.size();}
     
     //SETTERS
-    void setLightnum(WString lightnum) {lightnum_ = lightnum;}
+    void setGroupnum(WString groupnum) {groupnum_ = groupnum;}
     void setName(WString name) {name_ = name;}
-    void setType(WString type) {type_ = type;}
-    void setModelid(WString modelid) {modelid_ = modelid;}
     void setAlert(WString alert) {alert_ = alert;}
     void setBri(int bri) {bri_ = bri;}
     void setColormode(WString colormode) {colormode_ = colormode;}
@@ -56,14 +54,13 @@ public:
     void setSat(int sat) {sat_ = sat;}
     void setX(double x) {xy_[0] = x;}
     void setY(double y) {xy_[1] = y;}
+    void addLight(WString lightNum) {lights_.push_back(lightNum);}
     
     void toggleOnOff() {on_ = !on_;}
     
 private:
-    WString lightnum_;
+    WString groupnum_;
     WString name_;
-    WString type_;
-    WString modelid_;
     WString alert_;
     int bri_;
     WString colormode_;
@@ -74,6 +71,7 @@ private:
     bool reachable_;
     int sat_;
     double xy_[2];
+    vector<WString> lights_;
 };
 
-#endif //LIGHT_H
+#endif //GROUP_H

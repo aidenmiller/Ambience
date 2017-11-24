@@ -44,37 +44,49 @@ using namespace std;
  */
 WelcomeScreen::WelcomeScreen(WContainerWidget *parent):
 WContainerWidget(parent),
-create_(0),
-login_(0),
+createScreen_(0),
+loginScreen_(0),
 bridgeScreen_(0),
 profileScreen_(0),
-account_("","","","")
-{
+account_("","","","") {
+    //Logged Out Navigation Bar - Login, Create Account
     loggedOutNavBar_ = new WNavigationBar(this);
-    loggedOutNavBar_->setTitle("Smart Lights");
+    loggedOutNavBar_->setTitle("Ambience");
     loggedOutNavBar_->setResponsive(true);
     WMenu *loggedOutLeftMenu = new WMenu();
     loggedOutNavBar_->addMenu(loggedOutLeftMenu);
-    loggedOutLeftMenu->addItem("Login")->setLink(WLink(WLink::InternalPath, "/login"));
-    loggedOutLeftMenu->addItem("Create Account")->setLink(WLink(WLink::InternalPath, "/create"));
+
+    loginMenuItem_ = new WMenuItem("Login");
+    loginMenuItem_->setLink(WLink(WLink::InternalPath, "/login"));
+    loggedOutLeftMenu->addItem(loginMenuItem_);
     
-    navBar_ = new WNavigationBar(this);
-    navBar_->setTitle("Smart Lights");
-    navBar_->setResponsive(true);
+    createMenuItem_ = new WMenuItem("Create Account");
+    createMenuItem_->setLink(WLink(WLink::InternalPath, "/create"));
+    loggedOutLeftMenu->addItem(createMenuItem_);
     
     
-    leftMenu_ = new WMenu();
-    navBar_->addMenu(leftMenu_);
+    //Logged In Navigation Bar - Profile, Bridges, Logout
+    loggedInNavBar_ = new WNavigationBar(this);
+    loggedInNavBar_->setTitle("Ambience");
+    loggedInNavBar_->setResponsive(true);
+    //Left Menu contains Profile and Bridges
+    WMenu *loggedInLeftMenu = new WMenu();
+    loggedInNavBar_->addMenu(loggedInLeftMenu);
     profileMenuItem_ = new WMenuItem("Profile");
     profileMenuItem_->setLink(WLink(WLink::InternalPath, "/profile"));
-    leftMenu_->addItem(profileMenuItem_);
-    leftMenu_->addItem("Bridges")->setLink(WLink(WLink::InternalPath, "/bridges"));
+    loggedInLeftMenu->addItem(profileMenuItem_);
+    bridgesMenuItem_ = new WMenuItem("Bridges");
+    bridgesMenuItem_->setLink(WLink(WLink::InternalPath, "/bridges"));
+    loggedInLeftMenu->addItem(bridgesMenuItem_);
+    //Right Menu contains Logout button
+    WMenu *loggedInRightMenu = new WMenu();
+    loggedInNavBar_->addMenu(loggedInRightMenu, AlignmentFlag::AlignRight);
+    logoutMenuItem_ = new WMenuItem("Logout");
+    logoutMenuItem_->setLink(WLink(WLink::InternalPath, "/logout"));
+    loggedInRightMenu->addItem(logoutMenuItem_);
     
-    rightMenu_ = new WMenu();
-    navBar_->addMenu(rightMenu_, AlignmentFlag::AlignRight);
-    rightMenu_->addItem("Logout")->setLink(WLink(WLink::InternalPath, "/logout"));
-    navBar_->setHidden(true);
-    
+    //hide loggedInNavBar_ as this is the logged in menu
+    loggedInNavBar_->setHidden(true);
     
     serverMessage_ = new WText("You are connected to the Team 13 Production Server", this);
     new WBreak(this);
@@ -96,12 +108,11 @@ account_("","","","")
  *   @param  internalPath is the page name to be re-directed to
  *   @return  void
  */
-void WelcomeScreen::handleInternalPath(const string &internalPath)
-{
+void WelcomeScreen::handleInternalPath(const string &internalPath) {
     if (account_.isAuth()) {
         welcome_image_->setHidden(true);
         loggedOutNavBar_->setHidden(true);
-        navBar_->setHidden(false);
+        loggedInNavBar_->setHidden(false);
         serverMessage_->setHidden(true);
         
         updateProfileName();
@@ -109,7 +120,6 @@ void WelcomeScreen::handleInternalPath(const string &internalPath)
         regex re("/bridges/(\\d{1,3})");
         
         if (internalPath == "/bridges") { // opens bridge page
-            leftMenu_->select(1);
             bridgeScreen();
         }
         else if (regex_match(internalPath, re)) {
@@ -122,37 +132,36 @@ void WelcomeScreen::handleInternalPath(const string &internalPath)
             profileScreen();
         }
         else if (internalPath == "/logout") {
-            logout();
-        }
-        else  { // defaults to profile page
-            WApplication::instance()->setInternalPath("/profile", true);
+            account_.logout();
+            logoutMenuItem_->renderSelected(false);
+            WApplication::instance()->setInternalPath("/login", true);
         }
     }
     else {
         welcome_image_->setHidden(true);
         loggedOutNavBar_->setHidden(false);
-        navBar_->setHidden(true);
+        loggedInNavBar_->setHidden(true);
         
         serverMessage_->setHidden(false);
         
-        if (internalPath == "/create") // opens create page
-            createAccount();
-        else if (internalPath == "/login") // opens login page
-            login();
-        else { // opens create page by default for any other path changes
-            WApplication::instance()->setInternalPath("/create", true);
+        if (internalPath == "/create") {// opens create page
+            createAccountScreen();
+        }
+        else if (internalPath == "/login") { // opens login page
+            loginScreen();
         }
     }
 }
 
 void WelcomeScreen::lightManagementScreen(int index) {
     Bridge *bridge = account_.getBridgeAt(index);
+    //WApplication::instance()->setInternalPath("/bridges/" + to_string(index), true);
     
-    WApplication::instance()->setInternalPath("/bridges/" + to_string(index), true);
     if (lightManage_[index] == NULL) {
         lightManage_[index] = new LightManagementWidget(mainStack_, bridge, this);
     }
     mainStack_->setCurrentWidget(lightManage_[index]);
+    bridgesMenuItem_->renderSelected(true);
     lightManage_[index]->update();
 }
 
@@ -161,15 +170,13 @@ void WelcomeScreen::lightManagementScreen(int index) {
  *           creation screen
  *   @return void
  */
-void WelcomeScreen::createAccount()
-{
-    if (!create_) {
-        create_ = new CreateAccountWidget(mainStack_, &account_, this);
+void WelcomeScreen::createAccountScreen() {
+    if (!createScreen_) {
+        createScreen_ = new CreateAccountWidget(mainStack_, &account_, this);
     }
-    
-    mainStack_->setCurrentWidget(create_);
-    
-    create_->update();
+    mainStack_->setCurrentWidget(createScreen_);
+    createMenuItem_->renderSelected(true);
+    createScreen_->update();
 }
 
 /**
@@ -177,15 +184,12 @@ void WelcomeScreen::createAccount()
  *           profile management screen
  *   @return void
  */
-void WelcomeScreen::profileScreen()
-{
+void WelcomeScreen::profileScreen() {
     if (!profileScreen_) {
         profileScreen_ = new ProfileWidget(mainStack_, &account_, this);
     }
-    
-    
     mainStack_->setCurrentWidget(profileScreen_);
-    
+    profileMenuItem_->renderSelected(true);
     profileScreen_->update();
 }
 
@@ -194,25 +198,13 @@ void WelcomeScreen::profileScreen()
  *           login screen
  *   @return void
  */
-void WelcomeScreen::login()
-{
-    WApplication::instance()->setInternalPath("/login", true);
-    if (!login_) {
-        login_ = new LoginWidget(mainStack_, &account_, this);
+void WelcomeScreen::loginScreen() {
+    if (!loginScreen_) {
+        loginScreen_ = new LoginWidget(mainStack_, &account_, this);
     }
-    mainStack_->setCurrentWidget(login_);
-    login_->update();
-}
-
-/**
- *   @brief  Logout function, updates the page to the
- *           login screen
- *   @return void
- */
-void WelcomeScreen::logout()
-{
-    account_.logout();
-    WApplication::instance()->setInternalPath("/login", true);
+    mainStack_->setCurrentWidget(loginScreen_);
+    loginMenuItem_->renderSelected(true);
+    loginScreen_->update();
 }
 
 /**
@@ -220,14 +212,12 @@ void WelcomeScreen::logout()
  *           bridge control screen
  *   @return void
  */
-void WelcomeScreen::bridgeScreen()
-{
-    WApplication::instance()->setInternalPath("/bridges", true);
-    
+void WelcomeScreen::bridgeScreen() {
     if (!bridgeScreen_) {
         bridgeScreen_ = new BridgeScreenWidget(mainStack_, &account_, this);
     }
     mainStack_->setCurrentWidget(bridgeScreen_);
+    bridgesMenuItem_->renderSelected(true);
     bridgeScreen_->update();
 }
 

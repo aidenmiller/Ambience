@@ -60,17 +60,6 @@ Schedule::Schedule(WString scheduleNum, Json::Object scheduleData) {
         xy_[0] = -1.0;
         xy_[1] = -1.0;
     }
-    
-    cout << schedulenum_ << "\n";
-    cout << name_ << "\n";
-    cout << description_ << "\n";
-    cout << address_ << "\n";
-    cout << method_ << "\n";
-    cout << bri_ << "\n";
-    cout << transition_ << "\n";
-    cout << on_ << "\n";
-    cout << xy_[0] << "\n";
-    cout << xy_[1] << "\n";
 }
 
 /**

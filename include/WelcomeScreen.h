@@ -40,28 +40,26 @@ public:
 
 private:
     Wt::WImage *welcome_image_;
-    Wt::WMenu *leftMenu_;
-    Wt::WMenu *rightMenu_;
-    Wt::WMenuItem *profileMenuItem_;
     Wt::WNavigationBar *loggedOutNavBar_;
-    Wt::WNavigationBar *navBar_;
+    Wt::WNavigationBar *loggedInNavBar_;
+    Wt::WMenuItem *loginMenuItem_;
+    Wt::WMenuItem *createMenuItem_;
+    Wt::WMenuItem *bridgesMenuItem_;
+    Wt::WMenuItem *profileMenuItem_;
+    Wt::WMenuItem *logoutMenuItem_;
     Wt::WText *serverMessage_;
     Wt::WAnchor *profileAnchor_;
     Wt::WAnchor *homeAnchor_;
     Wt::WStackedWidget *mainStack_; // main stack of the application
     Wt::WContainerWidget *links_; // links container that stores anchors
     
-    CreateAccountWidget *create_; // create widget
-    LoginWidget *login_; // login widget
+    CreateAccountWidget *createScreen_; // create widget
+    LoginWidget *loginScreen_; // login widget
     BridgeScreenWidget *bridgeScreen_; // bridge widget
     ProfileWidget *profileScreen_;
     
-    Wt::WAnchor *createAnchor_; // anchor for create link
-    Wt::WAnchor *loginAnchor_; // anchor for login link
-    Wt::WAnchor *logoutAnchor_; // anchor for logout link
-    void login();
-    void logout();
-    void createAccount();
+    void loginScreen();
+    void createAccountScreen();
     void bridgeScreen();
     void profileScreen();
     void lightManagementScreen(int index);

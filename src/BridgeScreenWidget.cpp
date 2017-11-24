@@ -26,6 +26,8 @@
 #include <vector>
 #include "Account.h"
 #include <Wt/Json/Value>
+#include <Wt/WSplitButton>
+#include <Wt/WPopupMenu>
 #include <Wt/Json/Object>
 #include <Wt/Json/Parser>
 #include <Wt/Json/Array>
@@ -57,7 +59,7 @@ WContainerWidget(parent)
 void BridgeScreenWidget::update()
 {
     clear(); // everytime you come back to page, reset the widgets
-    
+
     //ip address validator - ensure non-empty proper IP format
     ipValidator_ = new WRegExpValidator("(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])", this);
     ipValidator_->setInvalidNoMatchText("Invalid IP Address");
@@ -69,14 +71,16 @@ void BridgeScreenWidget::update()
     //port validator - ensure non-empty valid port
     portValidator_ = new WIntValidator(0, 65535, this);
     portValidator_->setMandatory(true);
-    
-    
+
+
+    useridValidator_ = new WRegExpValidator("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}", this);
+
     // Page title
     WText *title = new WText("Register a new Hue Bridge", this);
     title->setStyleClass("title");
-    
+
     new WBreak(this);
-    
+
     //Bridge Name
     new WText("Bridge Name: ", this);
     bridgename_ = new WLineEdit();
@@ -84,9 +88,9 @@ void BridgeScreenWidget::update()
     bridgename_->setPlaceholderText("Mr. Bridge"); // placeholder text
     addWidget(bridgename_);
     bridgename_->setValidator(stringValidator_);
-    
+
     new WBreak(this);
-    
+
     //Bridge Location
     new WText("Location: ", this);
     location_ = new WLineEdit();
@@ -94,9 +98,9 @@ void BridgeScreenWidget::update()
     location_->setPlaceholderText("Bedroom"); // placeholder text
     addWidget(location_);
     location_->setValidator(stringValidator_);
-    
+
     new WBreak(this);
-    
+
     //ip address
     new WText("IP Address: ", this);
     ip_ = new WLineEdit();
@@ -104,9 +108,9 @@ void BridgeScreenWidget::update()
     ip_->setPlaceholderText("127.0.0.1"); // placeholder text
     addWidget(ip_);
     ip_->setValidator(ipValidator_);
-    
+
     new WBreak(this);
-    
+
     //port number
     new WText("Port Number: ", this);
     port_ = new WLineEdit();
@@ -114,9 +118,9 @@ void BridgeScreenWidget::update()
     port_->setPlaceholderText("80"); // placeholder text
     addWidget(port_);
     port_->setValidator(portValidator_);
-    
+
     new WBreak(this);
-    
+
     //username
     new WText("Username: ", this);
     username_ = new WLineEdit();
@@ -124,30 +128,30 @@ void BridgeScreenWidget::update()
     username_->setValueText("newdeveloper"); // placeholder text
     addWidget(username_);
     username_->setValidator(stringValidator_);
-    
+
     new WBreak(this);
-    
+
     //button for registering a bridge
     registerBridgeButton_ = new WPushButton("Register Bridge");
     addWidget(registerBridgeButton_);
     registerBridgeButton_->clicked().connect(this, &BridgeScreenWidget::registerBridge);
-    
+
     new WBreak(this);
-    
+
     //WText to handle any status messaging from user actions
     statusMessage_ = new WText("", this);
     statusMessage_->setStyleClass("error");
     statusMessage_->setHidden(true);
-    
+
     new WBreak(this);
     new WBreak(this);
-    
+
     // Page title
     WText *title2 = new WText("Your Bridges", this);
     title2->setStyleClass("title");
-    
+
     new WBreak(this);
-    
+
     //create WTable and call updateBridgeTable
     bridgeTable_ = new WTable(this);
     bridgeTable_->setHeaderCount(1); //set first row as header
@@ -167,15 +171,15 @@ void BridgeScreenWidget::registerBridge() {
        ip_->validate() == 2 &&
        port_->validate() == 2 &&
        username_->validate() == 2) {
-        
+
         string url = "http://" + ip_->text().toUTF8() + ":" + port_->text().toUTF8() + "/api/" + username_->text().toUTF8();
-        
+
         cout << "BRIDGE: Registering at URL " << url << "\n";
         Wt::Http::Client *client = new Wt::Http::Client(this);
         client->setTimeout(2); //2 second timeout of request
         client->setMaximumResponseSize(1000000);
         client->done().connect(boost::bind(&BridgeScreenWidget::registerBridgeHttp, this, _1, _2));
-        
+
         if(client->get(url)) {
             WApplication::instance()->deferRendering();
         }
@@ -192,7 +196,7 @@ void BridgeScreenWidget::registerBridge() {
         if(ip_->validate() != 2) errmsg += "IP ";
         if(port_->validate() != 2) errmsg += "Port ";
         if(username_->validate() != 2) errmsg += "Username ";
-        
+
         statusMessage_->setText(errmsg);
         statusMessage_->setHidden(false);
     }
@@ -213,11 +217,11 @@ void BridgeScreenWidget::registerBridgeHttp(boost::system::error_code err, const
     if (!err && response.status() == 200) {
         statusMessage_->setText("Successfully registered!");
         statusMessage_->setHidden(false);
-        
+
         //add Bridge to user account
         account_->addBridge(bridgename_->text().toUTF8(), location_->text().toUTF8(), ip_->text().toUTF8(), port_->text().toUTF8(), username_->text().toUTF8());
         account_->writeFile(); //update credentials file
-        
+
         BridgeScreenWidget::updateBridgeTable();
     }
     else {
@@ -237,7 +241,7 @@ void BridgeScreenWidget::registerBridgeHttp(boost::system::error_code err, const
 void BridgeScreenWidget::updateBridgeTable(){
     //remove any existing entries
     bridgeTable_->clear();
-    
+
     //only populate if there are bridges existing
     if(account_->getNumBridges() > 0) {
         //create new row for headers <tr>
@@ -247,33 +251,44 @@ void BridgeScreenWidget::updateBridgeTable(){
         tableRow->elementAt(1)->addWidget(new Wt::WText("Location"));
         tableRow->elementAt(2)->addWidget(new Wt::WText("URL"));
         tableRow->elementAt(3)->addWidget(new Wt::WText("Actions"));
-        
+
+
         int counter = 0;
         //populate each row with user account bridges
         for(auto &bridge : account_->getBridges()) {
             //create new row for entry <tr>
             tableRow = bridgeTable_->insertRow(bridgeTable_->rowCount());
-            
+
             //table data <td>
             tableRow->elementAt(0)->addWidget(new Wt::WText(bridge.getName()));
             tableRow->elementAt(1)->addWidget(new Wt::WText(bridge.getLocation()));
-            
+
             string url = "http://" + bridge.getIP() + ":" + bridge.getPort() + "/api/" + bridge.getUsername();
             tableRow->elementAt(2)->addWidget(new Wt::WText(url));
-            
+
             WPushButton *viewBridgeButton = new WPushButton("View");
             viewBridgeButton->clicked().connect(boost::bind(&BridgeScreenWidget::viewBridge, this, counter));
-            
-            WPushButton *editBridgeButton = new WPushButton("Edit");
-            editBridgeButton->clicked().connect(boost::bind(&BridgeScreenWidget::editBridge, this, counter));
-            
+
+            WSplitButton *editBridgeButton = new WSplitButton("Edit");
+            WPopupMenu *editBridgePopup = new WPopupMenu();
+            WPopupMenuItem *share = new WPopupMenuItem("Share Bridge");
+            editBridgePopup->addItem(share);
+
+            editBridgeButton->dropDownButton()->setMenu(editBridgePopup);
+
+            editBridgeButton->actionButton()->clicked().connect(boost::bind(&BridgeScreenWidget::editBridge, this, counter));
+
+            share->triggered().connect(boost::bind(&BridgeScreenWidget::shareBridgeDialog, this, counter));
+
             WPushButton *removeBridgeButton = new WPushButton("Remove");
             removeBridgeButton->clicked().connect(boost::bind(&BridgeScreenWidget::removeBridge, this, counter));
-            
+
             tableRow->elementAt(3)->addWidget(viewBridgeButton);
             tableRow->elementAt(3)->addWidget(editBridgeButton);
             tableRow->elementAt(3)->addWidget(removeBridgeButton);
-            
+
+
+
             counter++;
         }
     }
@@ -290,13 +305,13 @@ void BridgeScreenWidget::updateBridgeTable(){
 void BridgeScreenWidget::viewBridge(int pos) {
     Bridge *bridge = account_->getBridgeAt(pos);
     string url = "http://" + bridge->getIP() + ":" + bridge->getPort() + "/api/" + bridge->getUsername();
-    
+
     cout << "BRIDGE: Connecting to URL " << url << "\n";
     Wt::Http::Client *client = new Wt::Http::Client(this);
     client->setTimeout(2); //2 second timeout of request
     client->setMaximumResponseSize(1000000);
     client->done().connect(boost::bind(&BridgeScreenWidget::viewBridgeHttp, this, pos, _1, _2));
-    
+
     if(client->get(url)) {
         WApplication::instance()->deferRendering();
     }
@@ -321,10 +336,10 @@ void BridgeScreenWidget::viewBridgeHttp(int pos, boost::system::error_code err, 
     if (!err && response.status() == 200) {
         statusMessage_->setText("Successfully Connected to Bridge");
         statusMessage_->setHidden(false);
-        
+
         Bridge *bridge = account_->getBridgeAt(pos);
         bridge->setJson(response.body());
-        
+
         string path = "/bridges/" + to_string(pos);
         parent_->handleInternalPath(path);
     }
@@ -345,51 +360,133 @@ void BridgeScreenWidget::viewBridgeHttp(int pos, boost::system::error_code err, 
  */
 void BridgeScreenWidget::editBridge(int pos) {
     Bridge *bridge = account_->getBridgeAt(pos);
-    
+
     bridgeEditDialog_ = new WDialog("Edit Bridge"); // title
-    
+
     new WLabel("Bridge Name: ", bridgeEditDialog_->contents());
     bridgeEditName_ = new WLineEdit(bridgeEditDialog_->contents());
     bridgeEditName_->setValueText(bridge->getName());
     bridgeEditName_->setValidator(stringValidator_);
     new WBreak(bridgeEditDialog_->contents());
-    
+
     new WLabel("Bridge Location: ", bridgeEditDialog_->contents());
     bridgeEditLocation_ = new WLineEdit(bridgeEditDialog_->contents());
     bridgeEditLocation_->setValueText(bridge->getLocation());
     bridgeEditLocation_->setValidator(stringValidator_);
     new WBreak(bridgeEditDialog_->contents());
-    
+
     new WLabel("Bridge IP: ", bridgeEditDialog_->contents());
     bridgeEditIP_ = new WLineEdit(bridgeEditDialog_->contents());
     bridgeEditIP_->setValueText(bridge->getIP());
     bridgeEditIP_->setValidator(ipValidator_);
     new WBreak(bridgeEditDialog_->contents());
-    
+
     new WLabel("Bridge Port: ", bridgeEditDialog_->contents());
     bridgeEditPort_ = new WLineEdit(bridgeEditDialog_->contents());
     bridgeEditPort_->setValueText(bridge->getPort());
     bridgeEditPort_->setValidator(portValidator_);
     new WBreak(bridgeEditDialog_->contents());
-    
+
     new WLabel("Bridge Username: ", bridgeEditDialog_->contents());
     bridgeEditUsername_ = new WLineEdit(bridgeEditDialog_->contents());
     bridgeEditUsername_->setValueText(bridge->getUsername());
     bridgeEditUsername_->setValidator(stringValidator_);
     new WBreak(bridgeEditDialog_->contents());
-    
-    
+
+
     // make okay and cancel buttons, cancel sends a reject dialogstate, okay sends an accept
     WPushButton *ok = new WPushButton("OK", bridgeEditDialog_->contents());
     WPushButton *cancel = new WPushButton("Cancel", bridgeEditDialog_->contents());
-    
+
     ok->clicked().connect(bridgeEditDialog_, &WDialog::accept);
     cancel->clicked().connect(bridgeEditDialog_, &WDialog::reject);
-    
+
     // when the user is finished, call the updateBridge function
     bridgeEditDialog_->finished().connect(boost::bind(&BridgeScreenWidget::updateBridge, this, pos));
     bridgeEditDialog_->show();
 }
+
+/**
+ *   @brief  Opens a WDialog box to share specified Bridge
+ *
+ *   @param   pos the position of the Bridge in user account vector to view
+ *
+ *   @return  void
+ *
+ */
+void BridgeScreenWidget::shareBridgeDialog(int pos) {
+
+
+
+    bridgeShareDialog_ = new WDialog("Share Bridge"); // title
+
+    new WLabel("UserID to share with: ", bridgeShareDialog_->contents());
+    bridgeShareUserid_ = new WLineEdit(bridgeShareDialog_->contents());
+
+    bridgeShareUserid_->setValidator(useridValidator_);
+    new WBreak(bridgeShareDialog_->contents());
+
+
+    // make okay and cancel buttons, cancel sends a reject dialogstate, okay sends an accept
+    WPushButton *ok = new WPushButton("OK", bridgeShareDialog_->contents());
+    WPushButton *cancel = new WPushButton("Cancel", bridgeShareDialog_->contents());
+
+    ok->clicked().connect(bridgeShareDialog_, &WDialog::accept);
+    cancel->clicked().connect(bridgeShareDialog_, &WDialog::reject);
+
+    // when the user is finished, call the shareBridge function
+    bridgeShareDialog_->finished().connect(boost::bind(&BridgeScreenWidget::shareBridge, this, pos));
+
+    bridgeShareDialog_->show();
+}
+/**
+ *   @brief  share specific Bridge connected to user account to another user account. Returns status message from Http method if the Bridge is unreachable.
+ *
+ *   @param   pos the position of the Bridge in user account vector to update
+ *
+ *   @return  void
+ *
+ */
+void BridgeScreenWidget::shareBridge(int pos) {
+    // if user clicked "cancel" in dialog box, don't do anything
+    if (bridgeShareDialog_->result() == WDialog::DialogCode::Rejected)
+        return;
+
+        ofstream outFile;
+        ifstream inFile;
+        string str;
+        string filename = "credentials/" + bridgeShareUserid_->text().toUTF8() + ".txt";
+
+        inFile.open(filename.c_str()); // opens username.txt
+
+
+        Bridge *bridge = account_->getBridgeAt(pos);
+
+    if(bridgeShareUserid_->validate() == 2 && inFile) {
+        inFile.close();
+        outFile.open(filename.c_str(), ios_base::app); // opens username.txt
+
+        outFile << bridge->getName() << ", "
+        << bridge->getLocation() << ", "
+        << bridge->getIP() << ", "
+        << bridge->getPort() << ", "
+        << bridge->getUsername() << "\n";
+
+        string successmsg = "Bridge share successful, next time they log in " + bridgeShareUserid_->text().toUTF8() + " will be able to control this bridge";
+
+        statusMessage_->setText(successmsg);
+        statusMessage_->removeStyleClass("error");
+        statusMessage_->setHidden(false);
+    }
+    else {
+        string errmsg = "Error sharing bridge: Invalid username input ";
+
+        statusMessage_->setText(errmsg);
+        statusMessage_->setStyleClass("error");
+        statusMessage_->setHidden(false);
+    }
+}
+
 
 /**
  *   @brief  Edit specific Bridge connected to user account. Returns status message from Http method if the Bridge is unreachable.
@@ -403,21 +500,21 @@ void BridgeScreenWidget::updateBridge(int pos) {
     // if user clicked "cancel" in dialog box, don't do anything
     if (bridgeEditDialog_->result() == WDialog::DialogCode::Rejected)
         return;
-    
+
     if(bridgeEditName_->validate() == 2 &&
        bridgeEditLocation_->validate() == 2 &&
        bridgeEditIP_->validate() == 2 &&
        bridgeEditPort_->validate() == 2 &&
        bridgeEditUsername_->validate() == 2) {
-        
+
         string url = "http://" + bridgeEditIP_->text().toUTF8() + ":" + bridgeEditPort_->text().toUTF8() + "/api/" + bridgeEditUsername_->text().toUTF8();
-        
+
         cout << "BRIDGE: Connecting to URL " << url << "\n";
         Wt::Http::Client *client = new Wt::Http::Client(this);
         client->setTimeout(2); //2 second timeout of request
         client->setMaximumResponseSize(1000000);
         client->done().connect(boost::bind(&BridgeScreenWidget::updateBridgeHttp, this, pos, _1, _2));
-        
+
         if(client->get(url)) {
             WApplication::instance()->deferRendering();
         }
@@ -432,7 +529,7 @@ void BridgeScreenWidget::updateBridge(int pos) {
         if(bridgeEditIP_->validate() != 2) errmsg += "IP ";
         if(bridgeEditPort_->validate() != 2) errmsg += "Port ";
         if(bridgeEditUsername_->validate() != 2) errmsg += "Username ";
-        
+
         statusMessage_->setText(errmsg);
         statusMessage_->setHidden(false);
     }
@@ -454,14 +551,14 @@ void BridgeScreenWidget::updateBridgeHttp(int pos, boost::system::error_code err
     if (!err && response.status() == 200) {
         statusMessage_->setText("Successfully updated Bridge.");
         statusMessage_->setHidden(false);
-        
+
         Bridge *bridge = account_->getBridgeAt(pos);
         bridge->setName(bridgeEditName_->text().toUTF8());
         bridge->setLocation(bridgeEditLocation_->text().toUTF8());
         bridge->setIP(bridgeEditIP_->text().toUTF8());
         bridge->setPort(bridgeEditPort_->text().toUTF8());
         bridge->setUsername(bridgeEditUsername_->text().toUTF8());
-        
+
         account_->writeFile();
         BridgeScreenWidget::updateBridgeTable();
     }

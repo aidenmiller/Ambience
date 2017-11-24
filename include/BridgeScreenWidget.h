@@ -39,8 +39,9 @@ private:
 
     Wt::WRegExpValidator *ipValidator_;
     Wt::WRegExpValidator *stringValidator_;
+    Wt::WRegExpValidator *useridValidator_;
     Wt::WIntValidator *portValidator_;
-    
+
     Wt::WDialog *bridgeEditDialog_;
     Wt::WLineEdit *bridgeEditName_;
     Wt::WLineEdit *bridgeEditLocation_;
@@ -48,17 +49,22 @@ private:
     Wt::WLineEdit *bridgeEditPort_;
     Wt::WLineEdit *bridgeEditUsername_;
 
+    Wt::WDialog *bridgeShareDialog_;
+    Wt::WLineEdit *bridgeShareUserid_;
+
     Bridge *bridge_;
 
     void updateBridgeTable();
 
     void registerBridge();
     void registerBridgeHttp(boost::system::error_code err, const Wt::Http::Message &response);
-    
+
     void viewBridge(int pos);
     void viewBridgeHttp(int pos, boost::system::error_code err, const Wt::Http::Message &response);
-    
+
     void editBridge(int pos);
+    void shareBridgeDialog(int pos);
+    void shareBridge(int pos);
     void updateBridge(int pos);
     void updateBridgeHttp(int pos, boost::system::error_code err, const Wt::Http::Message &response);
     void removeBridge(int pos);

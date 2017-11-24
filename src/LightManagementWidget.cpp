@@ -179,6 +179,16 @@ void LightManagementWidget::displayLights() {
         //tableRow->elementAt(0)->addWidget(new Wt::WText(light.get("name")));
         tableRow->elementAt(0)->addWidget(new Wt::WText("name"));
 
+        // brightness slider
+        tableRow->elementAt(1)->addWidget(new WLabel("Brightness: "));
+
+        WSlider *brightnessSlider_ = new WSlider();
+        brightnessSlider_->resize(200,20);
+        brightnessSlider_->setMinimum(0);
+        brightnessSlider_->setMaximum(100);
+        brightnessSlider_->valueChanged().connect(boost::bind(&LightManagementWidget::updateLight, this, brightnessSlider_)); //have to pass the whole damn slider for some reason
+
+        tableRow->elementAt(1)->addWidget(brightnessSlider_);
 
         WPushButton *switchButton_ = new WPushButton("On/Off");
         //switchButton->clicked().connect(boost::bind(&BridgeScreenWidget::viewBridge, this, counter));
@@ -186,9 +196,8 @@ void LightManagementWidget::displayLights() {
         WPushButton *editLightButton_ = new WPushButton("Edit");
         editLightButton_->clicked().connect(boost::bind(&LightManagementWidget::editLight, this, i));
 
-
-        tableRow->elementAt(1)->addWidget(switchButton_);
-        tableRow->elementAt(1)->addWidget(editLightButton_);
+        tableRow->elementAt(2)->addWidget(switchButton_);
+        tableRow->elementAt(2)->addWidget(editLightButton_);
 
         i++;
     }
@@ -278,7 +287,6 @@ void LightManagementWidget::editLight(int pos) {
 
     new WLabel("Light Name: ", lightEditDialog_->contents());
     lightEditName_ = new WLineEdit(lightEditDialog_->contents());
-    lightEditName_->setValueText("lightname");
     new WBreak(lightEditDialog_->contents());
 
     // make okay and cancel buttons, cancel sends a reject dialogstate, okay sends an accept
@@ -291,6 +299,10 @@ void LightManagementWidget::editLight(int pos) {
     // when the user is finished, call the updateLight function
     //lightEditDialog_->finished().connect(boost::bind(&LightManagementWidget::updateLight, this, pos));
     lightEditDialog_->show();
+}
+
+void LightManagementWidget::updateLight(WSlider *slider_){
+    cout << endl << slider_->value() << endl;
 }
 
 void LightManagementWidget::displayGroups() {

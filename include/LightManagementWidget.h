@@ -5,6 +5,7 @@
 #include <Wt/WTable>
 #include <Wt/WDialog>
 #include <Wt/WLabel>
+#include <Wt/WSlider>
 #include "WelcomeScreen.h"
 
 class LightManagementWidget: public Wt::WContainerWidget
@@ -36,6 +37,7 @@ private:
     Wt::WContainerWidget *schedulesWidget_;
 
     void editLight(int pos);
+    void updateLight(WSlider *slider_);
 
     Wt::WDialog *lightEditDialog_;
     Wt::WLineEdit *lightEditName_;

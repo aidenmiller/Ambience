@@ -26,12 +26,15 @@ private:
     void displaySchedules();
     Wt::WStackedWidget *lightManagementStack_; // main stack of the screen
 
+    void viewOverviewWidget();
     void viewLightsWidget();
     void viewGroupsWidget();
     void viewSchedulesWidget();
+    void createOverviewWidget();
     void createLightWidget();
     void createGroupsWidget();
     void createSchedulesWidget();
+    Wt::WContainerWidget *overviewWidget_;
     Wt::WContainerWidget *lightsWidget_;
     Wt::WContainerWidget *groupsWidget_;
     Wt::WContainerWidget *schedulesWidget_;

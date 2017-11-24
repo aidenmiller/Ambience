@@ -24,6 +24,11 @@
 #include <Wt/Json/Object>
 #include <Wt/Json/Parser>
 #include <Wt/Json/Array>
+#include <Wt/WCalendar>
+#include <Wt/WDate>
+#include <Wt/WDateEdit>
+#include <Wt/WTemplate>
+#include <Wt/WTimeEdit>
 
 using namespace Wt;
 using namespace std;
@@ -97,7 +102,7 @@ void LightManagementWidget::update()
 
     menu->setStyleClass("nav nav-pills nav-stacked");
     menu->setWidth(150);
-
+    cout<<"WHAT UP\n";
 
 
 
@@ -144,7 +149,16 @@ void LightManagementWidget::viewGroupsWidget(){
 
 void LightManagementWidget::createSchedulesWidget(){
         schedulesWidget_ = new WContainerWidget();
-        new WText("I am part of scedulesWidget_", schedulesWidget_);
+
+        schedulesWidget_->setContentAlignment(AlignCenter);
+
+        WPushButton *newScheduleButton = new WPushButton("Add +");
+
+        newScheduleButton->clicked().connect(boost::bind(&LightManagementWidget::createScheduleDialog, this));
+        schedulesWidget_->addWidget(newScheduleButton);
+        schedulesTable_ = new WTable(schedulesWidget_);
+        schedulesTable_->setHeaderCount(1);
+        displaySchedules();
 }
 
 void LightManagementWidget::viewSchedulesWidget(){
@@ -193,7 +207,7 @@ void LightManagementWidget::displayLights() {
         i++;
     }
 
-    /*
+    /* {
         new WText("Light #" + boost::lexical_cast<string>(i), this);
         new WBreak(this);
 
@@ -263,7 +277,7 @@ void LightManagementWidget::displayLights() {
 
         new WBreak(this); //line to separate different lights
 
-        i++;
+        i++; }
         */
 }
 
@@ -386,10 +400,76 @@ void LightManagementWidget::displayGroups() {
 }
 
 void LightManagementWidget::displaySchedules() {
+
+    schedulesTable_->clear();
+
     //convert json string into json object
     Json::Object bridgeJson;
     Json::parse(bridge_->getJson(), bridgeJson);
 
+    Json::Object schedules = bridgeJson.get("schedules");
+    int i = 1;
+
+    // create row for headers table
+    WTableRow *tableRow = schedulesTable_->insertRow(schedulesTable_->rowCount());
+
+    tableRow->elementAt(0)->addWidget(new WText("Schedules"));
+    tableRow->elementAt(1)->addWidget(new WText("Description"));
+    tableRow->elementAt(2)->addWidget(new WText("Action"));
+    tableRow->elementAt(3)->addWidget(new WText("Time"));
+
+    while(true) {
+
+        if(schedules.isNull(boost::lexical_cast<string>(i))) break;
+
+        Json::Object schedule = schedules.get(boost::lexical_cast<string>(i));
+
+        tableRow = schedulesTable_->insertRow(schedulesTable_->rowCount());
+
+        tableRow->elementAt(0)->addWidget(new WText(schedule.get("name")));
+        tableRow->elementAt(1)->addWidget(new WText(schedule.get("description")));
+
+         Json::Object command = schedule.get("command");
+         Json::Object body = command.get("body");
+
+            if(body.type("xy") != 0) {
+                Json::Array xy = body.get("xy");
+                double x = xy[0];
+                tableRow->elementAt(2)->addWidget(new WText("X: " + boost::lexical_cast<string>(x)));
+                tableRow->elementAt(2)->addWidget(new WBreak());
+
+                double y = xy[1];
+                tableRow->elementAt(2)->addWidget(new WText("Y: " + boost::lexical_cast<string>(y)));
+                tableRow->elementAt(2)->addWidget(new WBreak());
+        }
+        if(body.type("bri") != 0) {
+            int bri = body.get("bri");
+            tableRow->elementAt(2)->addWidget(new WText("Bri: " + boost::lexical_cast<string>(bri)));
+            tableRow->elementAt(2)->addWidget(new WBreak());
+        }
+        if(body.type("transition") != 0) {
+            int transition = body.get("transition");
+            tableRow->elementAt(2)->addWidget(new WText("Transition: " + boost::lexical_cast<string>(transition)));
+            tableRow->elementAt(2)->addWidget(new WBreak());
+        }
+
+        WString time = schedule.get("time");
+        tableRow->elementAt(3)->addWidget(new WText(time));
+
+        WPushButton *editScheduleButton = new WPushButton("Edit Schedule");
+        //editScheduleButton->clicked().connect
+
+        WPushButton *removeScheduleButton = new WPushButton("Remove Bridge");
+        //removeScheduleButton_->clicked().connect(boost::bind(FUNCTION TO REMOVE sched, this, i));
+
+        tableRow->elementAt(4)->addWidget(editScheduleButton);
+        tableRow->elementAt(4)->addWidget(removeScheduleButton);
+
+
+
+        i++;
+    }
+/*
     // Schedules header
     WText *schedulesTitle = new WText("Schedules", this);
     schedulesTitle->setStyleClass("title");
@@ -458,6 +538,46 @@ void LightManagementWidget::displaySchedules() {
 
         new WBreak(this); //line to separate different schedules
 
-        i++;
-    }
+        i++; */
+
+}
+
+void LightManagementWidget::createScheduleDialog() {
+
+
+    createScheduleDialog_ = new WDialog("Create a Schedule"); // title
+
+    new WLabel("Schedule Name: ", createScheduleDialog_->contents());
+    WLineEdit *scheduleName = new WLineEdit(createScheduleDialog_->contents());
+    scheduleName->setValueText("schedule");
+    new WBreak(createScheduleDialog_->contents());
+
+    new WLabel("Description: ", createScheduleDialog_->contents());
+    WLineEdit *description = new WLineEdit(createScheduleDialog_->contents());
+    description->setValueText("description");
+    new WBreak(createScheduleDialog_->contents());
+
+    //WTemplate *form = new WTemplate(WString::tr("dateEdit-template"), createScheduleDialog_->contents());
+    //form->addFunction("id", &WTemplate::Functions::id);
+
+    WDateEdit *dateEdit = new WDateEdit(createScheduleDialog_->contents());
+    //form->bindWidget("from",dateEdit);
+    dateEdit->setDate(WDate::currentServerDate());
+    new WBreak(createScheduleDialog_->contents());
+
+    WTimeEdit *timeEdit = new WTimeEdit(createScheduleDialog_->contents());
+    timeEdit->setTime(WTime::currentTime());
+    new WBreak(createScheduleDialog_->contents());
+
+
+    // make okay and cancel buttons, cancel sends a reject dialogstate, okay sends an accept
+    WPushButton *ok = new WPushButton("OK", createScheduleDialog_->contents());
+    WPushButton *cancel = new WPushButton("Cancel", createScheduleDialog_->contents());
+
+    ok->clicked().connect(createScheduleDialog_, &WDialog::accept);
+    cancel->clicked().connect(createScheduleDialog_, &WDialog::reject);
+
+    // when the user is finished, call the ADD SCHEDULE function
+    //createScheduleDialog_->finished().connect(boost::bind(&LightManagementWidget::addSchedule, this, pos));
+    createScheduleDialog_->show();
 }

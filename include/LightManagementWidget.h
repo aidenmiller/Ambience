@@ -40,6 +40,10 @@ private:
     Wt::WDialog *lightEditDialog_;
     Wt::WLineEdit *lightEditName_;
     Wt::WTable *lightsTable_;
+
+    Wt::WTable *schedulesTable_;
+    void createScheduleDialog();
+    Wt::WDialog *createScheduleDialog_;
 };
 
 

@@ -16,29 +16,56 @@
 /**
  *   @brief  Light constructor
  *
+ *   @param  lightNum the number key for the Light in the Hue API
  *   @param  lightData the Json object of a Light from the Hue API
  *
  */
-Light::Light(int lightNum, Json::Object lightData) {
+Light::Light(WString lightNum, Json::Object lightData) {
     lightnum_ = lightNum;
-    name_ = lightData.get("name");
-    type_ = lightData.get("type");
-    modelid_ = lightData.get("modelid");
+    if(lightData.type("name") != 0) name_ = lightData.get("name");
+    else name_ = "null";
+    if(lightData.type("type") != 0) type_ = lightData.get("type");
+    else type_ = "null";
+    if(lightData.type("modelid") != 0) modelid_ = lightData.get("modelid");
+    else modelid_ = "null";
     
     Json::Object state = lightData.get("state");
-    alert_ = state.get("alert");
-    bri_ = state.get("bri");
-    colormode_ = state.get("colormode");
-    ct_ = state.get("ct");
-    effect_ = state.get("effect");
-    hue_ = state.get("hue");
-    on_ = state.get("on");
-    reachable_ = state.get("reachable");
-    sat_ = state.get("sat");
+    if(state.type("alert") != 0) alert_ = state.get("alert");
+    else alert_ = "null";
     
-    Json::Array xy = state.get("xy");
-    x_ = xy[0];
-    y_ = xy[1];
+    if(state.type("bri") != 0) bri_ = state.get("bri");
+    else bri_ = -1;
+    
+    if(state.type("colormode") != 0) colormode_ = state.get("colormode");
+    else colormode_ = "null";
+    
+    if(state.type("ct") != 0) ct_ = state.get("ct");
+    else ct_ = -1;
+    
+    if(state.type("effect") != 0) effect_ = state.get("effect");
+    else effect_ = "null";
+    
+    if(state.type("hue") != 0) hue_ = state.get("hue");
+    else hue_ = -1;
+    
+    if(state.type("on") != 0) on_ = state.get("on");
+    else on_ = 0;
+    
+    if(state.type("reachable") != 0) reachable_ = state.get("reachable");
+    else reachable_ = 0;
+    
+    if(state.type("sat") != 0) sat_ = state.get("sat");
+    else sat_ = -1;
+    
+    if(state.type("xy") != 0) {
+        Json::Array xy = state.get("xy");
+        xy_[0] = xy[0];
+        xy_[1] = xy[1];
+    }
+    else {
+        xy_[0] = -1.0;
+        xy_[1] = -1.0;
+    }
 }
 
 /**

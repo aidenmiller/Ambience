@@ -25,7 +25,7 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
 {
     Wt::WApplication *app = new Wt::WApplication(env);
 
-    app->setTitle("Hue Light App- Team13");
+    app->setTitle("Ambience - CS3307 Team 13");
 
 
     app->setTheme(new Wt::WBootstrapTheme(app));

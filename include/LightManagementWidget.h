@@ -20,20 +20,16 @@ private:
     Wt::WContainerWidget *lightsContainer_;
     WelcomeScreen *parent_;
     Bridge *bridge_;
-
-    void displayLights();
-    void displayGroups();
-    void displaySchedules();
+    
     Wt::WStackedWidget *lightManagementStack_; // main stack of the screen
 
     void viewOverviewWidget();
     void viewLightsWidget();
     void viewGroupsWidget();
     void viewSchedulesWidget();
-    void createOverviewWidget();
-    void createLightWidget();
-    void createGroupsWidget();
-    void createSchedulesWidget();
+    void updateLightsTable();
+    void updateGroupsTable();
+    void updateSchedulesTable();
     Wt::WContainerWidget *overviewWidget_;
     Wt::WContainerWidget *lightsWidget_;
     Wt::WContainerWidget *groupsWidget_;

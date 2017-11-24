@@ -44,7 +44,11 @@ using namespace std;
  *   @param  *main is a pointer to the app's welcome screen
  */
 LightManagementWidget::LightManagementWidget(WContainerWidget *parent, Bridge *bridge, WelcomeScreen *main):
-WContainerWidget(parent)
+WContainerWidget(parent),
+overviewWidget_(0),
+lightsWidget_(0),
+groupsWidget_(0),
+schedulesWidget_(0)
 {
     setContentAlignment(AlignLeft);
     parent_ = main;
@@ -82,82 +86,66 @@ void LightManagementWidget::update()
     groupsMenuItem->triggered().connect(this, &LightManagementWidget::viewGroupsWidget);
     
     lightManagementStack_ = new WStackedWidget();
-    
-    createOverviewWidget();
-    createLightWidget();
-    createSchedulesWidget();
-    createGroupsWidget();
-    
-    lightManagementStack_->addWidget(overviewWidget_);
-    lightManagementStack_->addWidget(lightsWidget_);
-    lightManagementStack_->addWidget(schedulesWidget_);
-    lightManagementStack_->addWidget(groupsWidget_);
-    
     lightManagementStack_->setContentAlignment(AlignCenter);
     
     menu->setStyleClass("nav nav-pills nav-stacked");
     menu->setWidth(150);
     
     addWidget(lightManagementStack_);
-    
-    overviewMenuItem->select(); // set to initial view
 }
 
-void LightManagementWidget::createOverviewWidget(){
-    overviewWidget_ = new WContainerWidget();
-    overviewWidget_->setContentAlignment(AlignCenter);
-    new WText("Bridge Name: " + bridge_->getName(), overviewWidget_);
-    new WBreak(overviewWidget_);
-    new WText("Bridge Location: " + bridge_->getLocation(), overviewWidget_);
-}
 void LightManagementWidget::viewOverviewWidget(){
+    if (!overviewWidget_) {
+        overviewWidget_ = new WContainerWidget(lightManagementStack_);
+        overviewWidget_->setContentAlignment(AlignCenter);
+        
+        new WText("Bridge Name: " + bridge_->getName(), overviewWidget_);
+        new WBreak(overviewWidget_);
+        new WText("Bridge Location: " + bridge_->getLocation(), overviewWidget_);
+    }
     lightManagementStack_->setCurrentWidget(overviewWidget_);
 }
 
-void LightManagementWidget::createLightWidget(){
-    lightsWidget_ = new WContainerWidget();
-    lightsWidget_->setContentAlignment(AlignCenter);
-    lightsTable_ = new WTable(lightsWidget_);
-    lightsTable_->setHeaderCount(1); //set first row as header
-    displayLights();
-}
 void LightManagementWidget::viewLightsWidget(){
+    if (!lightsWidget_) {
+        lightsWidget_ = new WContainerWidget(lightManagementStack_);
+        lightsWidget_->setContentAlignment(AlignCenter);
+        
+        lightsTable_ = new WTable(lightsWidget_);
+        lightsTable_->setHeaderCount(1); //set first row as header
+        updateLightsTable();
+    }
     lightManagementStack_->setCurrentWidget(lightsWidget_);
 }
 
-void LightManagementWidget::createGroupsWidget(){
-    groupsWidget_ = new WContainerWidget();
-    groupsWidget_->setContentAlignment(AlignCenter);
-    groupsTable_ = new WTable(groupsWidget_);
-    groupsTable_->setHeaderCount(1); //set first row as header
-    displayGroups();
-}
 void LightManagementWidget::viewGroupsWidget(){
+    if (!groupsWidget_) {
+        groupsWidget_ = new WContainerWidget(lightManagementStack_);
+        groupsWidget_->setContentAlignment(AlignCenter);
+        
+        groupsTable_ = new WTable(groupsWidget_);
+        groupsTable_->setHeaderCount(1); //set first row as header
+        updateGroupsTable();
+    }
     lightManagementStack_->setCurrentWidget(groupsWidget_);
-    
-}
-
-void LightManagementWidget::createSchedulesWidget(){
-    schedulesWidget_ = new WContainerWidget();
-    
-    schedulesWidget_->setContentAlignment(AlignCenter);
-    
-    WPushButton *newScheduleButton = new WPushButton("Add +");
-    
-    newScheduleButton->clicked().connect(boost::bind(&LightManagementWidget::createScheduleDialog, this));
-    schedulesWidget_->addWidget(newScheduleButton);
-    schedulesTable_ = new WTable(schedulesWidget_);
-    schedulesTable_->setHeaderCount(1);
-    displaySchedules();
 }
 
 void LightManagementWidget::viewSchedulesWidget(){
-    
+    if (!schedulesWidget_) {
+        schedulesWidget_ = new WContainerWidget(lightManagementStack_);
+        schedulesWidget_->setContentAlignment(AlignCenter);
+        
+        WPushButton *newScheduleButton = new WPushButton("Add +");
+        newScheduleButton->clicked().connect(boost::bind(&LightManagementWidget::createScheduleDialog, this));
+        schedulesWidget_->addWidget(newScheduleButton);
+        schedulesTable_ = new WTable(schedulesWidget_);
+        schedulesTable_->setHeaderCount(1);
+        updateSchedulesTable();
+    }
     lightManagementStack_->setCurrentWidget(schedulesWidget_);
-    
 }
 
-void LightManagementWidget::displayLights() {
+void LightManagementWidget::updateLightsTable() {
     lightsTable_->clear();
     
     //create new row for headers <tr>
@@ -214,36 +202,7 @@ void LightManagementWidget::displayLights() {
     }
 }
 
-void LightManagementWidget::editLight(int pos) {
-    Json::Object bridgeJson;
-    Json::parse(bridge_->getJson(), bridgeJson);
-    
-    Json::Object lights = bridgeJson.get("lights");
-    Json::Object light = lights.get(boost::lexical_cast<string>(pos));
-    
-    lightEditDialog_ = new WDialog("Edit Light"); // title
-    
-    new WLabel("Light Name: ", lightEditDialog_->contents());
-    lightEditName_ = new WLineEdit(lightEditDialog_->contents());
-    new WBreak(lightEditDialog_->contents());
-    
-    // make okay and cancel buttons, cancel sends a reject dialogstate, okay sends an accept
-    WPushButton *ok = new WPushButton("OK", lightEditDialog_->contents());
-    WPushButton *cancel = new WPushButton("Cancel", lightEditDialog_->contents());
-    
-    ok->clicked().connect(lightEditDialog_, &WDialog::accept);
-    cancel->clicked().connect(lightEditDialog_, &WDialog::reject);
-    
-    // when the user is finished, call the updateLight function
-    //lightEditDialog_->finished().connect(boost::bind(&LightManagementWidget::updateLight, this, pos));
-    lightEditDialog_->show();
-}
-
-void LightManagementWidget::updateLight(WSlider *slider_){
-    cout << endl << slider_->value() << endl;
-}
-
-void LightManagementWidget::displayGroups() {
+void LightManagementWidget::updateGroupsTable() {
     groupsTable_->clear();
     
     //create new row for headers <tr>
@@ -309,7 +268,7 @@ void LightManagementWidget::displayGroups() {
     }
 }
 
-void LightManagementWidget::displaySchedules() {
+void LightManagementWidget::updateSchedulesTable() {
     schedulesTable_->clear();
     
     // create row for headers table
@@ -368,6 +327,35 @@ void LightManagementWidget::displaySchedules() {
         
         i++;
     }
+}
+
+void LightManagementWidget::editLight(int pos) {
+    Json::Object bridgeJson;
+    Json::parse(bridge_->getJson(), bridgeJson);
+    
+    Json::Object lights = bridgeJson.get("lights");
+    Json::Object light = lights.get(boost::lexical_cast<string>(pos));
+    
+    lightEditDialog_ = new WDialog("Edit Light"); // title
+    
+    new WLabel("Light Name: ", lightEditDialog_->contents());
+    lightEditName_ = new WLineEdit(lightEditDialog_->contents());
+    new WBreak(lightEditDialog_->contents());
+    
+    // make okay and cancel buttons, cancel sends a reject dialogstate, okay sends an accept
+    WPushButton *ok = new WPushButton("OK", lightEditDialog_->contents());
+    WPushButton *cancel = new WPushButton("Cancel", lightEditDialog_->contents());
+    
+    ok->clicked().connect(lightEditDialog_, &WDialog::accept);
+    cancel->clicked().connect(lightEditDialog_, &WDialog::reject);
+    
+    // when the user is finished, call the updateLight function
+    //lightEditDialog_->finished().connect(boost::bind(&LightManagementWidget::updateLight, this, pos));
+    lightEditDialog_->show();
+}
+
+void LightManagementWidget::updateLight(WSlider *slider_){
+    cout << endl << slider_->value() << endl;
 }
 
 void LightManagementWidget::createScheduleDialog() {

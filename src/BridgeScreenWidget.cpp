@@ -340,8 +340,7 @@ void BridgeScreenWidget::viewBridgeHttp(int pos, boost::system::error_code err, 
         Bridge *bridge = account_->getBridgeAt(pos);
         bridge->setJson(response.body());
 
-        string path = "/bridges/" + to_string(pos);
-        parent_->handleInternalPath(path);
+        WApplication::instance()->setInternalPath("/bridges/" + to_string(pos), true);
     }
     else {
         cerr << "Error: " << err.message() << ", " << response.status() << "\n";

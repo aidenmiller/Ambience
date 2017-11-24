@@ -118,7 +118,7 @@ void LoginWidget::submit(){
     }
     else { // if successful, redirects to bridge page
         account_->setAuth(true);
-        parent_->handleInternalPath("/bridges");
+        WApplication::instance()->setInternalPath("/bridges", true);
     }
 }
 

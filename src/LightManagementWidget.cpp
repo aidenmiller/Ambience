@@ -19,6 +19,7 @@
 #include "Bridge.h"
 #include "Light.h"
 #include "Group.h"
+#include "Schedule.h"
 #include <Wt/WContainerWidget>
 #include <Wt/WMenu>
 #include <Wt/WStackedWidget>
@@ -269,7 +270,6 @@ void LightManagementWidget::displayGroups() {
     Json::Object groups = bridgeJson.get("groups");
     
     int i = 1;
-    
     while(true) {
         //if group i does not exist then break while loop
         if(groups.isNull(boost::lexical_cast<string>(i))) break;
@@ -310,60 +310,51 @@ void LightManagementWidget::displayGroups() {
 }
 
 void LightManagementWidget::displaySchedules() {
-    
     schedulesTable_->clear();
-    
-    //convert json string into json object
-    Json::Object bridgeJson;
-    Json::parse(bridge_->getJson(), bridgeJson);
-    
-    Json::Object schedules = bridgeJson.get("schedules");
-    int i = 1;
     
     // create row for headers table
     WTableRow *tableRow = schedulesTable_->insertRow(schedulesTable_->rowCount());
-    
+    //table headers <th>
     tableRow->elementAt(0)->addWidget(new WText("Schedules"));
     tableRow->elementAt(1)->addWidget(new WText("Description"));
     tableRow->elementAt(2)->addWidget(new WText("Action"));
     tableRow->elementAt(3)->addWidget(new WText("Time"));
     
+    //convert json string into json object
+    Json::Object bridgeJson;
+    Json::parse(bridge_->getJson(), bridgeJson);
+    Json::Object schedules = bridgeJson.get("schedules");
+    
+    int i = 1;
     while(true) {
-        
+        //if group i does not exist then break while loop
         if(schedules.isNull(boost::lexical_cast<string>(i))) break;
         
-        Json::Object schedule = schedules.get(boost::lexical_cast<string>(i));
+        //if group i exists then get the json data for it and make Group object
+        Json::Object scheduleData = schedules.get(boost::lexical_cast<string>(i));
+        Schedule *schedule = new Schedule(boost::lexical_cast<string>(i), scheduleData);
         
         tableRow = schedulesTable_->insertRow(schedulesTable_->rowCount());
         
-        tableRow->elementAt(0)->addWidget(new WText(schedule.get("name")));
-        tableRow->elementAt(1)->addWidget(new WText(schedule.get("description")));
+        tableRow->elementAt(0)->addWidget(new WText(schedule->getName()));
+        tableRow->elementAt(1)->addWidget(new WText(schedule->getDescription()));
         
-        Json::Object command = schedule.get("command");
-        Json::Object body = command.get("body");
         
-        if(body.type("xy") != 0) {
-            Json::Array xy = body.get("xy");
-            double x = xy[0];
-            tableRow->elementAt(2)->addWidget(new WText("X: " + boost::lexical_cast<string>(x)));
-            tableRow->elementAt(2)->addWidget(new WBreak());
-            
-            double y = xy[1];
-            tableRow->elementAt(2)->addWidget(new WText("Y: " + boost::lexical_cast<string>(y)));
-            tableRow->elementAt(2)->addWidget(new WBreak());
-        }
-        if(body.type("bri") != 0) {
-            int bri = body.get("bri");
-            tableRow->elementAt(2)->addWidget(new WText("Bri: " + boost::lexical_cast<string>(bri)));
-            tableRow->elementAt(2)->addWidget(new WBreak());
-        }
-        if(body.type("transition") != 0) {
-            int transition = body.get("transition");
-            tableRow->elementAt(2)->addWidget(new WText("Transition: " + boost::lexical_cast<string>(transition)));
-            tableRow->elementAt(2)->addWidget(new WBreak());
-        }
+        tableRow->elementAt(2)->addWidget(new WText("X: " + boost::lexical_cast<string>(schedule->getX())));
         
-        WString time = schedule.get("time");
+        tableRow->elementAt(2)->addWidget(new WBreak());
+        
+        tableRow->elementAt(2)->addWidget(new WText("Y: " + boost::lexical_cast<string>(schedule->getY())));
+        
+        tableRow->elementAt(2)->addWidget(new WBreak());
+        
+        tableRow->elementAt(2)->addWidget(new WText("Bri: " + boost::lexical_cast<string>(schedule->getBri())));
+        
+        tableRow->elementAt(2)->addWidget(new WBreak());
+        
+        tableRow->elementAt(2)->addWidget(new WText("Transition: " + boost::lexical_cast<string>(schedule->getTransition())));
+        
+        WString time = schedule->getTime();
         tableRow->elementAt(3)->addWidget(new WText(time));
         
         WPushButton *editScheduleButton = new WPushButton("Edit Schedule");
@@ -375,81 +366,8 @@ void LightManagementWidget::displaySchedules() {
         tableRow->elementAt(4)->addWidget(editScheduleButton);
         tableRow->elementAt(4)->addWidget(removeScheduleButton);
         
-        
-        
         i++;
     }
-    /*
-     // Schedules header
-     WText *schedulesTitle = new WText("Schedules", this);
-     schedulesTitle->setStyleClass("title");
-     new WBreak(this);
-     Json::Object schedules = bridgeJson.get("schedules");
-     int i = 1;
-     while(true) {
-     if(schedules.isNull(boost::lexical_cast<string>(i))) break;
-     Json::Object schedule = schedules.get(boost::lexical_cast<string>(i));
-     new WText("Schedule #" + boost::lexical_cast<string>(i), this);
-     new WBreak(this);
-     
-     WString time = schedule.get("time");
-     new WText("Time: " + time, this);
-     new WBreak(this);
-     
-     WString description = schedule.get("description");
-     new WText("Description: " + description, this);
-     new WBreak(this);
-     
-     WString name = schedule.get("name");
-     new WText("Name: " + name, this);
-     new WBreak(this);
-     
-     new WText("**Command**", this);
-     new WBreak(this);
-     
-     Json::Object command = schedule.get("command");
-     WString address = command.get("address");
-     new WText("Address: " + address, this);
-     new WBreak(this);
-     
-     WString method = command.get("method");
-     new WText("Method: " + method, this);
-     new WBreak(this);
-     
-     new WText("****Body****", this);
-     new WBreak(this);
-     Json::Object body = command.get("body");
-     
-     bool on = body.get("on");
-     string onstr = on == 1 ? "True" : "False";
-     new WText("On: " + onstr, this);
-     new WBreak(this);
-     
-     if(body.type("xy") != 0) {
-     Json::Array xy = body.get("xy");
-     double x = xy[0];
-     new WText("X: " + boost::lexical_cast<string>(x), this);
-     new WBreak(this);
-     
-     double y = xy[1];
-     new WText("Y: " + boost::lexical_cast<string>(y), this);
-     new WBreak(this);
-     }
-     if(body.type("bri") != 0) {
-     int bri = body.get("bri");
-     new WText("Bri: " + boost::lexical_cast<string>(bri), this);
-     new WBreak(this);
-     }
-     if(body.type("transition") != 0) {
-     int transition = body.get("transition");
-     new WText("Transition: " + boost::lexical_cast<string>(transition), this);
-     new WBreak(this);
-     }
-     
-     new WBreak(this); //line to separate different schedules
-     
-     i++; */
-    
 }
 
 void LightManagementWidget::createScheduleDialog() {

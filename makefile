@@ -3,7 +3,7 @@ SRC_DIR = src
 OBJ_DIR = obj
 INC_DIR = include
 
-OBJS = MainApplication.o Hash.o WelcomeScreen.o Account.o LoginWidget.o CreateAccountWidget.o Bridge.o BridgeScreenWidget.o ProfileWidget.o LightManagementWidget.o Light.o Group.o
+OBJS = MainApplication.o Hash.o WelcomeScreen.o Account.o LoginWidget.o CreateAccountWidget.o Bridge.o BridgeScreenWidget.o ProfileWidget.o LightManagementWidget.o Light.o Group.o Schedule.o
 
 CC = g++
 DEBUG = -g
@@ -45,6 +45,9 @@ Light.o : $(INC_DIR)/Light.h $(SRC_DIR)/Light.cpp
 
 Group.o : $(INC_DIR)/Group.h $(SRC_DIR)/Group.cpp
 	$(CC) $(CFLAGS) $(SRC_DIR)/Group.cpp
+
+Schedule.o : $(INC_DIR)/Schedule.h $(SRC_DIR)/Schedule.cpp
+	$(CC) $(CFLAGS) $(SRC_DIR)/Schedule.cpp
 	
 LightManagementWidget.o: $(INC_DIR)/LightManagementWidget.h $(SRC_DIR)/LightManagementWidget.cpp
 	$(CC) $(CFLAGS) $(SRC_DIR)/LightManagementWidget.cpp

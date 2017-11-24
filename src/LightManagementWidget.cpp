@@ -17,6 +17,7 @@
 #include <unistd.h>
 #include "LightManagementWidget.h"
 #include "Bridge.h"
+#include "Light.h"
 #include <Wt/WContainerWidget>
 #include <Wt/WMenu>
 #include <Wt/WStackedWidget>
@@ -41,11 +42,6 @@ WContainerWidget(parent)
     setContentAlignment(AlignLeft);
     parent_ = main;
     bridge_ = bridge;
-
-
-
-
-
 }
 
 
@@ -59,18 +55,13 @@ void LightManagementWidget::update()
 {
     clear(); // everytime you come back to page, reset the widgets
 
-
-
-
-    // Bridge Info
-    WText *bridgeInfo = new WText("Connected to " + bridge_->getName() + " located in " + bridge_->getLocation(), this);
-    bridgeInfo->setStyleClass("title");
-    new WBreak(this);
-
     WMenu *menu = new WMenu();
     addWidget(menu);
 
-    menu->addItem("Overview");
+    WMenuItem *overviewMenuItem = new WMenuItem("Overview");
+    menu->addItem(overviewMenuItem);
+    overviewMenuItem->triggered().connect(this, &LightManagementWidget::viewOverviewWidget);
+    
     WMenuItem *lightMenuItem = new WMenuItem("Lights");
     menu->addItem(lightMenuItem);
     lightMenuItem->triggered().connect(this, &LightManagementWidget::viewLightsWidget);
@@ -85,40 +76,35 @@ void LightManagementWidget::update()
 
     lightManagementStack_ = new WStackedWidget();
 
+    createOverviewWidget();
     createLightWidget();
     createSchedulesWidget();
     createGroupsWidget();
 
-    lightManagementStack_->addWidget(groupsWidget_);
-    lightManagementStack_->addWidget(schedulesWidget_);
-
+    lightManagementStack_->addWidget(overviewWidget_);
     lightManagementStack_->addWidget(lightsWidget_);
+    lightManagementStack_->addWidget(schedulesWidget_);
+    lightManagementStack_->addWidget(groupsWidget_);
+    
     lightManagementStack_->setContentAlignment(AlignCenter);
 
     menu->setStyleClass("nav nav-pills nav-stacked");
     menu->setWidth(150);
 
-
-
-
-
     addWidget(lightManagementStack_);
+    
+    overviewMenuItem->select(); // set to initial view
+}
 
-
-
-
-/*
-    //displayLights();
-    new WBreak(this);
-    new WBreak(this);
-
-  //  displayGroups();
-    new WBreak(this);
-    new WBreak(this);
-
-    displaySchedules();
-    new WBreak(this);
-    new WBreak(this); */
+void LightManagementWidget::createOverviewWidget(){
+    overviewWidget_ = new WContainerWidget();
+    overviewWidget_->setContentAlignment(AlignCenter);
+    new WText("Bridge Name: " + bridge_->getName(), overviewWidget_);
+    new WBreak(overviewWidget_);
+    new WText("Bridge Location: " + bridge_->getLocation(), overviewWidget_);
+}
+void LightManagementWidget::viewOverviewWidget(){
+    lightManagementStack_->setCurrentWidget(overviewWidget_);
 }
 
 void LightManagementWidget::createLightWidget(){
@@ -170,14 +156,15 @@ void LightManagementWidget::displayLights() {
 
     while(true) {
         if(lights.isNull(boost::lexical_cast<string>(i))) break;
-        Json::Object light = lights.get(boost::lexical_cast<string>(i));
+        Json::Object lightData = lights.get(boost::lexical_cast<string>(i));
+        Light *light = new Light(i, lightData);
 
         //create new row for entry <tr>
         tableRow = lightsTable_->insertRow(lightsTable_->rowCount());
 
         //table data <td>
         //tableRow->elementAt(0)->addWidget(new Wt::WText(light.get("name")));
-        tableRow->elementAt(0)->addWidget(new Wt::WText("name"));
+        tableRow->elementAt(0)->addWidget(new WText(light->getName()));
 
         // brightness slider
         tableRow->elementAt(1)->addWidget(new WLabel("Brightness: "));
@@ -185,12 +172,14 @@ void LightManagementWidget::displayLights() {
         WSlider *brightnessSlider_ = new WSlider();
         brightnessSlider_->resize(200,20);
         brightnessSlider_->setMinimum(0);
-        brightnessSlider_->setMaximum(100);
+        brightnessSlider_->setMaximum(254);
+        brightnessSlider_->setValue(light->getBri());
         brightnessSlider_->valueChanged().connect(boost::bind(&LightManagementWidget::updateLight, this, brightnessSlider_)); //have to pass the whole damn slider for some reason
 
         tableRow->elementAt(1)->addWidget(brightnessSlider_);
 
-        WPushButton *switchButton_ = new WPushButton("On/Off");
+        string onButton = light->getOn() == 1 ? "On" : "Off";
+        WPushButton *switchButton_ = new WPushButton(onButton);
         //switchButton->clicked().connect(boost::bind(&BridgeScreenWidget::viewBridge, this, counter));
 
         WPushButton *editLightButton_ = new WPushButton("Edit");
@@ -201,79 +190,6 @@ void LightManagementWidget::displayLights() {
 
         i++;
     }
-
-    /*
-        new WText("Light #" + boost::lexical_cast<string>(i), this);
-        new WBreak(this);
-
-        WString name = light.get("name");
-        new WText("Name: " + name, this);
-        new WBreak(this);
-
-        WString type = light.get("type");
-        new WText("Type: " + type, this);
-        new WBreak(this);
-
-        WString modelid = light.get("modelid");
-        new WText("ModelID: " + modelid, this);
-        new WBreak(this);
-
-        new WText("**Light State Info**", this);
-        new WBreak(this);
-
-        Json::Object state = light.get("state");
-        WString alert = state.get("alert");
-        new WText("Alert: " + alert, this);
-        new WBreak(this);
-
-        int bri = state.get("bri");
-        new WText("Bri: " + boost::lexical_cast<string>(bri), this);
-        new WBreak(this);
-
-        WString colormode = state.get("colormode");
-        new WText("Colormode: " + colormode, this);
-        new WBreak(this);
-
-        int ct = state.get("ct");
-        new WText("Ct: " + boost::lexical_cast<string>(ct), this);
-        new WBreak(this);
-
-        WString effect = state.get("effect");
-        new WText("Effect: " + effect, this);
-        new WBreak(this);
-
-        int hue = state.get("hue");
-        new WText("Hue: " + boost::lexical_cast<string>(hue), this);
-        new WBreak(this);
-
-        bool on = state.get("on");
-        string onstr = on == 1 ? "True" : "False";
-        new WText("On: " + onstr, this);
-        new WBreak(this);
-
-        bool reachable = state.get("reachable");
-        string reachablestr = reachable == 1 ? "True" : "False";
-        new WText("Reachable: " + reachablestr, this);
-        new WBreak(this);
-
-        int sat = state.get("sat");
-        new WText("Sat: " + boost::lexical_cast<string>(sat), this);
-        new WBreak(this);
-
-        Json::Array xy = state.get("xy");
-
-        double x = xy[0];
-        new WText("X: " + boost::lexical_cast<string>(x), this);
-        new WBreak(this);
-
-        double y = xy[1];
-        new WText("Y: " + boost::lexical_cast<string>(y), this);
-        new WBreak(this);
-
-        new WBreak(this); //line to separate different lights
-
-        i++;
-        */
 }
 
 void LightManagementWidget::editLight(int pos) {

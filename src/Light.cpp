@@ -16,21 +16,29 @@
 /**
  *   @brief  Light constructor
  *
- *   @param  type is the type of light
- *   @param  name is the name of the light
- *   @param  modelid is the modelid of the light
- *   @param  swversion is the swversion of the light
- *   @param  uniqueid is the uniqueid of the light
+ *   @param  lightData the Json object of a Light from the Hue API
  *
  */
-Light::Light(string type, string name, string modelid,
-      string swversion, string uniqueid, struct state_t state) {
-    type_ = type;
-    name_ = name;
-    modelid_ = modelid;
-    swversion_ = swversion;
-    uniqueid_ = uniqueid;
-    state_ = state;
+Light::Light(int lightNum, Json::Object lightData) {
+    lightnum_ = lightNum;
+    name_ = lightData.get("name");
+    type_ = lightData.get("type");
+    modelid_ = lightData.get("modelid");
+    
+    Json::Object state = lightData.get("state");
+    alert_ = state.get("alert");
+    bri_ = state.get("bri");
+    colormode_ = state.get("colormode");
+    ct_ = state.get("ct");
+    effect_ = state.get("effect");
+    hue_ = state.get("hue");
+    on_ = state.get("on");
+    reachable_ = state.get("reachable");
+    sat_ = state.get("sat");
+    
+    Json::Array xy = state.get("xy");
+    x_ = xy[0];
+    y_ = xy[1];
 }
 
 /**

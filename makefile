@@ -1,4 +1,4 @@
-EXE = MainApp
+EXE = Ambience
 SRC_DIR = src
 OBJ_DIR = obj
 INC_DIR = include
@@ -10,8 +10,8 @@ DEBUG = -g
 CFLAGS = -Wall -c -std=c++11 -Iinclude -L/usr/local/lib $(DEBUG)
 LFLAGS = -Wall -lwthttp -lwt -lboost_random -lboost_regex -lboost_signals -lboost_system -lboost_thread -lboost_filesystem -lboost_program_options -lboost_date_time -lcrypto $(DEBUG)
 
-MainApp : $(OBJS)
-	$(CC) $(OBJS) -o MainApp $(LFLAGS)
+Ambience : $(OBJS)
+	$(CC) $(OBJS) -o Ambience $(LFLAGS)
 
 MainApplication.o : $(INC_DIR)/WelcomeScreen.h $(SRC_DIR)/MainApplication.cpp
 	$(CC) $(CFLAGS) $(SRC_DIR)/MainApplication.cpp
@@ -53,4 +53,4 @@ LightManagementWidget.o: $(INC_DIR)/LightManagementWidget.h $(SRC_DIR)/LightMana
 	$(CC) $(CFLAGS) $(SRC_DIR)/LightManagementWidget.cpp
 
 clean:
-	rm $(OBJS) MainApp
+	rm $(OBJS) Ambience

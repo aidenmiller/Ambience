@@ -42,7 +42,6 @@ public:
     void removeBridgeAt(int index);
     
     void writeFile();
-    void logout();
 
 };
 

@@ -82,21 +82,6 @@ void Account::writeFile() {
 }
 
 /**
- *   @brief  Logout of user account and clear existing user data
- *
- *   @return void
- *
- */
-void Account::logout() {
-    firstName_ = "";
-    lastName_ = "";
-    email_ = "";
-    password_ = "";
-    auth_ = false;
-    bridges.clear();
-}
-
-/**
  *   @brief  Add a Bridge to the user account
  *
  *   @param  br an instantiated Bridge object to add to the account

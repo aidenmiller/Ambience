@@ -117,8 +117,7 @@ void LoginWidget::submit(){
         statusMessage_->setHidden(false);
     }
     else { // if successful, redirects to bridge page
-        account_->setAuth(true);
-        WApplication::instance()->setInternalPath("/bridges", true);
+        parent_->loginSuccess();
     }
 }
 

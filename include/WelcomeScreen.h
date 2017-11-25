@@ -37,11 +37,11 @@ public:
     void handleHttpResponse(boost::system::error_code err, const Wt::Http::Message &response);
     
     void updateProfileName();
+    void loginSuccess();
 
 private:
     Wt::WImage *welcome_image_;
-    Wt::WNavigationBar *loggedOutNavBar_;
-    Wt::WNavigationBar *loggedInNavBar_;
+    Wt::WNavigationBar *navBar_;
     Wt::WMenuItem *loginMenuItem_;
     Wt::WMenuItem *createMenuItem_;
     Wt::WMenuItem *bridgesMenuItem_;

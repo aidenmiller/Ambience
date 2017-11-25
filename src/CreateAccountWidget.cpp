@@ -164,7 +164,7 @@ void CreateAccountWidget::submit(){
     }
     else { // if password and confirmed password match
         CreateAccountWidget::writeUserInfo(username_->text().toUTF8(), password_->text().toUTF8(), firstName_->text().toUTF8(), lastName_->text().toUTF8()); // write the user's credentials to file
-        parent_->handleInternalPath("/login"); // go back to login screen and change the path back to /login
+        WApplication::instance()->setInternalPath("/login", true);
     }
     
 }

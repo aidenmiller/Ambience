@@ -1,20 +1,21 @@
 # Ambience
 ## CS3307 Team 13
+### Created by John Abed, Trevor Ducharme, Kevin Hong, Maksym Koval, Aiden Miller
 
-**BUILD**
+#### BUILD
 ```
 make Ambience
 ```
 
-**RUN**
+#### RUN
 ```
 ./Ambience --docroot Wt --http-address 0.0.0.0 --http-port 8080 --deploy-path /ambience
 ```
 
-**VIEW**
+#### VIEW
 <http://0.0.0.0:8080/ambience>
 
-**CLEAN**
+#### CLEAN
 ```
 make clean
 ```

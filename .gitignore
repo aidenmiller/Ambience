@@ -7,7 +7,7 @@
 *.layout
 *.o
 /obj
-MainApp
+Ambience
 /bridges/*
 bin/
 obj/

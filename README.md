@@ -1,6 +1,6 @@
 # Ambience
 ## CS3307 Team 13
-### Created by John Abed, Trevor Ducharme, Kevin Hong, Maksym Koval, Aiden Miller
+###### Created by John Abed, Trevor Ducharme, Kevin Hong, Maksym Koval, Aiden Miller
 
 #### BUILD
 ```

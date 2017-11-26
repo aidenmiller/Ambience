@@ -39,6 +39,10 @@ public:
     int getSat() {return sat_;}
     double getX() {return xy_[0];}
     double getY() {return xy_[1];}
+    int getTransition() {return transitiontime_;}
+    
+    //SETTERS
+    void setTransition(int transitiontime) {transitiontime_ = transitiontime;}
     
 private:
     WString lightnum_;
@@ -55,6 +59,7 @@ private:
     bool reachable_;
     int sat_;
     double xy_[2];
+    int transitiontime_;
 };
 
 #endif //LIGHT_H

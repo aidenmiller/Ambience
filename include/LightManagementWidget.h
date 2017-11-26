@@ -6,6 +6,7 @@
 #include <Wt/WDialog>
 #include <Wt/WLabel>
 #include <Wt/WSlider>
+#include <Wt/WIntValidator>
 #include "WelcomeScreen.h"
 #include "Bridge.h"
 #include "Light.h"
@@ -40,20 +41,24 @@ private:
     Wt::WContainerWidget *groupsWidget_;
     Wt::WContainerWidget *schedulesWidget_;
 
-    //void editLight(int pos);
-    void updateLightBri(WSlider *slider_, int lightNum);
-    void updateLightOn(WPushButton *button_, int lightNum);
-    void updateLightXY(int lightNum);
+    void updateLightBri(WSlider *slider_, Light *light);
+    void updateLightOn(WPushButton *button_, Light *light);
+    void updateLightXY(Light *light);
+    void updateLightInfo(Light *light);
     void handlePutHttp(boost::system::error_code err, const Wt::Http::Message &response);
 
-    void editRGBDialog(Light *light, int lightNum);
+    void editRGBDialog(Light *light);
     Wt::WDialog *editRGBDialog_;
     Wt::WSlider *redSlider;
     Wt::WSlider *greenSlider;
     Wt::WSlider *blueSlider;
-
-    //Wt::WDialog *lightEditDialog_;
-    //Wt::WLineEdit *lightEditName_;
+    
+    void editLightDialog(Light *light);
+    Wt::WDialog *editLightDialog_;
+    Wt::WLineEdit *editLightName;
+    
+    Wt::WLineEdit *editLightTransition;
+    Wt::WIntValidator *intValidator;
 
     Wt::WTable *lightsTable_;
     Wt::WTable *groupsTable_;

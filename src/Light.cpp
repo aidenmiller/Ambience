@@ -66,6 +66,9 @@ Light::Light(WString lightNum, Json::Object lightData) {
         xy_[0] = -1.0;
         xy_[1] = -1.0;
     }
+    
+    if(state.type("transitiontime") != 0) transitiontime_ = state.get("transitiontime");
+    else transitiontime_ = 4; //default value from Hue is 4s (400ms)
 }
 
 /**

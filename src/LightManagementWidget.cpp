@@ -189,14 +189,15 @@ void LightManagementWidget::updateLightsTable() {
         //transition definer
         WLineEdit *editLightTransition = new WLineEdit();
         editLightTransition->resize(40,20);
-        editLightTransition->setValueText(boost::lexical_cast<string>(light->getTransition()));
+        //display transition time to user in seconds (transition time is stored as multiple of 100ms)
+        editLightTransition->setValueText(boost::lexical_cast<string>(light->getTransition() / 10.0));
         tableRow->elementAt(2)->addWidget(editLightTransition);
         editLightTransition->setDisabled(!light->getOn());  //disable if light off
-        intValidator = new WIntValidator(0, 60, tableRow->elementAt(2)); //60 second maximum
+        intValidator = new WIntValidator(0, 100, tableRow->elementAt(2)); //100 second maximum
         intValidator->setMandatory(true);
         editLightTransition->setValidator(intValidator);
         editLightTransition->changed().connect(bind([=] {
-            light->setTransition(boost::lexical_cast<int>(editLightTransition->valueText()));
+            light->setTransition(boost::lexical_cast<int>(editLightTransition->valueText()) * 10);
         }));
         tableRow->elementAt(2)->addWidget(new WText(" seconds"));
         

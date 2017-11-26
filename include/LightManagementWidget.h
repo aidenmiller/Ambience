@@ -40,17 +40,20 @@ private:
     Wt::WContainerWidget *groupsWidget_;
     Wt::WContainerWidget *schedulesWidget_;
 
-    void editLight(int pos);
+    //void editLight(int pos);
     void updateLightBri(WSlider *slider_, int lightNum);
     void updateLightOn(WPushButton *button_, int lightNum);
+    void updateLightXY(int lightNum);
     void handlePutHttp(boost::system::error_code err, const Wt::Http::Message &response);
 
-    void editRGBDialog(int pos);
+    void editRGBDialog(Light *light, int lightNum);
     Wt::WDialog *editRGBDialog_;
+    Wt::WSlider *redSlider;
+    Wt::WSlider *greenSlider;
+    Wt::WSlider *blueSlider;
 
-
-    Wt::WDialog *lightEditDialog_;
-    Wt::WLineEdit *lightEditName_;
+    //Wt::WDialog *lightEditDialog_;
+    //Wt::WLineEdit *lightEditName_;
 
     Wt::WTable *lightsTable_;
     Wt::WTable *groupsTable_;

@@ -161,7 +161,7 @@ void LightManagementWidget::updateLightsTable() {
     //table headers <th>
     tableRow->elementAt(0)->addWidget(new Wt::WText("Light #"));
     tableRow->elementAt(1)->addWidget(new Wt::WText("Name"));
-    tableRow->elementAt(2)->addWidget(new Wt::WText("Brightness & Colour"));
+    tableRow->elementAt(2)->addWidget(new Wt::WText("Brightness"));
     tableRow->elementAt(3)->addWidget(new Wt::WText("Actions"));
 
 
@@ -189,43 +189,37 @@ void LightManagementWidget::updateLightsTable() {
         //brightness slider
         WSlider *brightnessSlider_ = new WSlider();
         brightnessSlider_->resize(200,20);
-        brightnessSlider_->setMinimum(0); WPopupMenu *editBridgePopup = new WPopupMenu();
+        brightnessSlider_->setMinimum(0);
 
         brightnessSlider_->setMaximum(254);
         brightnessSlider_->setValue(light->getBri());
-        brightnessSlider_->setDisabled(!light->getOn());
+        brightnessSlider_->setDisabled(!light->getOn()); //disable if light off
         brightnessSlider_->valueChanged().connect(boost::bind(&LightManagementWidget::updateLightBri, this, brightnessSlider_, i));
         tableRow->elementAt(2)->addWidget(brightnessSlider_);
-
-        WSplitButton *colourButton_ = new WSplitButton("Colour");
-        WPopupMenu *colourPopup = new WPopupMenu();
-        WPopupMenuItem *hsv = new WPopupMenuItem("Hue/Saturation");
-        colourPopup->addItem(hsv);
-
-        colourButton_->dropDownButton()->setMenu(colourPopup);
-
-        colourButton_->actionButton()->clicked().connect(boost::bind(&LightManagementWidget::editRGBDialog, this, i));
-
-       // hsv->triggered().connect(boost::bind(&LightManagementWidget::editHSVDialog, this, i));
-
-        WCssDecorationStyle *colour = new WCssDecorationStyle();
-
-        struct xy *cols = ColourConvert::rgb2xy(255.0f, 0.0f, 0.0f);
-        //struct rgb *cols2 = ColourConvert::xy2rgb()
-
-
-
-        tableRow->elementAt(2)->addWidget(colourButton_);
-
+        
         string onButton = light->getOn() == 1 ? "On" : "Off";
         WPushButton *switchButton_ = new WPushButton(onButton);
         switchButton_->clicked().connect(boost::bind(&LightManagementWidget::updateLightOn, this, switchButton_, i));
         
-        WPushButton *editLightButton_ = new WPushButton("Edit");
-        editLightButton_->clicked().connect(boost::bind(&LightManagementWidget::editLight, this, i));
+        /*WPushButton *editLightButton_ = new WPushButton("Edit");
+        editLightButton_->clicked().connect(boost::bind(&LightManagementWidget::editLight, this, i));*/
+
+        WSplitButton *colourButton_ = new WSplitButton("Colour");
+        WPopupMenu *colourPopup = new WPopupMenu();
+        colourButton_->dropDownButton()->setMenu(colourPopup);
+        WPopupMenuItem *hsv = new WPopupMenuItem("Hue/Saturation");
+        colourPopup->addItem(hsv);
+        //hsv->triggered().connect(boost::bind(&LightManagementWidget::editHSVDialog, this, i));
+        colourButton_->setDisabled(!light->getOn());  //disable if light off
+        colourButton_->actionButton()->clicked().connect(boost::bind(&LightManagementWidget::editRGBDialog, this, light, i));
+
+        //WCssDecorationStyle *colour = new WCssDecorationStyle();
+        //struct xy *cols = ColourConvert::rgb2xy(255.0f, 0.0f, 0.0f);
+        //struct rgb *cols2 = ColourConvert::xy2rgb()
 
         tableRow->elementAt(3)->addWidget(switchButton_);
-        tableRow->elementAt(3)->addWidget(editLightButton_);
+        tableRow->elementAt(3)->addWidget(colourButton_);
+        //tableRow->elementAt(3)->addWidget(editLightButton_);
 
         i++;
     }
@@ -358,6 +352,7 @@ void LightManagementWidget::updateSchedulesTable() {
     }
 }
 
+/*
 void LightManagementWidget::editLight(int pos) {
     Json::Object bridgeJson;
     Json::parse(bridge_->getJson(), bridgeJson);
@@ -382,6 +377,7 @@ void LightManagementWidget::editLight(int pos) {
     //lightEditDialog_->finished().connect(boost::bind(&LightManagementWidget::updateLight, this, pos));
     lightEditDialog_->show();
 }
+ */
 
 void LightManagementWidget::createScheduleDialog() {
 
@@ -465,6 +461,31 @@ void LightManagementWidget::updateLightOn(WPushButton *button_, int lightNum){
     }
 }
 
+void LightManagementWidget::updateLightXY(int lightNum){
+    if (editRGBDialog_->result() == WDialog::DialogCode::Rejected)
+        return;
+    
+    string url = "http://" + bridge_->getIP() + ":" + bridge_->getPort() + "/api/" + bridge_->getUsername() + "/lights/" + boost::lexical_cast<string>(lightNum) + "/state";
+    
+    struct xy *cols = ColourConvert::rgb2xy(redSlider->value(), greenSlider->value(), blueSlider->value());
+    
+    Http::Message *data = new Http::Message();
+    data->addBodyText("{\"xy\":[" + boost::lexical_cast<string>(cols->x) + "," + boost::lexical_cast<string>(cols->y) + "]}");
+    
+    cout << "Light: Updating light brightness at URL " << url << "\n";
+    Wt::Http::Client *client = new Wt::Http::Client(this);
+    client->setTimeout(2); //2 second timeout of request
+    client->setMaximumResponseSize(1000000);
+    client->done().connect(boost::bind(&LightManagementWidget::handlePutHttp, this, _1, _2));
+    
+    if(client->put(url, *data)) {
+        WApplication::instance()->deferRendering();
+    }
+    else {
+        cerr << "Light: Error in client->put(url) call\n";
+    }
+}
+
 void LightManagementWidget::handlePutHttp(boost::system::error_code err, const Wt::Http::Message &response)
 {
     WApplication::instance()->resumeRendering();
@@ -513,29 +534,22 @@ void LightManagementWidget::refreshBridgeHttp(boost::system::error_code err, con
 /**
  *   @brief  Opens a WDialog box to edit rgb for specified light
  *
- *   @param   pos the position of the Bridge in user account vector to view
+ *   @param   lightNum the position of the Light to view
  *
  *   @return  void
  *
  */
-void LightManagementWidget::editRGBDialog(int pos) {
-
-    Json::Object bridgeJson;
-    Json::parse(bridge_->getJson(), bridgeJson);
-
-    Json::Object lights = bridgeJson.get("lights");
-    Json::Object lightData = lights.get(boost::lexical_cast<string>(pos));
-    Light *light = new Light(boost::lexical_cast<string>(pos), lightData);
+void LightManagementWidget::editRGBDialog(Light *light, int lightNum) {
 
     editRGBDialog_ = new WDialog("Change Colour"); // title
     new WText("Red: ", editRGBDialog_->contents());
-    WSlider *redSlider = new WSlider(editRGBDialog_->contents());
+    redSlider = new WSlider(editRGBDialog_->contents());
     new WBreak(editRGBDialog_->contents());
     new WText("Green: ", editRGBDialog_->contents());
-    WSlider *greenSlider = new WSlider(editRGBDialog_->contents());
+    greenSlider = new WSlider(editRGBDialog_->contents());
     new WBreak(editRGBDialog_->contents());
     new WText("Blue: ", editRGBDialog_->contents());
-    WSlider *blueSlider = new WSlider(editRGBDialog_->contents());
+    blueSlider = new WSlider(editRGBDialog_->contents());
     new WBreak(editRGBDialog_->contents());
     redSlider->resize(200,20);
     greenSlider->resize(200,20);
@@ -562,17 +576,23 @@ void LightManagementWidget::editRGBDialog(int pos) {
     editRGBDialog_->contents()->setDecorationStyle(*colour);
 
     redSlider->valueChanged().connect(bind([=] {
-        colour->setBackgroundColor(WColor(redSlider->value(), greenSlider->value(), blueSlider->value()));
+        colour->setBackgroundColor(WColor(redSlider->value(),
+                                          greenSlider->value(),
+                                          blueSlider->value()));
         editRGBDialog_->contents()->setDecorationStyle(*colour);
                                       }));
 
     greenSlider->valueChanged().connect(bind([=] {
-        colour->setBackgroundColor(WColor(redSlider->value(), greenSlider->value(), blueSlider->value()));
+        colour->setBackgroundColor(WColor(redSlider->value(),
+                                          greenSlider->value(),
+                                          blueSlider->value()));
         editRGBDialog_->contents()->setDecorationStyle(*colour);
                                       }));
 
     blueSlider->valueChanged().connect(bind([=] {
-        colour->setBackgroundColor(WColor(redSlider->value(), greenSlider->value(), blueSlider->value()));
+        colour->setBackgroundColor(WColor(redSlider->value(),
+                                          greenSlider->value(),
+                                          blueSlider->value()));
         editRGBDialog_->contents()->setDecorationStyle(*colour);
                                       }));
 
@@ -586,6 +606,6 @@ void LightManagementWidget::editRGBDialog(int pos) {
     cancel->clicked().connect(editRGBDialog_, &WDialog::reject);
 
     // when the user is finished, call the updateBridge function
-   // bridgeEditDialog_->finished().connect(boost::bind(&BridgeScreenWidget::updateBridge, this, pos));
+    editRGBDialog_->finished().connect(boost::bind(&LightManagementWidget::updateLightXY, this, lightNum));
     editRGBDialog_->show();
 }

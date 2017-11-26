@@ -134,7 +134,8 @@ void WelcomeScreen::handleInternalPath(const string &internalPath) {
         }
         else if (internalPath == "/logout") {
             //refreshing page to logout
-            WApplication::instance()->redirect("http://0.0.0.0:8080/ambience/");
+            //account_->logout();
+            loginMenuItem_->select();
         }
     }
     else {
@@ -157,11 +158,9 @@ void WelcomeScreen::handleInternalPath(const string &internalPath) {
 
 void WelcomeScreen::lightManagementScreen(int index) {
     Bridge *bridge = account_.getBridgeAt(index);
-    //WApplication::instance()->setInternalPath("/bridges/" + to_string(index), true);
     
-    if (lightManage_[index] == NULL) {
-        lightManage_[index] = new LightManagementWidget(mainStack_, bridge, this);
-    }
+    //create new LMW on view because bridge data may have changed since last view
+    lightManage_[index] = new LightManagementWidget(mainStack_, bridge, this);
     mainStack_->setCurrentWidget(lightManage_[index]);
     lightManage_[index]->update();
 }

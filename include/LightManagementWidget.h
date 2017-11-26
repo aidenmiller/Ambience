@@ -36,7 +36,9 @@ private:
     Wt::WContainerWidget *schedulesWidget_;
 
     void editLight(int pos);
-    void updateLight(WSlider *slider_);
+    void updateLightBri(WSlider *slider_, int lightNum);
+    void updateLightOn(WPushButton *button_, int lightNum);
+    void handlePutHttp(boost::system::error_code err, const Wt::Http::Message &response);
 
     Wt::WDialog *lightEditDialog_;
     Wt::WLineEdit *lightEditName_;

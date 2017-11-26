@@ -92,6 +92,9 @@ void LightManagementWidget::update()
     menu->setWidth(150);
     
     addWidget(lightManagementStack_);
+    
+    //initialize page with Overview as initial view
+    overviewMenuItem->select();
 }
 
 void LightManagementWidget::viewOverviewWidget(){
@@ -184,13 +187,13 @@ void LightManagementWidget::updateLightsTable() {
         brightnessSlider_->setMinimum(0);
         brightnessSlider_->setMaximum(254);
         brightnessSlider_->setValue(light->getBri());
-        brightnessSlider_->valueChanged().connect(boost::bind(&LightManagementWidget::updateLight, this, brightnessSlider_));
+        brightnessSlider_->valueChanged().connect(boost::bind(&LightManagementWidget::updateLightBri, this, brightnessSlider_, i));
         
         tableRow->elementAt(2)->addWidget(brightnessSlider_);
         
         string onButton = light->getOn() == 1 ? "On" : "Off";
         WPushButton *switchButton_ = new WPushButton(onButton);
-        //switchButton->clicked().connect(boost::bind(&BridgeScreenWidget::viewBridge, this, counter));
+        switchButton_->clicked().connect(boost::bind(&LightManagementWidget::updateLightOn, this, switchButton_, i));
         
         WPushButton *editLightButton_ = new WPushButton("Edit");
         editLightButton_->clicked().connect(boost::bind(&LightManagementWidget::editLight, this, i));
@@ -354,8 +357,65 @@ void LightManagementWidget::editLight(int pos) {
     lightEditDialog_->show();
 }
 
-void LightManagementWidget::updateLight(WSlider *slider_){
-    cout << endl << slider_->value() << endl;
+void LightManagementWidget::updateLightBri(WSlider *slider_, int lightNum){
+    string url = "http://" + bridge_->getIP() + ":" + bridge_->getPort() + "/api/" + bridge_->getUsername() + "/lights/" + boost::lexical_cast<string>(lightNum) + "/state";
+    Http::Message *data = new Http::Message();
+    data->addBodyText("{\"bri\":" + boost::lexical_cast<string>(slider_->value()) + "}");
+    
+    cout << "Light: Updating light brightness at URL " << url << "\n";
+    Wt::Http::Client *client = new Wt::Http::Client(this);
+    client->setTimeout(2); //2 second timeout of request
+    client->setMaximumResponseSize(1000000);
+    client->done().connect(boost::bind(&LightManagementWidget::handlePutHttp, this, _1, _2));
+    
+    if(client->put(url, *data)) {
+        WApplication::instance()->deferRendering();
+    }
+    else {
+        cerr << "Light: Error in client->put(url) call\n";
+    }    
+}
+
+void LightManagementWidget::updateLightOn(WPushButton *button_, int lightNum){
+    string value;
+    if(button_->text() == "On") {
+        button_->setText("Off");
+        value = "False";
+        
+    }
+    else {
+        button_->setText("On");
+        value = "True";
+    }
+    
+    string url = "http://" + bridge_->getIP() + ":" + bridge_->getPort() + "/api/" + bridge_->getUsername() + "/lights/" + boost::lexical_cast<string>(lightNum) + "/state";
+    Http::Message *data = new Http::Message();
+    
+    data->addBodyText("{\"on\":" + value + "}");
+    
+    cout << "Light: Updating light brightness at URL " << url << "\n";
+    Wt::Http::Client *client = new Wt::Http::Client(this);
+    client->setTimeout(2); //2 second timeout of request
+    client->setMaximumResponseSize(1000000);
+    client->done().connect(boost::bind(&LightManagementWidget::handlePutHttp, this, _1, _2));
+    
+    if(client->put(url, *data)) {
+        WApplication::instance()->deferRendering();
+    }
+    else {
+        cerr << "Light: Error in client->put(url) call\n";
+    }
+}
+
+void LightManagementWidget::handlePutHttp(boost::system::error_code err, const Wt::Http::Message &response)
+{
+    WApplication::instance()->resumeRendering();
+    if (!err && response.status() == 200) {
+        cout << "Successful update" << "\n";
+    }
+    else {
+        cerr << "Error: " << err.message() << ", " << response.status() << "\n";
+    }
 }
 
 void LightManagementWidget::createScheduleDialog() {

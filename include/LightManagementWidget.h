@@ -7,6 +7,11 @@
 #include <Wt/WLabel>
 #include <Wt/WSlider>
 #include "WelcomeScreen.h"
+#include "Bridge.h"
+#include "Light.h"
+#include "Group.h"
+#include "Schedule.h"
+#include "ColourConvert.h"
 
 class LightManagementWidget: public Wt::WContainerWidget
 {
@@ -20,7 +25,7 @@ private:
     Wt::WContainerWidget *lightsContainer_;
     WelcomeScreen *parent_;
     Bridge *bridge_;
-    
+
     Wt::WStackedWidget *lightManagementStack_; // main stack of the screen
 
     void viewOverviewWidget();
@@ -35,18 +40,30 @@ private:
     Wt::WContainerWidget *groupsWidget_;
     Wt::WContainerWidget *schedulesWidget_;
 
-    void editLight(int pos);
-    void updateLight(WSlider *slider_);
+    //void editLight(int pos);
+    void updateLightBri(WSlider *slider_, int lightNum);
+    void updateLightOn(WPushButton *button_, int lightNum);
+    void updateLightXY(int lightNum);
+    void handlePutHttp(boost::system::error_code err, const Wt::Http::Message &response);
 
-    Wt::WDialog *lightEditDialog_;
-    Wt::WLineEdit *lightEditName_;
-    
+    void editRGBDialog(Light *light, int lightNum);
+    Wt::WDialog *editRGBDialog_;
+    Wt::WSlider *redSlider;
+    Wt::WSlider *greenSlider;
+    Wt::WSlider *blueSlider;
+
+    //Wt::WDialog *lightEditDialog_;
+    //Wt::WLineEdit *lightEditName_;
+
     Wt::WTable *lightsTable_;
     Wt::WTable *groupsTable_;
 
     Wt::WTable *schedulesTable_;
     void createScheduleDialog();
     Wt::WDialog *createScheduleDialog_;
+    
+    void refreshBridge();
+    void refreshBridgeHttp(boost::system::error_code err, const Wt::Http::Message &response);
 };
 
 

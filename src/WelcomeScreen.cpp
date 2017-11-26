@@ -49,6 +49,9 @@ loginScreen_(0),
 bridgeScreen_(0),
 profileScreen_(0),
 account_("","","","") {
+    //resets URL to base /ambience/ , helpful for logout and page refreshes
+    WApplication::instance()->setInternalPath("", false);
+    
     //Logged Out Navigation Bar - Login, Create Account
     navBar_ = new WNavigationBar(this);
     navBar_->setTitle("Ambience");
@@ -133,9 +136,10 @@ void WelcomeScreen::handleInternalPath(const string &internalPath) {
             profileScreen();
         }
         else if (internalPath == "/logout") {
-            //refreshing page to logout
-            //account_->logout();
-            loginMenuItem_->select();
+            //clear the root WContainer from application
+            WApplication::instance()->root()->clear();
+            //create a new WelcomeScreen for the application
+            new WelcomeScreen(WApplication::instance()->root());
         }
     }
     else {
@@ -160,9 +164,9 @@ void WelcomeScreen::lightManagementScreen(int index) {
     Bridge *bridge = account_.getBridgeAt(index);
     
     //create new LMW on view because bridge data may have changed since last view
-    lightManage_[index] = new LightManagementWidget(mainStack_, bridge, this);
-    mainStack_->setCurrentWidget(lightManage_[index]);
-    lightManage_[index]->update();
+    lightManage_ = new LightManagementWidget(mainStack_, bridge, this);
+    mainStack_->setCurrentWidget(lightManage_);
+    lightManage_->update();
 }
 
 /**

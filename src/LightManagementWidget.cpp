@@ -16,10 +16,6 @@
 #include <vector>
 #include <unistd.h>
 #include "LightManagementWidget.h"
-#include "Bridge.h"
-#include "Light.h"
-#include "Group.h"
-#include "Schedule.h"
 #include <Wt/WContainerWidget>
 #include <Wt/WMenu>
 #include <Wt/WStackedWidget>
@@ -91,60 +87,61 @@ void LightManagementWidget::update()
     menu->setStyleClass("nav nav-pills nav-stacked");
     menu->setWidth(150);
     
+    //create refreshButton for refreshing Bridge JSON data
+    WPushButton *refreshButton = new WPushButton("Refresh Bridge");
+    refreshButton->clicked().connect(boost::bind(&LightManagementWidget::refreshBridge, this));
+    
+    addWidget(refreshButton);
     addWidget(lightManagementStack_);
+    
+    //create overviewWidget
+    overviewWidget_ = new WContainerWidget(lightManagementStack_);
+    overviewWidget_->setContentAlignment(AlignCenter);
+    new WText("Bridge Name: " + bridge_->getName(), overviewWidget_);
+    new WBreak(overviewWidget_);
+    new WText("Bridge Location: " + bridge_->getLocation(), overviewWidget_);
+    
+    //create lightsWidget
+    lightsWidget_ = new WContainerWidget(lightManagementStack_);
+    lightsWidget_->setContentAlignment(AlignCenter);
+    lightsTable_ = new WTable(lightsWidget_);
+    lightsTable_->setHeaderCount(1); //set first row as header
+    updateLightsTable();
+    
+    //create groupsWidget
+    groupsWidget_ = new WContainerWidget(lightManagementStack_);
+    groupsWidget_->setContentAlignment(AlignCenter);
+    groupsTable_ = new WTable(groupsWidget_);
+    groupsTable_->setHeaderCount(1); //set first row as header
+    updateGroupsTable();
+    
+    //create schedulesWidget
+    schedulesWidget_ = new WContainerWidget(lightManagementStack_);
+    schedulesWidget_->setContentAlignment(AlignCenter);
+    WPushButton *newScheduleButton = new WPushButton("Add +");
+    newScheduleButton->clicked().connect(boost::bind(&LightManagementWidget::createScheduleDialog, this));
+    schedulesWidget_->addWidget(newScheduleButton);
+    schedulesTable_ = new WTable(schedulesWidget_);
+    schedulesTable_->setHeaderCount(1);
+    updateSchedulesTable();
     
     //initialize page with Overview as initial view
     overviewMenuItem->select();
 }
 
 void LightManagementWidget::viewOverviewWidget(){
-    if (!overviewWidget_) {
-        overviewWidget_ = new WContainerWidget(lightManagementStack_);
-        overviewWidget_->setContentAlignment(AlignCenter);
-        
-        new WText("Bridge Name: " + bridge_->getName(), overviewWidget_);
-        new WBreak(overviewWidget_);
-        new WText("Bridge Location: " + bridge_->getLocation(), overviewWidget_);
-    }
     lightManagementStack_->setCurrentWidget(overviewWidget_);
 }
 
 void LightManagementWidget::viewLightsWidget(){
-    if (!lightsWidget_) {
-        lightsWidget_ = new WContainerWidget(lightManagementStack_);
-        lightsWidget_->setContentAlignment(AlignCenter);
-        
-        lightsTable_ = new WTable(lightsWidget_);
-        lightsTable_->setHeaderCount(1); //set first row as header
-        updateLightsTable();
-    }
     lightManagementStack_->setCurrentWidget(lightsWidget_);
 }
 
 void LightManagementWidget::viewGroupsWidget(){
-    if (!groupsWidget_) {
-        groupsWidget_ = new WContainerWidget(lightManagementStack_);
-        groupsWidget_->setContentAlignment(AlignCenter);
-        
-        groupsTable_ = new WTable(groupsWidget_);
-        groupsTable_->setHeaderCount(1); //set first row as header
-        updateGroupsTable();
-    }
     lightManagementStack_->setCurrentWidget(groupsWidget_);
 }
 
 void LightManagementWidget::viewSchedulesWidget(){
-    if (!schedulesWidget_) {
-        schedulesWidget_ = new WContainerWidget(lightManagementStack_);
-        schedulesWidget_->setContentAlignment(AlignCenter);
-        
-        WPushButton *newScheduleButton = new WPushButton("Add +");
-        newScheduleButton->clicked().connect(boost::bind(&LightManagementWidget::createScheduleDialog, this));
-        schedulesWidget_->addWidget(newScheduleButton);
-        schedulesTable_ = new WTable(schedulesWidget_);
-        schedulesTable_->setHeaderCount(1);
-        updateSchedulesTable();
-    }
     lightManagementStack_->setCurrentWidget(schedulesWidget_);
 }
 
@@ -187,6 +184,7 @@ void LightManagementWidget::updateLightsTable() {
         brightnessSlider_->setMinimum(0);
         brightnessSlider_->setMaximum(254);
         brightnessSlider_->setValue(light->getBri());
+        brightnessSlider_->setDisabled(!light->getOn());
         brightnessSlider_->valueChanged().connect(boost::bind(&LightManagementWidget::updateLightBri, this, brightnessSlider_, i));
         
         tableRow->elementAt(2)->addWidget(brightnessSlider_);
@@ -357,67 +355,6 @@ void LightManagementWidget::editLight(int pos) {
     lightEditDialog_->show();
 }
 
-void LightManagementWidget::updateLightBri(WSlider *slider_, int lightNum){
-    string url = "http://" + bridge_->getIP() + ":" + bridge_->getPort() + "/api/" + bridge_->getUsername() + "/lights/" + boost::lexical_cast<string>(lightNum) + "/state";
-    Http::Message *data = new Http::Message();
-    data->addBodyText("{\"bri\":" + boost::lexical_cast<string>(slider_->value()) + "}");
-    
-    cout << "Light: Updating light brightness at URL " << url << "\n";
-    Wt::Http::Client *client = new Wt::Http::Client(this);
-    client->setTimeout(2); //2 second timeout of request
-    client->setMaximumResponseSize(1000000);
-    client->done().connect(boost::bind(&LightManagementWidget::handlePutHttp, this, _1, _2));
-    
-    if(client->put(url, *data)) {
-        WApplication::instance()->deferRendering();
-    }
-    else {
-        cerr << "Light: Error in client->put(url) call\n";
-    }    
-}
-
-void LightManagementWidget::updateLightOn(WPushButton *button_, int lightNum){
-    string value;
-    if(button_->text() == "On") {
-        button_->setText("Off");
-        value = "False";
-        
-    }
-    else {
-        button_->setText("On");
-        value = "True";
-    }
-    
-    string url = "http://" + bridge_->getIP() + ":" + bridge_->getPort() + "/api/" + bridge_->getUsername() + "/lights/" + boost::lexical_cast<string>(lightNum) + "/state";
-    Http::Message *data = new Http::Message();
-    
-    data->addBodyText("{\"on\":" + value + "}");
-    
-    cout << "Light: Updating light brightness at URL " << url << "\n";
-    Wt::Http::Client *client = new Wt::Http::Client(this);
-    client->setTimeout(2); //2 second timeout of request
-    client->setMaximumResponseSize(1000000);
-    client->done().connect(boost::bind(&LightManagementWidget::handlePutHttp, this, _1, _2));
-    
-    if(client->put(url, *data)) {
-        WApplication::instance()->deferRendering();
-    }
-    else {
-        cerr << "Light: Error in client->put(url) call\n";
-    }
-}
-
-void LightManagementWidget::handlePutHttp(boost::system::error_code err, const Wt::Http::Message &response)
-{
-    WApplication::instance()->resumeRendering();
-    if (!err && response.status() == 200) {
-        cout << "Successful update" << "\n";
-    }
-    else {
-        cerr << "Error: " << err.message() << ", " << response.status() << "\n";
-    }
-}
-
 void LightManagementWidget::createScheduleDialog() {
     
     
@@ -456,4 +393,91 @@ void LightManagementWidget::createScheduleDialog() {
     // when the user is finished, call the ADD SCHEDULE function
     //createScheduleDialog_->finished().connect(boost::bind(&LightManagementWidget::addSchedule, this, pos));
     createScheduleDialog_->show();
+}
+
+void LightManagementWidget::updateLightBri(WSlider *slider_, int lightNum){
+    string url = "http://" + bridge_->getIP() + ":" + bridge_->getPort() + "/api/" + bridge_->getUsername() + "/lights/" + boost::lexical_cast<string>(lightNum) + "/state";
+    Http::Message *data = new Http::Message();
+    data->addBodyText("{\"bri\":" + boost::lexical_cast<string>(slider_->value()) + "}");
+    
+    cout << "Light: Updating light brightness at URL " << url << "\n";
+    Wt::Http::Client *client = new Wt::Http::Client(this);
+    client->setTimeout(2); //2 second timeout of request
+    client->setMaximumResponseSize(1000000);
+    client->done().connect(boost::bind(&LightManagementWidget::handlePutHttp, this, _1, _2));
+    
+    if(client->put(url, *data)) {
+        WApplication::instance()->deferRendering();
+    }
+    else {
+        cerr << "Light: Error in client->put(url) call\n";
+    }
+}
+
+void LightManagementWidget::updateLightOn(WPushButton *button_, int lightNum){
+    //set value string to reflect current state of the button
+    string value = button_->text() == "On" ? "False" : "True";
+    
+    string url = "http://" + bridge_->getIP() + ":" + bridge_->getPort() + "/api/" + bridge_->getUsername() + "/lights/" + boost::lexical_cast<string>(lightNum) + "/state";
+    Http::Message *data = new Http::Message();
+    
+    data->addBodyText("{\"on\":" + value + "}");
+    
+    cout << "Light: Updating light brightness at URL " << url << "\n";
+    Wt::Http::Client *client = new Wt::Http::Client(this);
+    client->setTimeout(2); //2 second timeout of request
+    client->setMaximumResponseSize(1000000);
+    client->done().connect(boost::bind(&LightManagementWidget::handlePutHttp, this, _1, _2));
+    
+    if(client->put(url, *data)) {
+        WApplication::instance()->deferRendering();
+    }
+    else {
+        cerr << "Light: Error in client->put(url) call\n";
+    }
+}
+
+void LightManagementWidget::handlePutHttp(boost::system::error_code err, const Wt::Http::Message &response)
+{
+    WApplication::instance()->resumeRendering();
+    if (!err && response.status() == 200) {
+        cout << "Successful update" << "\n";
+        refreshBridge();
+    }
+    else {
+        cerr << "Error: " << err.message() << ", " << response.status() << "\n";
+    }
+}
+
+void LightManagementWidget::refreshBridge() {
+    string url = "http://" + bridge_->getIP() + ":" + bridge_->getPort() + "/api/" + bridge_->getUsername();
+    
+    cout << "BRIDGE: Connecting to URL " << url << "\n";
+    Wt::Http::Client *client = new Wt::Http::Client(this);
+    client->setTimeout(2); //2 second timeout of request
+    client->setMaximumResponseSize(1000000);
+    client->done().connect(boost::bind(&LightManagementWidget::refreshBridgeHttp, this, _1, _2));
+    
+    if(client->get(url)) {
+        WApplication::instance()->deferRendering();
+    }
+    else {
+        cerr << "BRIDGE: Error in client->get(url) call\n";
+    }
+}
+
+void LightManagementWidget::refreshBridgeHttp(boost::system::error_code err, const Wt::Http::Message &response)
+{
+    WApplication::instance()->resumeRendering();
+    if (!err && response.status() == 200) {
+        bridge_->setJson(response.body());
+        
+        //update tables with new JSON information
+        updateLightsTable();
+        updateGroupsTable();
+        updateSchedulesTable();
+    }
+    else {
+        cerr << "Error: " << err.message() << ", " << response.status() << "\n";
+    }
 }

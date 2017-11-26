@@ -7,6 +7,10 @@
 #include <Wt/WLabel>
 #include <Wt/WSlider>
 #include "WelcomeScreen.h"
+#include "Bridge.h"
+#include "Light.h"
+#include "Group.h"
+#include "Schedule.h"
 
 class LightManagementWidget: public Wt::WContainerWidget
 {
@@ -49,6 +53,9 @@ private:
     Wt::WTable *schedulesTable_;
     void createScheduleDialog();
     Wt::WDialog *createScheduleDialog_;
+    
+    void refreshBridge();
+    void refreshBridgeHttp(boost::system::error_code err, const Wt::Http::Message &response);
 };
 
 

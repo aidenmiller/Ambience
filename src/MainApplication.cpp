@@ -24,7 +24,6 @@ using namespace std;
 Wt::WApplication *createApplication(const Wt::WEnvironment& env)
 {
     Wt::WApplication *app = new Wt::WApplication(env);
-    app->setInternalPath(""); //reset to base URL from new page visits or refresh
 
     app->setTitle("Ambience - CS3307 Team 13");
     app->setTheme(new Wt::WBootstrapTheme(app));

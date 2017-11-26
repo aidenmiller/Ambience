@@ -56,7 +56,8 @@ private:
     CreateAccountWidget *createScreen_; // create widget
     LoginWidget *loginScreen_; // login widget
     BridgeScreenWidget *bridgeScreen_; // bridge widget
-    ProfileWidget *profileScreen_;
+    ProfileWidget *profileScreen_; // profile widget
+    LightManagementWidget *lightManage_; // light management widget
     
     void loginScreen();
     void createAccountScreen();
@@ -64,7 +65,6 @@ private:
     void profileScreen();
     void lightManagementScreen(int index);
 
-    vector<LightManagementWidget*> lightManage_ = vector<LightManagementWidget*>(100, NULL); // max 100 bridges for now
     Account account_;
 };
 

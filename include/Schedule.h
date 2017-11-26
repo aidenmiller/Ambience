@@ -36,19 +36,6 @@ public:
     double getX() {return xy_[0];}
     double getY() {return xy_[1];}
     
-    //SETTERS
-    void setSchedulenum(WString schedulenum) {schedulenum_ = schedulenum;}
-    void setName(WString name) {name_ = name;}
-    void setDescription(WString description) {description_ = description;}
-    void setTime(WString time) {time_ = time;}
-    void setAddress(WString address) {address_ = address;}
-    void setMethod(WString method) {method_ = method;}
-    void setBri(int bri) {bri_ = bri;}
-    void setTransition(int transition) {transition_ = transition;}
-    void setOn(bool on) {on_ = on;}
-    void setX(double x) {xy_[0] = x;}
-    void setY(double y) {xy_[1] = y;}
-    
 private:
     WString schedulenum_;
     WString name_;

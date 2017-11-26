@@ -7,6 +7,7 @@
 #include <Wt/WLabel>
 #include <Wt/WSlider>
 #include "WelcomeScreen.h"
+#include "Light.h"
 
 class LightManagementWidget: public Wt::WContainerWidget
 {
@@ -20,7 +21,7 @@ private:
     Wt::WContainerWidget *lightsContainer_;
     WelcomeScreen *parent_;
     Bridge *bridge_;
-    
+
     Wt::WStackedWidget *lightManagementStack_; // main stack of the screen
 
     void viewOverviewWidget();
@@ -38,9 +39,13 @@ private:
     void editLight(int pos);
     void updateLight(WSlider *slider_);
 
+    void editRGBDialog(int pos);
+    Wt::WDialog *editRGBDialog_;
+
+
     Wt::WDialog *lightEditDialog_;
     Wt::WLineEdit *lightEditName_;
-    
+
     Wt::WTable *lightsTable_;
     Wt::WTable *groupsTable_;
 

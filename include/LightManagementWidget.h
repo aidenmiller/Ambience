@@ -11,6 +11,7 @@
 #include "Light.h"
 #include "Group.h"
 #include "Schedule.h"
+#include "ColourConvert.h"
 
 class LightManagementWidget: public Wt::WContainerWidget
 {
@@ -24,7 +25,7 @@ private:
     Wt::WContainerWidget *lightsContainer_;
     WelcomeScreen *parent_;
     Bridge *bridge_;
-    
+
     Wt::WStackedWidget *lightManagementStack_; // main stack of the screen
 
     void viewOverviewWidget();
@@ -44,9 +45,13 @@ private:
     void updateLightOn(WPushButton *button_, int lightNum);
     void handlePutHttp(boost::system::error_code err, const Wt::Http::Message &response);
 
+    void editRGBDialog(int pos);
+    Wt::WDialog *editRGBDialog_;
+
+
     Wt::WDialog *lightEditDialog_;
     Wt::WLineEdit *lightEditName_;
-    
+
     Wt::WTable *lightsTable_;
     Wt::WTable *groupsTable_;
 

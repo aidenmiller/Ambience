@@ -17,8 +17,14 @@
 #include <unistd.h>
 #include "LightManagementWidget.h"
 #include <Wt/WContainerWidget>
+#include <Wt/WSplitButton>
+#include <Wt/WPopupMenu>
+#include <Wt/WPopupMenuItem>
+#include <Wt/WColor>
+#include <Wt/WCssDecorationStyle>
 #include <Wt/WMenu>
 #include <Wt/WStackedWidget>
+#include <Wt/WImage>
 #include <Wt/Json/Value>
 #include <Wt/Json/Object>
 #include <Wt/Json/Parser>
@@ -28,6 +34,7 @@
 #include <Wt/WDateEdit>
 #include <Wt/WTemplate>
 #include <Wt/WTimeEdit>
+
 
 using namespace Wt;
 using namespace std;
@@ -61,37 +68,38 @@ schedulesWidget_(0)
 void LightManagementWidget::update()
 {
     clear(); // everytime you come back to page, reset the widgets
-    
+
     WMenu *menu = new WMenu();
     addWidget(menu);
-    
+
     WMenuItem *overviewMenuItem = new WMenuItem("Overview");
     menu->addItem(overviewMenuItem);
     overviewMenuItem->triggered().connect(this, &LightManagementWidget::viewOverviewWidget);
-    
+
     WMenuItem *lightMenuItem = new WMenuItem("Lights");
     menu->addItem(lightMenuItem);
     lightMenuItem->triggered().connect(this, &LightManagementWidget::viewLightsWidget);
-    
+
     WMenuItem *schedulesMenuItem = new WMenuItem("Schedules");
     menu->addItem(schedulesMenuItem);
     schedulesMenuItem->triggered().connect(this, &LightManagementWidget::viewSchedulesWidget);
-    
+
     WMenuItem *groupsMenuItem = new WMenuItem("Groups");
     menu->addItem(groupsMenuItem);
     groupsMenuItem->triggered().connect(this, &LightManagementWidget::viewGroupsWidget);
-    
+
     lightManagementStack_ = new WStackedWidget();
     lightManagementStack_->setContentAlignment(AlignCenter);
-    
+
     menu->setStyleClass("nav nav-pills nav-stacked");
     menu->setWidth(150);
-    
+
     //create refreshButton for refreshing Bridge JSON data
     WPushButton *refreshButton = new WPushButton("Refresh Bridge");
     refreshButton->clicked().connect(boost::bind(&LightManagementWidget::refreshBridge, this));
     
     addWidget(refreshButton);
+    
     addWidget(lightManagementStack_);
     
     //create overviewWidget
@@ -147,65 +155,85 @@ void LightManagementWidget::viewSchedulesWidget(){
 
 void LightManagementWidget::updateLightsTable() {
     lightsTable_->clear();
-    
+
     //create new row for headers <tr>
     WTableRow *tableRow = lightsTable_->insertRow(lightsTable_->rowCount());
     //table headers <th>
     tableRow->elementAt(0)->addWidget(new Wt::WText("Light #"));
     tableRow->elementAt(1)->addWidget(new Wt::WText("Name"));
-    tableRow->elementAt(2)->addWidget(new Wt::WText("Brightness"));
+    tableRow->elementAt(2)->addWidget(new Wt::WText("Brightness & Colour"));
     tableRow->elementAt(3)->addWidget(new Wt::WText("Actions"));
-    
-    
+
+
     //convert json string into json object
     Json::Object bridgeJson;
     Json::parse(bridge_->getJson(), bridgeJson);
     Json::Object lights = bridgeJson.get("lights");
-    
+
     int i = 1;
     while(true) {
         //if light i does not exist then break while loop
         if(lights.isNull(boost::lexical_cast<string>(i))) break;
-        
+
         //if light i exists then get the json data for it and make Light object
         Json::Object lightData = lights.get(boost::lexical_cast<string>(i));
         Light *light = new Light(boost::lexical_cast<string>(i), lightData);
-        
+
         //create new row for entry <tr>
         tableRow = lightsTable_->insertRow(lightsTable_->rowCount());
-        
+
         //table data <td>
         tableRow->elementAt(0)->addWidget(new WText(light->getLightnum()));
         tableRow->elementAt(1)->addWidget(new WText(light->getName()));
-        
+
         //brightness slider
         WSlider *brightnessSlider_ = new WSlider();
         brightnessSlider_->resize(200,20);
-        brightnessSlider_->setMinimum(0);
+        brightnessSlider_->setMinimum(0); WPopupMenu *editBridgePopup = new WPopupMenu();
+
         brightnessSlider_->setMaximum(254);
         brightnessSlider_->setValue(light->getBri());
         brightnessSlider_->setDisabled(!light->getOn());
         brightnessSlider_->valueChanged().connect(boost::bind(&LightManagementWidget::updateLightBri, this, brightnessSlider_, i));
-        
         tableRow->elementAt(2)->addWidget(brightnessSlider_);
-        
+
+        WSplitButton *colourButton_ = new WSplitButton("Colour");
+        WPopupMenu *colourPopup = new WPopupMenu();
+        WPopupMenuItem *hsv = new WPopupMenuItem("Hue/Saturation");
+        colourPopup->addItem(hsv);
+
+        colourButton_->dropDownButton()->setMenu(colourPopup);
+
+        colourButton_->actionButton()->clicked().connect(boost::bind(&LightManagementWidget::editRGBDialog, this, i));
+
+       // hsv->triggered().connect(boost::bind(&LightManagementWidget::editHSVDialog, this, i));
+
+        WCssDecorationStyle *colour = new WCssDecorationStyle();
+
+        struct xy *cols = ColourConvert::rgb2xy(255.0f, 0.0f, 0.0f);
+        //struct rgb *cols2 = ColourConvert::xy2rgb()
+
+
+
+        tableRow->elementAt(2)->addWidget(colourButton_);
+
         string onButton = light->getOn() == 1 ? "On" : "Off";
         WPushButton *switchButton_ = new WPushButton(onButton);
         switchButton_->clicked().connect(boost::bind(&LightManagementWidget::updateLightOn, this, switchButton_, i));
         
         WPushButton *editLightButton_ = new WPushButton("Edit");
         editLightButton_->clicked().connect(boost::bind(&LightManagementWidget::editLight, this, i));
-        
+
         tableRow->elementAt(3)->addWidget(switchButton_);
         tableRow->elementAt(3)->addWidget(editLightButton_);
-        
+
         i++;
     }
 }
 
 void LightManagementWidget::updateGroupsTable() {
     groupsTable_->clear();
-    
+
     //create new row for headers <tr>
     WTableRow *tableRow = groupsTable_->insertRow(groupsTable_->rowCount());
     //table headers <th>
@@ -223,24 +251,24 @@ void LightManagementWidget::updateGroupsTable() {
     tableRow->elementAt(11)->addWidget(new Wt::WText("X"));
     tableRow->elementAt(12)->addWidget(new Wt::WText("Y"));
     tableRow->elementAt(13)->addWidget(new Wt::WText("Lights"));
-    
+
     //convert json string into json object
     Json::Object bridgeJson;
     Json::parse(bridge_->getJson(), bridgeJson);
     Json::Object groups = bridgeJson.get("groups");
-    
+
     int i = 1;
     while(true) {
         //if group i does not exist then break while loop
         if(groups.isNull(boost::lexical_cast<string>(i))) break;
-        
+
         //if group i exists then get the json data for it and make Group object
         Json::Object groupData = groups.get(boost::lexical_cast<string>(i));
         Group *group = new Group(boost::lexical_cast<string>(i), groupData);
-        
+
         //create new row for entry <tr>
         tableRow = groupsTable_->insertRow(groupsTable_->rowCount());
-        
+
         //table data <td>
         tableRow->elementAt(0)->addWidget(new WText(group->getGroupnum()));
         tableRow->elementAt(1)->addWidget(new WText(group->getName()));
@@ -248,20 +276,20 @@ void LightManagementWidget::updateGroupsTable() {
         tableRow->elementAt(3)->addWidget(new WText(group->getColormode()));
         tableRow->elementAt(4)->addWidget(new WText(boost::lexical_cast<string>(group->getCt())));
         tableRow->elementAt(5)->addWidget(new WText(group->getAlert()));
-        
+
         string reachablestr = group->getReachable() == 1 ? "True" : "False";
         tableRow->elementAt(6)->addWidget(new WText(reachablestr));
-        
+
         tableRow->elementAt(7)->addWidget(new WText(group->getEffect()));
         tableRow->elementAt(8)->addWidget(new WText(boost::lexical_cast<string>(group->getHue())));
-        
+
         string onstr = group->getOn() == 1 ? "True" : "False";
         tableRow->elementAt(9)->addWidget(new WText(onstr));
         tableRow->elementAt(10)->addWidget(new WText(boost::lexical_cast<string>(group->getSat())));
-        
+
         tableRow->elementAt(11)->addWidget(new WText(boost::lexical_cast<string>(group->getX())));
         tableRow->elementAt(12)->addWidget(new WText(boost::lexical_cast<string>(group->getY())));
-        
+
         for(WString lightNum : group->getLights()) {
             tableRow->elementAt(13)->addWidget(new WText(lightNum + " "));
         }
@@ -271,7 +299,7 @@ void LightManagementWidget::updateGroupsTable() {
 
 void LightManagementWidget::updateSchedulesTable() {
     schedulesTable_->clear();
-    
+
     // create row for headers table
     WTableRow *tableRow = schedulesTable_->insertRow(schedulesTable_->rowCount());
     //table headers <th>
@@ -279,53 +307,53 @@ void LightManagementWidget::updateSchedulesTable() {
     tableRow->elementAt(1)->addWidget(new WText("Description"));
     tableRow->elementAt(2)->addWidget(new WText("Action"));
     tableRow->elementAt(3)->addWidget(new WText("Time"));
-    
+
     //convert json string into json object
     Json::Object bridgeJson;
     Json::parse(bridge_->getJson(), bridgeJson);
     Json::Object schedules = bridgeJson.get("schedules");
-    
+
     int i = 1;
     while(true) {
         //if group i does not exist then break while loop
         if(schedules.isNull(boost::lexical_cast<string>(i))) break;
-        
+
         //if group i exists then get the json data for it and make Group object
         Json::Object scheduleData = schedules.get(boost::lexical_cast<string>(i));
         Schedule *schedule = new Schedule(boost::lexical_cast<string>(i), scheduleData);
-        
+
         tableRow = schedulesTable_->insertRow(schedulesTable_->rowCount());
-        
+
         tableRow->elementAt(0)->addWidget(new WText(schedule->getName()));
         tableRow->elementAt(1)->addWidget(new WText(schedule->getDescription()));
-        
-        
+
+
         tableRow->elementAt(2)->addWidget(new WText("X: " + boost::lexical_cast<string>(schedule->getX())));
-        
+
         tableRow->elementAt(2)->addWidget(new WBreak());
-        
+
         tableRow->elementAt(2)->addWidget(new WText("Y: " + boost::lexical_cast<string>(schedule->getY())));
-        
+
         tableRow->elementAt(2)->addWidget(new WBreak());
-        
+
         tableRow->elementAt(2)->addWidget(new WText("Bri: " + boost::lexical_cast<string>(schedule->getBri())));
-        
+
         tableRow->elementAt(2)->addWidget(new WBreak());
-        
+
         tableRow->elementAt(2)->addWidget(new WText("Transition: " + boost::lexical_cast<string>(schedule->getTransition())));
-        
+
         WString time = schedule->getTime();
         tableRow->elementAt(3)->addWidget(new WText(time));
-        
+
         WPushButton *editScheduleButton = new WPushButton("Edit Schedule");
         //editScheduleButton->clicked().connect
-        
+
         WPushButton *removeScheduleButton = new WPushButton("Remove Bridge");
         //removeScheduleButton_->clicked().connect(boost::bind(FUNCTION TO REMOVE sched, this, i));
-        
+
         tableRow->elementAt(4)->addWidget(editScheduleButton);
         tableRow->elementAt(4)->addWidget(removeScheduleButton);
-        
+
         i++;
     }
 }
@@ -333,63 +361,63 @@ void LightManagementWidget::updateSchedulesTable() {
 void LightManagementWidget::editLight(int pos) {
     Json::Object bridgeJson;
     Json::parse(bridge_->getJson(), bridgeJson);
-    
+
     Json::Object lights = bridgeJson.get("lights");
     Json::Object light = lights.get(boost::lexical_cast<string>(pos));
-    
+
     lightEditDialog_ = new WDialog("Edit Light"); // title
-    
+
     new WLabel("Light Name: ", lightEditDialog_->contents());
     lightEditName_ = new WLineEdit(lightEditDialog_->contents());
     new WBreak(lightEditDialog_->contents());
-    
+
     // make okay and cancel buttons, cancel sends a reject dialogstate, okay sends an accept
     WPushButton *ok = new WPushButton("OK", lightEditDialog_->contents());
     WPushButton *cancel = new WPushButton("Cancel", lightEditDialog_->contents());
-    
+
     ok->clicked().connect(lightEditDialog_, &WDialog::accept);
     cancel->clicked().connect(lightEditDialog_, &WDialog::reject);
-    
+
     // when the user is finished, call the updateLight function
     //lightEditDialog_->finished().connect(boost::bind(&LightManagementWidget::updateLight, this, pos));
     lightEditDialog_->show();
 }
 
 void LightManagementWidget::createScheduleDialog() {
-    
-    
+
+
     createScheduleDialog_ = new WDialog("Create a Schedule"); // title
-    
+
     new WLabel("Schedule Name: ", createScheduleDialog_->contents());
     WLineEdit *scheduleName = new WLineEdit(createScheduleDialog_->contents());
     scheduleName->setValueText("schedule");
     new WBreak(createScheduleDialog_->contents());
-    
+
     new WLabel("Description: ", createScheduleDialog_->contents());
     WLineEdit *description = new WLineEdit(createScheduleDialog_->contents());
     description->setValueText("description");
     new WBreak(createScheduleDialog_->contents());
-    
+
     //WTemplate *form = new WTemplate(WString::tr("dateEdit-template"), createScheduleDialog_->contents());
     //form->addFunction("id", &WTemplate::Functions::id);
-    
+
     WDateEdit *dateEdit = new WDateEdit(createScheduleDialog_->contents());
     //form->bindWidget("from",dateEdit);
     dateEdit->setDate(WDate::currentServerDate());
     new WBreak(createScheduleDialog_->contents());
-    
+
     WTimeEdit *timeEdit = new WTimeEdit(createScheduleDialog_->contents());
     timeEdit->setTime(WTime::currentTime());
     new WBreak(createScheduleDialog_->contents());
-    
-    
+
+
     // make okay and cancel buttons, cancel sends a reject dialogstate, okay sends an accept
     WPushButton *ok = new WPushButton("OK", createScheduleDialog_->contents());
     WPushButton *cancel = new WPushButton("Cancel", createScheduleDialog_->contents());
-    
+
     ok->clicked().connect(createScheduleDialog_, &WDialog::accept);
     cancel->clicked().connect(createScheduleDialog_, &WDialog::reject);
-    
+
     // when the user is finished, call the ADD SCHEDULE function
     //createScheduleDialog_->finished().connect(boost::bind(&LightManagementWidget::addSchedule, this, pos));
     createScheduleDialog_->show();
@@ -480,4 +508,84 @@ void LightManagementWidget::refreshBridgeHttp(boost::system::error_code err, con
     else {
         cerr << "Error: " << err.message() << ", " << response.status() << "\n";
     }
+}
+
+/**
+ *   @brief  Opens a WDialog box to edit rgb for specified light
+ *
+ *   @param   pos the position of the Bridge in user account vector to view
+ *
+ *   @return  void
+ *
+ */
+void LightManagementWidget::editRGBDialog(int pos) {
+
+    Json::Object bridgeJson;
+    Json::parse(bridge_->getJson(), bridgeJson);
+
+    Json::Object lights = bridgeJson.get("lights");
+    Json::Object lightData = lights.get(boost::lexical_cast<string>(pos));
+    Light *light = new Light(boost::lexical_cast<string>(pos), lightData);
+
+    editRGBDialog_ = new WDialog("Change Colour"); // title
+    new WText("Red: ", editRGBDialog_->contents());
+    WSlider *redSlider = new WSlider(editRGBDialog_->contents());
+    new WBreak(editRGBDialog_->contents());
+    new WText("Green: ", editRGBDialog_->contents());
+    WSlider *greenSlider = new WSlider(editRGBDialog_->contents());
+    new WBreak(editRGBDialog_->contents());
+    new WText("Blue: ", editRGBDialog_->contents());
+    WSlider *blueSlider = new WSlider(editRGBDialog_->contents());
+    new WBreak(editRGBDialog_->contents());
+    redSlider->resize(200,20);
+    greenSlider->resize(200,20);
+    blueSlider->resize(200,20);
+
+    redSlider->setMinimum(0);
+    redSlider->setMaximum(255);
+    greenSlider->setMinimum(0);
+    greenSlider->setMaximum(255);
+    blueSlider->setMinimum(0);
+    blueSlider->setMaximum(255);
+
+    WCssDecorationStyle *colour = new WCssDecorationStyle();
+
+    struct rgb *currentRGBVals = ColourConvert::xy2rgb((float)light->getX(),
+                                               (float)light->getY(),
+                                               (float)light->getBri());
+
+    redSlider->setValue(currentRGBVals->r);
+    greenSlider->setValue(currentRGBVals->g);
+    blueSlider->setValue(currentRGBVals->b);
+
+    colour->setBackgroundColor(WColor(redSlider->value(), greenSlider->value(), blueSlider->value()));
+    editRGBDialog_->contents()->setDecorationStyle(*colour);
+
+    redSlider->valueChanged().connect(bind([=] {
+        colour->setBackgroundColor(WColor(redSlider->value(), greenSlider->value(), blueSlider->value()));
+        editRGBDialog_->contents()->setDecorationStyle(*colour);
+                                      }));
+
+    greenSlider->valueChanged().connect(bind([=] {
+        colour->setBackgroundColor(WColor(redSlider->value(), greenSlider->value(), blueSlider->value()));
+        editRGBDialog_->contents()->setDecorationStyle(*colour);
+                                      }));
+
+    blueSlider->valueChanged().connect(bind([=] {
+        colour->setBackgroundColor(WColor(redSlider->value(), greenSlider->value(), blueSlider->value()));
+        editRGBDialog_->contents()->setDecorationStyle(*colour);
+                                      }));
+
+    new WBreak(editRGBDialog_->contents());
+
+    // make okay and cancel buttons, cancel sends a reject dialogstate, okay sends an accept
+    WPushButton *ok = new WPushButton("OK", editRGBDialog_->contents());
+    WPushButton *cancel = new WPushButton("Cancel", editRGBDialog_->contents());
+
+    ok->clicked().connect(editRGBDialog_ ,&WDialog::accept);
+    cancel->clicked().connect(editRGBDialog_, &WDialog::reject);
+
+    // when the user is finished, call the updateBridge function
+   // bridgeEditDialog_->finished().connect(boost::bind(&BridgeScreenWidget::updateBridge, this, pos));
+    editRGBDialog_->show();
 }

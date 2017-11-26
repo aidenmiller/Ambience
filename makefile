@@ -3,7 +3,7 @@ SRC_DIR = src
 OBJ_DIR = obj
 INC_DIR = include
 
-OBJS = MainApplication.o Hash.o WelcomeScreen.o Account.o LoginWidget.o CreateAccountWidget.o Bridge.o BridgeScreenWidget.o ProfileWidget.o LightManagementWidget.o Light.o Group.o Schedule.o
+OBJS = MainApplication.o Hash.o WelcomeScreen.o Account.o LoginWidget.o CreateAccountWidget.o Bridge.o BridgeScreenWidget.o ProfileWidget.o LightManagementWidget.o Light.o Group.o Schedule.o ColourConvert.o
 
 CC = g++
 DEBUG = -g
@@ -51,6 +51,9 @@ Schedule.o : $(INC_DIR)/Schedule.h $(SRC_DIR)/Schedule.cpp
 	
 LightManagementWidget.o: $(INC_DIR)/LightManagementWidget.h $(SRC_DIR)/LightManagementWidget.cpp
 	$(CC) $(CFLAGS) $(SRC_DIR)/LightManagementWidget.cpp
+
+ColourConvert.o: $(INC_DIR)/ColourConvert.h $(SRC_DIR)/ColourConvert.cpp
+	$(CC) $(CFLAGS) $(SRC_DIR)/ColourConvert.cpp
 
 clean:
 	rm $(OBJS) Ambience

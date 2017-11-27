@@ -72,13 +72,13 @@ private:
     Wt::WTable *lightsTable_;
     Wt::WTable *groupsTable_;
     Wt::WTable *schedulesTable_;
-    
+
     void createScheduleDialog();
     void createSchedule();
     void removeSchedule(Schedule *schedule);
     void removeGroup(Group *group);
     void removeLight(Light *light);
-    
+
     //objects from createScheduleDialog()
     Wt::WDialog *createScheduleDialog_;
     Wt::WLineEdit *scheduleName;
@@ -93,16 +93,25 @@ private:
     WLineEdit *xEdit;
     WLineEdit *yEdit;
     WLineEdit *transitionSchedule;
-    
+
     void postRequest(string url, string json);
     void deleteRequest(string url);
 
     Wt::WDialog *createGroupDialog_;
     Wt::WDialog *groupAdvancedDialog_;
+    Wt::WSlider *brightnessSlider_;
+    Wt::WLineEdit *hue;
+    Wt::WLineEdit *saturation;
+    Wt::WLineEdit *ct;
+    Wt::WComboBox *alert;
+    Wt::WComboBox *effect;
+    WComboBox *reachable;
+
     void createGroupDialog();
     void updateGroupBri(WSlider *slider_, Group *group);
     void updateGroupOn(WPushButton *button_, Group *group);
     void groupAdvancedDialog(Group *group);
+    void groupUpdateAdvanced(Group *group);
 
     void refreshBridge();
     void refreshBridgeHttp(boost::system::error_code err, const Wt::Http::Message &response);

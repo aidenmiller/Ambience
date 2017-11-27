@@ -388,13 +388,12 @@ void LightManagementWidget::groupAdvancedDialog(Group *group) {
     groupAdvancedDialog_ = new WDialog("Advanced"); // title
 
     new WLabel("State: ", groupAdvancedDialog_->contents());
-    onButtonGroup = new WButtonGroup(this);
+    onButtonGroup = new WButtonGroup(groupAdvancedDialog_->contents());
     WRadioButton *onRadioButton;
-    onRadioButton = new WRadioButton("On", groupAdvancedDialog_->contents());
+    onRadioButton = new WRadioButton("On");
     onButtonGroup->addButton(onRadioButton, 0);
-    onRadioButton = new WRadioButton("Off", groupAdvancedDialog_->contents());
+    onRadioButton = new WRadioButton("Off");
     onButtonGroup->addButton(onRadioButton, 1);
-    onButtonGroup->setCheckedButton(onButtonGroup->button(0));
     new WBreak(groupAdvancedDialog_->contents());
 
     //brightness slider
@@ -413,8 +412,6 @@ void LightManagementWidget::groupAdvancedDialog(Group *group) {
     xEdit->setPlaceholderText("X");
     yEdit = new WLineEdit(groupAdvancedDialog_->contents());
     yEdit->setPlaceholderText("Y");
-    xEdit->resize(40,20);
-    yEdit->resize(40,20);
     new WBreak(groupAdvancedDialog_->contents());
 
     // hue
@@ -432,7 +429,7 @@ void LightManagementWidget::groupAdvancedDialog(Group *group) {
     // CT
     new WLabel("CT: ", groupAdvancedDialog_->contents());
     ct = new WLineEdit(groupAdvancedDialog_->contents());
-    ct->setValueText(boost::lexical_cast<string>(group->getCt()));
+    saturation->setValueText(boost::lexical_cast<string>(group->getCt()));
     new WBreak(groupAdvancedDialog_->contents());
 
     // alert
@@ -456,20 +453,6 @@ void LightManagementWidget::groupAdvancedDialog(Group *group) {
     reachable = new WComboBox(groupAdvancedDialog_->contents());
     reachable->addItem("null");
     new WBreak(groupAdvancedDialog_->contents());
-
-    // disable all fields while group is off
-    onButtonGroup->checkedChanged().connect(bind([=] {
-        bool onStatus = onButtonGroup->checkedButton()->text() == "On" ? 1 : 0;
-        brightnessSlider_->setDisabled(!onStatus);
-        xEdit->setDisabled(!onStatus);
-        yEdit->setDisabled(!onStatus);
-        hue->setDisabled(!onStatus);
-        saturation->setDisabled(!onStatus);
-        ct->setDisabled(!onStatus);
-        alert->setDisabled(!onStatus);
-        effect->setDisabled(!onStatus);
-        reachable->setDisabled(!onStatus);
-    }));
 
     // make okay and cancel buttons, cancel sends a reject dialogstate, okay sends an accept
     WPushButton *ok = new WPushButton("OK", groupAdvancedDialog_->contents());

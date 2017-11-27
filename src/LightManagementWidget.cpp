@@ -231,6 +231,10 @@ void LightManagementWidget::updateLightsTable() {
         tableRow->elementAt(4)->addWidget(switchButton_);
         tableRow->elementAt(4)->addWidget(colourButton_);
         tableRow->elementAt(4)->addWidget(editLightButton_);
+        
+        WPushButton *removeLightButton = new WPushButton("Remove");
+        removeLightButton->clicked().connect(boost::bind(&LightManagementWidget::removeLight, this, light));
+        tableRow->elementAt(4)->addWidget(removeLightButton);
     }
 }
 
@@ -299,6 +303,10 @@ void LightManagementWidget::updateGroupsTable() {
         tableRow->elementAt(5)->addWidget(switchButton_);
 
         // color stuff
+        
+        WPushButton *removeGroupButton = new WPushButton("Remove");
+        removeGroupButton->clicked().connect(boost::bind(&LightManagementWidget::removeGroup, this, group));
+        tableRow->elementAt(5)->addWidget(removeGroupButton);
 
         WPushButton *advancedButton_ = new WPushButton("Advanced");
         advancedButton_->clicked().connect(boost::bind(&LightManagementWidget::groupAdvancedDialog, this, group));
@@ -518,6 +526,17 @@ void LightManagementWidget::updateSchedulesTable() {
 
 void LightManagementWidget::removeSchedule(Schedule *schedule) {
     string url = "http://" + bridge_->getIP() + ":" + bridge_->getPort() + "/api/" + bridge_->getUsername() + "/schedules/" + schedule->getSchedulenum().toUTF8();
+    deleteRequest(url);
+}
+
+void LightManagementWidget::removeGroup(Group *group) {
+    string url = "http://" + bridge_->getIP() + ":" + bridge_->getPort() + "/api/" + bridge_->getUsername() + "/groups/" + group->getGroupnum().toUTF8();
+    deleteRequest(url);
+}
+
+//NOTE: Does not work on Hue Emulator but would work with real bridge
+void LightManagementWidget::removeLight(Light *light) {
+    string url = "http://" + bridge_->getIP() + ":" + bridge_->getPort() + "/api/" + bridge_->getUsername() + "/lights/" + light->getLightnum().toUTF8();
     deleteRequest(url);
 }
 

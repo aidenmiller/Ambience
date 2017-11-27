@@ -76,6 +76,8 @@ private:
     void createScheduleDialog();
     void createSchedule();
     void removeSchedule(Schedule *schedule);
+    void removeGroup(Group *group);
+    void removeLight(Light *light);
     
     //objects from createScheduleDialog()
     Wt::WDialog *createScheduleDialog_;

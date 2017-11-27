@@ -255,18 +255,8 @@ void LightManagementWidget::updateGroupsTable() {
     tableRow->elementAt(2)->addWidget(new Wt::WText("Transitions"));
     tableRow->elementAt(3)->addWidget(new Wt::WText("Brightness"));
     tableRow->elementAt(4)->addWidget(new Wt::WText("Lights"));
-    tableRow->elementAt(5)->addWidget(new Wt::WText("Actions"));
-    /*
-    tableRow->elementAt(5)->addWidget(new Wt::WText("Alert"));
-    tableRow->elementAt(6)->addWidget(new Wt::WText("Reachable"));
-    tableRow->elementAt(7)->addWidget(new Wt::WText("Effect"));
-    tableRow->elementAt(8)->addWidget(new Wt::WText("Hue"));
-    tableRow->elementAt(9)->addWidget(new Wt::WText("Colormode"));
-    tableRow->elementAt(10)->addWidget(new Wt::WText("Sat"));
-    tableRow->elementAt(11)->addWidget(new Wt::WText("X"));
-    tableRow->elementAt(12)->addWidget(new Wt::WText("Y"));
-    tableRow->elementAt(13)->addWidget(new Wt::WText("Ct"));
-*/
+    tableRow->elementAt(5)->addWidget(new Wt::WText("Color"));
+    tableRow->elementAt(6)->addWidget(new Wt::WText("Actions"));
     //convert json string into json object
     Json::Object bridgeJson;
     Json::parse(bridge_->getJson(), bridgeJson);
@@ -323,32 +313,11 @@ void LightManagementWidget::updateGroupsTable() {
         switchButton_->clicked().connect(boost::bind(&LightManagementWidget::updateGroupOn, this, switchButton_, group));
         tableRow->elementAt(5)->addWidget(switchButton_);
 
+        // color stuff
+
         WPushButton *advancedButton_ = new WPushButton("Advanced");
         advancedButton_->clicked().connect(boost::bind(&LightManagementWidget::groupAdvancedDialog, this, group));
-        tableRow->elementAt(5)->addWidget(advancedButton_);
-        /*
-        tableRow->elementAt(2)->addWidget(new WText(boost::lexical_cast<string>(group->getBri())));
-        tableRow->elementAt(3)->addWidget(new WText(group->getColormode()));
-        tableRow->elementAt(4)->addWidget(new WText(boost::lexical_cast<string>(group->getCt())));
-        tableRow->elementAt(5)->addWidget(new WText(group->getAlert()));
-
-        string reachablestr = group->getReachable() == 1 ? "True" : "False";
-        tableRow->elementAt(6)->addWidget(new WText(reachablestr));
-
-        tableRow->elementAt(7)->addWidget(new WText(group->getEffect()));
-        tableRow->elementAt(8)->addWidget(new WText(boost::lexical_cast<string>(group->getHue())));
-
-        string onstr = group->getOn() == 1 ? "True" : "False";
-        tableRow->elementAt(9)->addWidget(new WText(onstr));
-        tableRow->elementAt(10)->addWidget(new WText(boost::lexical_cast<string>(group->getSat())));
-
-        tableRow->elementAt(11)->addWidget(new WText(boost::lexical_cast<string>(group->getX())));
-        tableRow->elementAt(12)->addWidget(new WText(boost::lexical_cast<string>(group->getY())));
-
-        for(WString lightNum : group->getLights()) {
-            tableRow->elementAt(13)->addWidget(new WText(lightNum + " "));
-        }
-        */
+        tableRow->elementAt(6)->addWidget(advancedButton_);
         i++;
     }
 }
@@ -392,6 +361,7 @@ void LightManagementWidget::createGroupDialog() {
     createGroupDialog_->show();
 }
 
+// does not work yet
 void LightManagementWidget::updateGroupOn(WPushButton *button_, Group *group){
     //set value string to reflect current state of the button
     string value = button_->text() == "On" ? "False" : "True";
@@ -421,6 +391,7 @@ void LightManagementWidget::updateGroupOn(WPushButton *button_, Group *group){
     }
 }
 
+// does not work yet
 void LightManagementWidget::updateGroupBri(WSlider *slider_, Group *group){
     string url = "http://" + bridge_->getIP() + ":" + bridge_->getPort() + "/api/" + bridge_->getUsername() + "/groups/" + group->getGroupnum().toUTF8() + "/action";
     Http::Message *data = new Http::Message();

@@ -12,3 +12,7 @@ Ambience
 bin/
 obj/
 .DS_Store
+ 
+.depend 
+.layout 
+.cbp

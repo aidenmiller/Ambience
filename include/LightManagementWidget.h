@@ -60,11 +60,11 @@ private:
     Wt::WSlider *redSlider;
     Wt::WSlider *greenSlider;
     Wt::WSlider *blueSlider;
-    
+
     void editLightDialog(Light *light);
     Wt::WDialog *editLightDialog_;
     Wt::WLineEdit *editLightName;
-    
+
     Wt::WLineEdit *editLightTransition;
     Wt::WIntValidator *intValidator;
 
@@ -93,7 +93,14 @@ private:
     
     void postRequest(string url, string json);
     void deleteRequest(string url);
-    
+
+    Wt::WDialog *createGroupDialog_;
+    Wt::WDialog *groupAdvancedDialog_;
+    void createGroupDialog();
+    void updateGroupBri(WSlider *slider_, Group *group);
+    void updateGroupOn(WPushButton *button_, Group *group);
+    void groupAdvancedDialog(Group *group);
+
     void refreshBridge();
     void refreshBridgeHttp(boost::system::error_code err, const Wt::Http::Message &response);
 };

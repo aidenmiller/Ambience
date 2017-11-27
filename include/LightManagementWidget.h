@@ -58,6 +58,7 @@ private:
     void updateLightInfo(Light *light);
     void handlePutHttp(boost::system::error_code err, const Wt::Http::Message &response);
 
+    Wt::WSlider *brightnessSlider_;
     void editRGBDialog(Light *light);
     Wt::WDialog *editRGBDialog_;
     Wt::WSlider *redSlider;
@@ -92,16 +93,19 @@ private:
     Wt::WButtonGroup *actionButtonGroup;
     Wt::WButtonGroup *onButtonGroup;
     WSlider *brightnessSchedule;
-    WLineEdit *xEdit;
-    WLineEdit *yEdit;
     WLineEdit *transitionSchedule;
 
+    void putRequest(string url, string json);
     void postRequest(string url, string json);
     void deleteRequest(string url);
 
+    //group edit
+    Wt::WLineEdit *groupName;
+    
+    //group advanced
     Wt::WDialog *createGroupDialog_;
     Wt::WDialog *groupAdvancedDialog_;
-    Wt::WSlider *brightnessSlider_;
+    Wt::WSlider *brightnessGroup;
     Wt::WLineEdit *hue;
     Wt::WLineEdit *saturation;
     Wt::WLineEdit *ct;
@@ -110,8 +114,6 @@ private:
     WComboBox *reachable;
 
     void createGroupDialog();
-    void updateGroupBri(WSlider *slider_, Group *group);
-    void updateGroupOn(WPushButton *button_, Group *group);
     void groupAdvancedDialog(Group *group);
     void groupUpdateAdvanced(Group *group);
 

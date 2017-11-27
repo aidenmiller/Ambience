@@ -17,12 +17,12 @@ using namespace std;
 using namespace Wt;
 
 class Group {
-    
+
 public:
     Group(WString groupNum, Json::Object groupData);
-    
+
     virtual ~Group();
-    
+
     //GETTERS
     WString getGroupnum() {return groupnum_;}
     WString getName() {return name_;}
@@ -39,7 +39,8 @@ public:
     double getY() {return xy_[1];}
     vector<WString> getLights() {return lights_;}
     int getNumLights() {return lights_.size();}
-    
+    int getTransition() {return transitiontime_;}
+
     //SETTERS
     void setGroupnum(WString groupnum) {groupnum_ = groupnum;}
     void setName(WString name) {name_ = name;}
@@ -55,9 +56,10 @@ public:
     void setX(double x) {xy_[0] = x;}
     void setY(double y) {xy_[1] = y;}
     void addLight(WString lightNum) {lights_.push_back(lightNum);}
-    
+    void setTransition(int transitiontime) {transitiontime_ = transitiontime;}
+
     void toggleOnOff() {on_ = !on_;}
-    
+
 private:
     WString groupnum_;
     WString name_;
@@ -72,6 +74,7 @@ private:
     int sat_;
     double xy_[2];
     vector<WString> lights_;
+    int transitiontime_;
 };
 
 #endif //GROUP_H

@@ -610,6 +610,7 @@ void LightManagementWidget::createSchedule() {
     postRequest(url, Json::serialize(scheduleJSON));
 }
 
+
 void LightManagementWidget::postRequest(string url, string json) {
     Http::Message *data = new Http::Message();
     data->addBodyText(json);

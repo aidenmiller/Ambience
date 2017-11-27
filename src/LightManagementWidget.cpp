@@ -185,15 +185,15 @@ void LightManagementWidget::updateLightsTable() {
         //transition definer
         WLineEdit *editLightTransition = new WLineEdit();
         editLightTransition->resize(40,20);
-        //display transition time to user in seconds (transition time is stored as multiple of 100ms)
-        editLightTransition->setValueText(boost::lexical_cast<string>(light->getTransition() / 10.0));
+        //display transition time to user (transition time is stored as multiple of 100ms)
+        editLightTransition->setValueText(boost::lexical_cast<string>(light->getTransition()));
         tableRow->elementAt(2)->addWidget(editLightTransition);
         editLightTransition->setDisabled(!light->getOn());  //disable if light off
         intValidator = new WIntValidator(0, 100, tableRow->elementAt(2)); //100 second maximum
         intValidator->setMandatory(true);
         editLightTransition->setValidator(intValidator);
         editLightTransition->changed().connect(bind([=] {
-            light->setTransition(boost::lexical_cast<int>(editLightTransition->valueText()) * 10);
+            light->setTransition(boost::lexical_cast<int>(editLightTransition->valueText()));
         }));
         tableRow->elementAt(2)->addWidget(new WText(" seconds"));
 
@@ -242,11 +242,10 @@ void LightManagementWidget::updateGroupsTable() {
     //table headers <th>
     tableRow->elementAt(0)->addWidget(new Wt::WText("Group #"));
     tableRow->elementAt(1)->addWidget(new Wt::WText("Name"));
-    tableRow->elementAt(2)->addWidget(new Wt::WText("Transitions"));
-    tableRow->elementAt(3)->addWidget(new Wt::WText("Brightness"));
-    tableRow->elementAt(4)->addWidget(new Wt::WText("Lights"));
-    tableRow->elementAt(5)->addWidget(new Wt::WText("Color"));
-    tableRow->elementAt(6)->addWidget(new Wt::WText("Actions"));
+    tableRow->elementAt(2)->addWidget(new Wt::WText("Lights"));
+    tableRow->elementAt(3)->addWidget(new Wt::WText("Transitions"));
+    tableRow->elementAt(4)->addWidget(new Wt::WText("Brightness"));
+    tableRow->elementAt(5)->addWidget(new Wt::WText("Actions"));
     //convert json string into json object
     Json::Object bridgeJson;
     Json::parse(bridge_->getJson(), bridgeJson);
@@ -263,21 +262,25 @@ void LightManagementWidget::updateGroupsTable() {
         //table data <td>
         tableRow->elementAt(0)->addWidget(new WText(group->getGroupnum()));
         tableRow->elementAt(1)->addWidget(new WText(group->getName()));
+        
+        for(WString lightNum : group->getLights()) {
+            tableRow->elementAt(2)->addWidget(new WText(lightNum + " "));
+        }
 
         //transition definer
         WLineEdit *editGroupTransition = new WLineEdit();
         editGroupTransition->resize(40,20);
         //display transition time to user in seconds (transition time is stored as multiple of 100ms)
-        editGroupTransition->setValueText(boost::lexical_cast<string>(group->getTransition() / 10.0));
-        tableRow->elementAt(2)->addWidget(editGroupTransition);
+        editGroupTransition->setValueText(boost::lexical_cast<string>(group->getTransition()));
+        tableRow->elementAt(3)->addWidget(editGroupTransition);
         editGroupTransition->setDisabled(!group->getOn());  //disable if light off
         intValidator = new WIntValidator(0, 100, tableRow->elementAt(2)); //100 second maximum
         intValidator->setMandatory(true);
         editGroupTransition->setValidator(intValidator);
         editGroupTransition->changed().connect(bind([=] {
-            group->setTransition(boost::lexical_cast<int>(editGroupTransition->valueText()) * 10);
+            group->setTransition(boost::lexical_cast<int>(editGroupTransition->valueText()));
         }));
-        tableRow->elementAt(2)->addWidget(new WText(" seconds"));
+        tableRow->elementAt(3)->addWidget(new WText(" seconds"));
 
         //brightness slider
         WSlider *brightnessSlider_ = new WSlider();
@@ -288,11 +291,7 @@ void LightManagementWidget::updateGroupsTable() {
         brightnessSlider_->setValue(group->getBri());
         brightnessSlider_->setDisabled(!group->getOn()); //disable if light off
         brightnessSlider_->valueChanged().connect(boost::bind(&LightManagementWidget::updateGroupBri, this, brightnessSlider_, group));
-        tableRow->elementAt(3)->addWidget(brightnessSlider_);
-
-        for(WString lightNum : group->getLights()) {
-            tableRow->elementAt(4)->addWidget(new WText(lightNum + " "));
-        }
+        tableRow->elementAt(4)->addWidget(brightnessSlider_);
 
         string onButton = group->getOn() == 1 ? "On" : "Off";
         WPushButton *switchButton_ = new WPushButton(onButton);
@@ -303,7 +302,7 @@ void LightManagementWidget::updateGroupsTable() {
 
         WPushButton *advancedButton_ = new WPushButton("Advanced");
         advancedButton_->clicked().connect(boost::bind(&LightManagementWidget::groupAdvancedDialog, this, group));
-        tableRow->elementAt(6)->addWidget(advancedButton_);
+        tableRow->elementAt(5)->addWidget(advancedButton_);
     }
 }
 
@@ -321,18 +320,14 @@ void LightManagementWidget::createGroupDialog() {
     Json::Object bridgeJson;
     Json::parse(bridge_->getJson(), bridgeJson);
     Json::Object lights = bridgeJson.get("lights");
-    int i = 1;
-    while(true) {
-        //if light i does not exist then break while loop
-        if(lights.isNull(boost::lexical_cast<string>(i))) break;
+    
+    set<string> data = lights.names();
+    for(string num : data) {
+        Json::Object lightData = lights.get(num);
+        Light *light = new Light(num, lightData);
 
-        //if light i exists then get the json data for it and make Light object
-        Json::Object lightData = lights.get(boost::lexical_cast<string>(i));
-        Light *light = new Light(boost::lexical_cast<string>(i), lightData);
-
-        WPushButton *lightButton_ = new WPushButton(createGroupDialog_->contents());
-        //lightButton_->clicked().connect(boost::bind(&Group::addLight, group, light->getLightnum()));
-        i++;
+        WCheckBox *lightButton_ = new WCheckBox(num, createGroupDialog_->contents());
+        //lightButton_->clicked().connect(boost::bind(&Group::addLight, group, light->getLightnum())); //need to find a way to find out which boxes were checked off when the OK button is pressed...
     }
     new WBreak(createGroupDialog_->contents());
 
@@ -342,6 +337,8 @@ void LightManagementWidget::createGroupDialog() {
 
     ok->clicked().connect(createGroupDialog_, &WDialog::accept);
     cancel->clicked().connect(createGroupDialog_, &WDialog::reject);
+    
+    //createGroupDialog_->finished().connect(boost::bind(&LightManagementWidget::createGroup, this));
 
     createGroupDialog_->show();
 }
@@ -362,7 +359,7 @@ void LightManagementWidget::updateGroupOn(WPushButton *button_, Group *group){
         data->addBodyText("{\"on\":" + value + "}");
     }
 
-    cout << "Group: Updating group brightness at URL " << url << "\n";
+    cout << "Group: Updating group on at URL " << url << "\n";
     Wt::Http::Client *client = new Wt::Http::Client(this);
     client->setTimeout(2); //2 second timeout of request
     client->setMaximumResponseSize(1000000);
@@ -667,8 +664,8 @@ void LightManagementWidget::createScheduleDialog() {
     new WLabel("Transition time: ", bodyGroupContainer);
     transitionSchedule = new WLineEdit(bodyGroupContainer);
     transitionSchedule->resize(40,20);
-    transitionSchedule->setValueText("0.4");
-    intValidator = new WIntValidator(0, 100, bodyGroupContainer); //100 second maximum
+    transitionSchedule->setValueText("4");
+    intValidator = new WIntValidator(0, 100, bodyGroupContainer);//100 maximum
     transitionSchedule->setValidator(intValidator);
     new WText(" seconds", bodyGroupContainer);
     new WBreak(bodyGroupContainer);
@@ -740,7 +737,7 @@ void LightManagementWidget::createSchedule() {
     }
     
     //if value is 4 user did not change it
-    int transition = (int)(boost::lexical_cast<double>(transitionSchedule->valueText()) * 10);
+    int transition = boost::lexical_cast<int>(transitionSchedule->valueText());
     
     //json formatting
     Json::Object scheduleJSON;

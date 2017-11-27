@@ -15,6 +15,7 @@
 #include <Wt/WButtonGroup>
 #include <Wt/WGroupBox>
 #include <Wt/WRadioButton>
+#include <Wt/WCheckBox>
 #include "WelcomeScreen.h"
 #include "Bridge.h"
 #include "Light.h"
@@ -70,8 +71,8 @@ private:
 
     Wt::WTable *lightsTable_;
     Wt::WTable *groupsTable_;
-
     Wt::WTable *schedulesTable_;
+    
     void createScheduleDialog();
     void createSchedule();
     void removeSchedule(Schedule *schedule);

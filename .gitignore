@@ -1,2 +1,5 @@
 .DS_Store
- .depend .layout .cbp
+ 
+.depend 
+.layout 
+.cbp

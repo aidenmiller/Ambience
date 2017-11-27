@@ -28,12 +28,8 @@
 #include <Wt/Json/Value>
 #include <Wt/Json/Object>
 #include <Wt/Json/Parser>
+#include <Wt/Json/Serializer>
 #include <Wt/Json/Array>
-#include <Wt/WCalendar>
-#include <Wt/WDate>
-#include <Wt/WDateEdit>
-#include <Wt/WTemplate>
-#include <Wt/WTimeEdit>
 
 using namespace Wt;
 using namespace std;
@@ -170,14 +166,10 @@ void LightManagementWidget::updateLightsTable() {
     Json::parse(bridge_->getJson(), bridgeJson);
     Json::Object lights = bridgeJson.get("lights");
     
-    int i = 1;
-    while(true) {
-        //if light i does not exist then break while loop
-        if(lights.isNull(boost::lexical_cast<string>(i))) break;
-        
-        //if light i exists then get the json data for it and make Light object
-        Json::Object lightData = lights.get(boost::lexical_cast<string>(i));
-        Light *light = new Light(boost::lexical_cast<string>(i), lightData);
+    set<string> data = lights.names();
+    for(string num : data) {
+        Json::Object lightData = lights.get(num);
+        Light *light = new Light(num, lightData);
         
         //create new row for entry <tr>
         tableRow = lightsTable_->insertRow(lightsTable_->rowCount());
@@ -235,8 +227,6 @@ void LightManagementWidget::updateLightsTable() {
         tableRow->elementAt(4)->addWidget(switchButton_);
         tableRow->elementAt(4)->addWidget(colourButton_);
         tableRow->elementAt(4)->addWidget(editLightButton_);
-        
-        i++;
     }
 }
 
@@ -266,14 +256,10 @@ void LightManagementWidget::updateGroupsTable() {
     Json::parse(bridge_->getJson(), bridgeJson);
     Json::Object groups = bridgeJson.get("groups");
     
-    int i = 1;
-    while(true) {
-        //if group i does not exist then break while loop
-        if(groups.isNull(boost::lexical_cast<string>(i))) break;
-        
-        //if group i exists then get the json data for it and make Group object
-        Json::Object groupData = groups.get(boost::lexical_cast<string>(i));
-        Group *group = new Group(boost::lexical_cast<string>(i), groupData);
+    set<string> data = groups.names();
+    for(string num : data) {
+        Json::Object groupData = groups.get(num);
+        Group *group = new Group(num, groupData);
         
         //create new row for entry <tr>
         tableRow = groupsTable_->insertRow(groupsTable_->rowCount());
@@ -302,7 +288,6 @@ void LightManagementWidget::updateGroupsTable() {
         for(WString lightNum : group->getLights()) {
             tableRow->elementAt(13)->addWidget(new WText(lightNum + " "));
         }
-        i++;
     }
 }
 
@@ -312,7 +297,7 @@ void LightManagementWidget::updateSchedulesTable() {
     // create row for headers table
     WTableRow *tableRow = schedulesTable_->insertRow(schedulesTable_->rowCount());
     //table headers <th>
-    tableRow->elementAt(0)->addWidget(new WText("Schedules"));
+    tableRow->elementAt(0)->addWidget(new WText("Name"));
     tableRow->elementAt(1)->addWidget(new WText("Description"));
     tableRow->elementAt(2)->addWidget(new WText("Action"));
     tableRow->elementAt(3)->addWidget(new WText("Time"));
@@ -322,51 +307,74 @@ void LightManagementWidget::updateSchedulesTable() {
     Json::parse(bridge_->getJson(), bridgeJson);
     Json::Object schedules = bridgeJson.get("schedules");
     
-    int i = 1;
-    while(true) {
-        //if group i does not exist then break while loop
-        if(schedules.isNull(boost::lexical_cast<string>(i))) break;
-        
-        //if group i exists then get the json data for it and make Group object
-        Json::Object scheduleData = schedules.get(boost::lexical_cast<string>(i));
-        Schedule *schedule = new Schedule(boost::lexical_cast<string>(i), scheduleData);
+    set<string> data = schedules.names();
+    for(string num : data) {
+        Json::Object scheduleData = schedules.get(num);
+        Schedule *schedule = new Schedule(num, scheduleData);
         
         tableRow = schedulesTable_->insertRow(schedulesTable_->rowCount());
         
         tableRow->elementAt(0)->addWidget(new WText(schedule->getName()));
         tableRow->elementAt(1)->addWidget(new WText(schedule->getDescription()));
         
-        
-        tableRow->elementAt(2)->addWidget(new WText("X: " + boost::lexical_cast<string>(schedule->getX())));
-        
+        tableRow->elementAt(2)->addWidget(new WText(schedule->getMethod().toUTF8()));
         tableRow->elementAt(2)->addWidget(new WBreak());
         
-        tableRow->elementAt(2)->addWidget(new WText("Y: " + boost::lexical_cast<string>(schedule->getY())));
-        
+        tableRow->elementAt(2)->addWidget(new WText(schedule->getAddress().toUTF8()));
         tableRow->elementAt(2)->addWidget(new WBreak());
         
-        tableRow->elementAt(2)->addWidget(new WText("Bri: " + boost::lexical_cast<string>(schedule->getBri())));
+        if(schedule->getMethod().toUTF8() != "DELETE") {
+            string onState = schedule->getOn() == 1 ? "true" : "false";
+            tableRow->elementAt(2)->addWidget(new WText("On: " + onState));
+            tableRow->elementAt(2)->addWidget(new WBreak());
+            
+            if(schedule->getX() != -1 && schedule->getY() != -1) {
+                tableRow->elementAt(2)->addWidget(new WText("Color: [" + boost::lexical_cast<string>(schedule->getX()) + "," + boost::lexical_cast<string>(schedule->getY()) + "]"));
+                tableRow->elementAt(2)->addWidget(new WBreak());
+            }
+            if(schedule->getBri() != -1) {
+                tableRow->elementAt(2)->addWidget(new WText("Bri: " + boost::lexical_cast<string>(schedule->getBri())));
+                tableRow->elementAt(2)->addWidget(new WBreak());
+            }
+            if(schedule->getTransition() != -1) {
+                tableRow->elementAt(2)->addWidget(new WText("Transition: " + boost::lexical_cast<string>(schedule->getTransition())));
+            }
+        }
         
-        tableRow->elementAt(2)->addWidget(new WBreak());
+        tableRow->elementAt(3)->addWidget(new WText(schedule->getTime()));
         
-        tableRow->elementAt(2)->addWidget(new WText("Transition: " + boost::lexical_cast<string>(schedule->getTransition())));
-        
-        WString time = schedule->getTime();
-        tableRow->elementAt(3)->addWidget(new WText(time));
-        
-        WPushButton *editScheduleButton = new WPushButton("Edit Schedule");
+        WPushButton *editScheduleButton = new WPushButton("Edit");
         //editScheduleButton->clicked().connect
         
-        WPushButton *removeScheduleButton = new WPushButton("Remove Bridge");
-        //removeScheduleButton_->clicked().connect(boost::bind(FUNCTION TO REMOVE sched, this, i));
+        WPushButton *removeScheduleButton = new WPushButton("Remove");
+        removeScheduleButton->clicked().connect(boost::bind(&LightManagementWidget::removeSchedule, this, schedule));
         
         tableRow->elementAt(4)->addWidget(editScheduleButton);
         tableRow->elementAt(4)->addWidget(removeScheduleButton);
-        
-        i++;
     }
 }
 
+void LightManagementWidget::removeSchedule(Schedule *schedule) {
+    string url = "http://" + bridge_->getIP() + ":" + bridge_->getPort() + "/api/" + bridge_->getUsername() + "/schedules/" + schedule->getSchedulenum().toUTF8();
+    deleteRequest(url);
+}
+
+void LightManagementWidget::deleteRequest(string url) {
+    Http::Message *data = new Http::Message();
+    
+    cout << "DELETE: Deleting at URL " << url << "\n";
+    Wt::Http::Client *client = new Wt::Http::Client(this);
+    client->setTimeout(2); //2 second timeout of request
+    client->setMaximumResponseSize(1000000);
+    client->done().connect(boost::bind(&LightManagementWidget::handlePutHttp, this, _1, _2));
+    
+    if(client->deleteRequest(url, *data)) {
+        WApplication::instance()->deferRendering();
+    }
+    else {
+        cerr << "DELETE: Error in client->deleteRequest() call\n";
+    }
+}
 
 void LightManagementWidget::editLightDialog(Light *light) {
     editLightDialog_ = new WDialog("Edit Light #" + boost::lexical_cast<string>(light->getLightnum())); // title
@@ -412,32 +420,103 @@ void LightManagementWidget::updateLightInfo(Light *light){
 }
 
 void LightManagementWidget::createScheduleDialog() {
-    
-    
     createScheduleDialog_ = new WDialog("Create a Schedule"); // title
     
     new WLabel("Schedule Name: ", createScheduleDialog_->contents());
-    WLineEdit *scheduleName = new WLineEdit(createScheduleDialog_->contents());
+    scheduleName = new WLineEdit(createScheduleDialog_->contents());
     scheduleName->setValueText("schedule");
     new WBreak(createScheduleDialog_->contents());
     
     new WLabel("Description: ", createScheduleDialog_->contents());
-    WLineEdit *description = new WLineEdit(createScheduleDialog_->contents());
-    description->setValueText("description");
+    description = new WLineEdit(createScheduleDialog_->contents());
     new WBreak(createScheduleDialog_->contents());
     
     //WTemplate *form = new WTemplate(WString::tr("dateEdit-template"), createScheduleDialog_->contents());
     //form->addFunction("id", &WTemplate::Functions::id);
     
-    WDateEdit *dateEdit = new WDateEdit(createScheduleDialog_->contents());
+    // Container for Resource Buttons
+    Wt::WGroupBox *resourceGroupContainer = new Wt::WGroupBox("Resource", createScheduleDialog_->contents());
+    resourceButtonGroup = new Wt::WButtonGroup(this);
+    Wt::WRadioButton *resourceRadioButton;
+    resourceRadioButton = new Wt::WRadioButton("Light", resourceGroupContainer);
+    resourceButtonGroup->addButton(resourceRadioButton, 0);
+    resourceRadioButton = new Wt::WRadioButton("Group", resourceGroupContainer);
+    resourceButtonGroup->addButton(resourceRadioButton, 1);
+    resourceButtonGroup->setCheckedButton(resourceButtonGroup->button(0));
+    new WBreak(resourceGroupContainer);
+    new WLabel("Light/Group Num: ", resourceGroupContainer);
+    resourceNum = new WLineEdit(resourceGroupContainer);
+    resourceNum->setValueText("1");
+    intValidator = new WIntValidator(0, 100, resourceGroupContainer); //max 100
+    intValidator->setMandatory(true);
+    resourceNum->setValidator(intValidator);
+    new WBreak(createScheduleDialog_->contents());
+    
+    // Container for Action Buttons
+    Wt::WGroupBox *actionGroupContainer = new Wt::WGroupBox("Action", createScheduleDialog_->contents());
+    actionButtonGroup = new Wt::WButtonGroup(this);
+    Wt::WRadioButton *actionRadioButton;
+    actionRadioButton = new Wt::WRadioButton("Change", actionGroupContainer);
+    actionButtonGroup->addButton(actionRadioButton, 0);
+    actionRadioButton = new Wt::WRadioButton("Add", actionGroupContainer);
+    actionButtonGroup->addButton(actionRadioButton, 1);
+    actionRadioButton = new Wt::WRadioButton("Remove", actionGroupContainer);
+    actionButtonGroup->addButton(actionRadioButton, 2);
+    actionButtonGroup->setCheckedButton(actionButtonGroup->button(0));
+    new WBreak(createScheduleDialog_->contents());
+    
+    // Container for Body Buttons
+    Wt::WGroupBox *bodyGroupContainer = new Wt::WGroupBox("State", createScheduleDialog_->contents());
+    // on or off
+    onButtonGroup = new Wt::WButtonGroup(this);
+    Wt::WRadioButton *onRadioButton;
+    onRadioButton = new Wt::WRadioButton("On", bodyGroupContainer);
+    onButtonGroup->addButton(onRadioButton, 0);
+    onRadioButton = new Wt::WRadioButton("Off", bodyGroupContainer);
+    onButtonGroup->addButton(onRadioButton, 1);
+    onButtonGroup->checkedChanged().connect(bind([=] {
+        bool onStatus = onButtonGroup->checkedButton()->text() == "On" ? 1 : 0;
+        brightnessSchedule->setDisabled(!onStatus);
+        xEdit->setDisabled(!onStatus);
+        yEdit->setDisabled(!onStatus);
+        transitionSchedule->setDisabled(!onStatus);
+    }));
+    
+    new WBreak(bodyGroupContainer);
+    // brightness slider
+    new WLabel("Brightness: ", bodyGroupContainer);
+    brightnessSchedule = new WSlider(bodyGroupContainer);
+    brightnessSchedule->resize(200,20);
+    brightnessSchedule->setValue(1);
+    brightnessSchedule->setMinimum(0);
+    brightnessSchedule->setMaximum(254);
+    new WBreak(bodyGroupContainer);
+    // color picker
+    new WLabel("Color: ", bodyGroupContainer);
+    xEdit = new WLineEdit(bodyGroupContainer);
+    xEdit->setPlaceholderText("X");
+    yEdit = new WLineEdit(bodyGroupContainer);
+    yEdit->setPlaceholderText("Y");
+    new WBreak(bodyGroupContainer);
+    // transition time
+    new WLabel("Transition time: ", bodyGroupContainer);
+    transitionSchedule = new WLineEdit(bodyGroupContainer);
+    transitionSchedule->resize(40,20);
+    transitionSchedule->setValueText("0.4");
+    intValidator = new WIntValidator(0, 100, bodyGroupContainer); //100 second maximum
+    transitionSchedule->setValidator(intValidator);
+    new WText(" seconds", bodyGroupContainer);
+    new WBreak(bodyGroupContainer);
+    
+    // Container for Date and Time
+    Wt::WGroupBox *datetimeGroupContainer = new Wt::WGroupBox("Date & Time", createScheduleDialog_->contents());
+    dateEdit = new WDateEdit(datetimeGroupContainer);
     //form->bindWidget("from",dateEdit);
     dateEdit->setDate(WDate::currentServerDate());
-    new WBreak(createScheduleDialog_->contents());
-    
-    WTimeEdit *timeEdit = new WTimeEdit(createScheduleDialog_->contents());
+    timeEdit = new WTimeEdit(datetimeGroupContainer);
     timeEdit->setTime(WTime::currentTime());
-    new WBreak(createScheduleDialog_->contents());
     
+    new WBreak(createScheduleDialog_->contents());
     
     // make okay and cancel buttons, cancel sends a reject dialogstate, okay sends an accept
     WPushButton *ok = new WPushButton("OK", createScheduleDialog_->contents());
@@ -447,8 +526,106 @@ void LightManagementWidget::createScheduleDialog() {
     cancel->clicked().connect(createScheduleDialog_, &WDialog::reject);
     
     // when the user is finished, call the ADD SCHEDULE function
-    //createScheduleDialog_->finished().connect(boost::bind(&LightManagementWidget::addSchedule, this, pos));
+    createScheduleDialog_->finished().connect(boost::bind(&LightManagementWidget::createSchedule, this));
     createScheduleDialog_->show();
+}
+
+void LightManagementWidget::createSchedule() {
+    if (createScheduleDialog_->result() == WDialog::DialogCode::Rejected)
+        return;
+    if (resourceNum->validate() != 2)
+        return;
+    
+    string name = scheduleName->valueText().toUTF8();
+    string desc = description->valueText().toUTF8();
+    string date = dateEdit->valueText().toUTF8();
+    string time = timeEdit->valueText().toUTF8();
+    string localtime = date + "T" + time;
+    
+    string resource = "";
+    string resourceTwo = "";
+    string action = "";
+    string on = "";
+    string xval = "";
+    string yval = "";
+    if(resourceButtonGroup->checkedButton()->text() == "Light") {
+        resource = "lights";
+        resourceTwo = "state";
+    }
+    else {
+        resource = "groups";
+        resourceTwo = "action";
+    }
+    string num = resourceNum->valueText().toUTF8();
+    
+    if(actionButtonGroup->checkedButton()->text() == "Change") action = "PUT";
+    else if(actionButtonGroup->checkedButton()->text() == "Add") action = "POST";
+    else action = "DELETE";
+    
+    if(onButtonGroup->checkedButton() != 0) {
+        on = onButtonGroup->checkedButton()->text() == "On" ? "1" : "0";
+    }
+    
+    //if value is 1 user did not change it
+    string bri = boost::lexical_cast<string>(brightnessSchedule->value());
+    
+    if(xEdit->valueText().toUTF8() != "" && yEdit->valueText().toUTF8() != "") {
+        xval = xEdit->valueText().toUTF8();
+        yval = yEdit->valueText().toUTF8();
+    }
+    
+    //if value is 4 user did not change it
+    int transition = (int)(boost::lexical_cast<double>(transitionSchedule->valueText()) * 10);
+    
+    //json formatting
+    Json::Object scheduleJSON;
+    if(name != "") scheduleJSON["name"] = Json::Value(name);
+    if(desc != "") scheduleJSON["description"] = Json::Value(desc);
+    
+    Json::Object commandJSON;
+    commandJSON["address"] = Json::Value("/api/" + bridge_->getUsername() + "/" + resource + "/" + num + "/" + resourceTwo);
+    commandJSON["method"] = Json::Value(action);
+    commandJSON["body"] = Json::Value(Json::ObjectType);
+    
+    Json::Object bodyJSON;
+    if(on != "") bodyJSON["on"] = Json::Value((bool)boost::lexical_cast<int>(on));
+    else bodyJSON["on"] = Json::Value(Json::Value::Null);
+    if(bri != "1" && on == "1") bodyJSON["bri"] = Json::Value(boost::lexical_cast<int>(bri));
+    else bodyJSON["bri"] = Json::Value(Json::Value::Null);
+    if(xval != "" && yval != "" && on == "1") {
+        Json::Array xyJSON;
+        xyJSON.push_back(Json::Value(boost::lexical_cast<double>(xval)));
+        xyJSON.push_back(Json::Value(boost::lexical_cast<double>(yval)));
+        bodyJSON["xy"] = Json::Value(xyJSON);
+    }
+    else bodyJSON["xy"] = Json::Value(Json::Value::Null);
+    if(transition != 4 && on == "1") bodyJSON["transitiontime"] = Json::Value(transition);
+    else bodyJSON["transitiontime"] = Json::Value(Json::Value::Null);
+    
+    commandJSON["body"] = Json::Value(bodyJSON);
+    scheduleJSON["command"] = Json::Value(commandJSON);
+    scheduleJSON["time"] = Json::Value(localtime);
+    
+    string url = "http://" + bridge_->getIP() + ":" + bridge_->getPort() + "/api/" + bridge_->getUsername() + "/schedules";
+    postRequest(url, Json::serialize(scheduleJSON));
+}
+
+void LightManagementWidget::postRequest(string url, string json) {
+    Http::Message *data = new Http::Message();
+    data->addBodyText(json);
+    
+    cout << "POST: Updating at URL " << url << "\n";
+    Wt::Http::Client *client = new Wt::Http::Client(this);
+    client->setTimeout(2); //2 second timeout of request
+    client->setMaximumResponseSize(1000000);
+    client->done().connect(boost::bind(&LightManagementWidget::handlePutHttp, this, _1, _2));
+    
+    if(client->post(url, *data)) {
+        WApplication::instance()->deferRendering();
+    }
+    else {
+        cerr << "POST: Error in client->post() call\n";
+    }
 }
 
 void LightManagementWidget::updateLightBri(WSlider *slider_, Light *light){

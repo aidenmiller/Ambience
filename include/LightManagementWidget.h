@@ -7,6 +7,14 @@
 #include <Wt/WLabel>
 #include <Wt/WSlider>
 #include <Wt/WIntValidator>
+#include <Wt/WCalendar>
+#include <Wt/WDate>
+#include <Wt/WDateEdit>
+#include <Wt/WTemplate>
+#include <Wt/WTimeEdit>
+#include <Wt/WButtonGroup>
+#include <Wt/WGroupBox>
+#include <Wt/WRadioButton>
 #include "WelcomeScreen.h"
 #include "Bridge.h"
 #include "Light.h"
@@ -65,7 +73,26 @@ private:
 
     Wt::WTable *schedulesTable_;
     void createScheduleDialog();
+    void createSchedule();
+    void removeSchedule(Schedule *schedule);
+    
+    //objects from createScheduleDialog()
     Wt::WDialog *createScheduleDialog_;
+    Wt::WLineEdit *scheduleName;
+    Wt::WLineEdit *description;
+    Wt::WDateEdit *dateEdit;
+    Wt::WTimeEdit *timeEdit;
+    Wt::WButtonGroup *resourceButtonGroup;
+    WLineEdit *resourceNum;
+    Wt::WButtonGroup *actionButtonGroup;
+    Wt::WButtonGroup *onButtonGroup;
+    WSlider *brightnessSchedule;
+    WLineEdit *xEdit;
+    WLineEdit *yEdit;
+    WLineEdit *transitionSchedule;
+    
+    void postRequest(string url, string json);
+    void deleteRequest(string url);
     
     void refreshBridge();
     void refreshBridgeHttp(boost::system::error_code err, const Wt::Http::Message &response);

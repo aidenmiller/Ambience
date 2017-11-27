@@ -65,10 +65,6 @@ private:
     Wt::WSlider *greenSlider;
     Wt::WSlider *blueSlider;
 
-    void editLightDialog(Light *light);
-    Wt::WDialog *editLightDialog_;
-    Wt::WLineEdit *editLightName;
-
     Wt::WLineEdit *editLightTransition;
     Wt::WIntValidator *intValidator;
 
@@ -76,13 +72,21 @@ private:
     Wt::WTable *groupsTable_;
     Wt::WTable *schedulesTable_;
 
-    void createScheduleDialog();
     void createSchedule();
+    void createGroup();
     void removeSchedule(Schedule *schedule);
     void removeGroup(Group *group);
     void removeLight(Light *light);
+    void editLightDialog(Light *light);
+    Wt::WDialog *editLightDialog_;
+    Wt::WLineEdit *editLightName;
+    void editGroupDialog(Group *group);
+    Wt::WDialog *editGroupDialog_;
+    Wt::WLineEdit *editGroupName;
+    void updateGroupInfo(Group *group);
 
     //objects from createScheduleDialog()
+    void createScheduleDialog();
     Wt::WDialog *createScheduleDialog_;
     Wt::WLineEdit *scheduleName;
     Wt::WLineEdit *description;
@@ -99,8 +103,9 @@ private:
     void postRequest(string url, string json);
     void deleteRequest(string url);
 
-    //group edit
+    //group add/edit
     Wt::WLineEdit *groupName;
+    vector<WCheckBox*> lightBoxes;
     
     //group advanced
     Wt::WDialog *createGroupDialog_;

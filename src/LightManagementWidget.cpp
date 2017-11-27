@@ -325,7 +325,6 @@ void LightManagementWidget::updateGroupsTable() {
         //display transition time to user in seconds (transition time is stored as multiple of 100ms)
         editGroupTransition->setValueText(boost::lexical_cast<string>(group->getTransition()));
         tableRow->elementAt(3)->addWidget(editGroupTransition);
-        editGroupTransition->setDisabled(!group->getOn());  //disable if light off
         intValidator = new WIntValidator(0, 100, tableRow->elementAt(2)); //100 second maximum
         intValidator->setMandatory(true);
         editGroupTransition->setValidator(intValidator);
@@ -333,6 +332,10 @@ void LightManagementWidget::updateGroupsTable() {
             group->setTransition(boost::lexical_cast<int>(editGroupTransition->valueText()));
         }));
         tableRow->elementAt(3)->addWidget(new WText(" seconds"));
+        
+        WPushButton *editGroupButton_ = new WPushButton("Edit");
+        editGroupButton_->clicked().connect(boost::bind(&LightManagementWidget::editGroupDialog, this, group));
+        tableRow->elementAt(4)->addWidget(editGroupButton_);
         
         WPushButton *advancedButton_ = new WPushButton("Advanced");
         advancedButton_->clicked().connect(boost::bind(&LightManagementWidget::groupAdvancedDialog, this, group));
@@ -345,14 +348,12 @@ void LightManagementWidget::updateGroupsTable() {
     }
 }
 
-// WIP, DOES NOT DO ANYTHING YET
 void LightManagementWidget::createGroupDialog() {
-    
     createGroupDialog_ = new WDialog("Create a Group"); // title
     
     new WLabel("Group Name: ", createGroupDialog_->contents());
-    WLineEdit *groupName = new WLineEdit(createGroupDialog_->contents());
-    groupName->setValueText("group");
+    groupName = new WLineEdit(createGroupDialog_->contents());
+    groupName->setValueText("Custom Group");
     new WBreak(createGroupDialog_->contents());
     
     new WLabel("Lights: ", createGroupDialog_->contents());
@@ -361,12 +362,13 @@ void LightManagementWidget::createGroupDialog() {
     Json::Object lights = bridgeJson.get("lights");
     
     set<string> data = lights.names();
+    lightBoxes.clear(); //empty lightbox
     for(string num : data) {
         Json::Object lightData = lights.get(num);
-        Light *light = new Light(num, lightData);
+        //Light *light = new Light(num, lightData);
         
         WCheckBox *lightButton_ = new WCheckBox(num, createGroupDialog_->contents());
-        //lightButton_->clicked().connect(boost::bind(&Group::addLight, group, light->getLightnum())); //need to find a way to find out which boxes were checked off when the OK button is pressed...
+        lightBoxes.push_back(lightButton_);
     }
     new WBreak(createGroupDialog_->contents());
     
@@ -377,19 +379,97 @@ void LightManagementWidget::createGroupDialog() {
     ok->clicked().connect(createGroupDialog_, &WDialog::accept);
     cancel->clicked().connect(createGroupDialog_, &WDialog::reject);
     
-    //createGroupDialog_->finished().connect(boost::bind(&LightManagementWidget::createGroup, this));
+    createGroupDialog_->finished().connect(boost::bind(&LightManagementWidget::createGroup, this));
     
     createGroupDialog_->show();
 }
 
+void LightManagementWidget::createGroup(){
+    if (createGroupDialog_->result() == WDialog::DialogCode::Rejected)
+        return;
+    
+    string name = groupName->valueText().toUTF8();
+    
+    //json formatting
+    Json::Object groupJSON;
+    if(name != "") groupJSON["name"] = Json::Value(name);
+    if(!lightBoxes.empty()) {
+        Json::Array lightsJSON;
+        for(WCheckBox *lightBox : lightBoxes) {
+            if(lightBox->isChecked()) {
+                WString lightNum = lightBox->text();
+                lightsJSON.push_back(Json::Value(lightNum.toUTF8()));
+            }
+        }
+        groupJSON["lights"] = Json::Value(lightsJSON);
+    }
+    
+    string url = "http://" + bridge_->getIP() + ":" + bridge_->getPort() + "/api/" + bridge_->getUsername() + "/groups";
+    postRequest(url, Json::serialize(groupJSON));
+}
+
+void LightManagementWidget::editGroupDialog(Group *group) {
+    /*editGroupDialog_ = new WDialog("Edit Group #" + group->getGroupnum().toUTF8()); // title
+    
+    new WLabel("Group Name: ", editGroupDialog_->contents());
+    editGroupName = new WLineEdit(editGroupDialog_->contents());
+    editGroupName->setValueText(group->getName().toUTF8());
+    new WBreak(editGroupDialog_->contents());
+    
+    new WLabel("Lights: ", editGroupDialog_->contents());
+    Json::Object bridgeJson;
+    Json::parse(bridge_->getJson(), bridgeJson);
+    Json::Object lights = bridgeJson.get("lights");
+    
+    set<string> data = lights.names();
+    lightBoxes.clear(); //empty lightbox
+    for(string num : data) {
+        Json::Object lightData = lights.get(num);
+        //Light *light = new Light(num, lightData);
+        
+        WCheckBox *lightButton_ = new WCheckBox(num, editGroupDialog_->contents());
+        lightBoxes.push_back(lightButton_);
+    }
+    new WBreak(editGroupDialog_->contents());
+    
+    // make okay and cancel buttons, cancel sends a reject dialogstate, okay sends an accept
+    WPushButton *ok = new WPushButton("OK", editGroupDialog_->contents());
+    WPushButton *cancel = new WPushButton("Cancel", editGroupDialog_->contents());
+    
+    ok->clicked().connect(editGroupDialog_, &WDialog::accept);
+    cancel->clicked().connect(editGroupDialog_, &WDialog::reject);
+    
+    editGroupDialog_->finished().connect(boost::bind(&LightManagementWidget::updateGroupInfo, this, group));
+    
+    editGroupDialog_->show();*/
+}
+
+void LightManagementWidget::updateGroupInfo(Group *group){
+    /*if (editGroupDialog_->result() == WDialog::DialogCode::Rejected)
+        return;
+    
+    string name = groupName->valueText().toUTF8();
+    
+    //json formatting
+    Json::Object groupJSON;
+    if(name != "") groupJSON["name"] = Json::Value(name);
+    if(!lightBoxes.empty()) {
+        Json::Array lightsJSON;
+        for(WCheckBox *lightBox : lightBoxes) {
+            if(lightBox->isChecked()) {
+                WString lightNum = lightBox->text();
+                lightsJSON.push_back(Json::Value(lightNum.toUTF8()));
+            }
+        }
+        groupJSON["lights"] = Json::Value(lightsJSON);
+    }
+    
+    string url = "http://" + bridge_->getIP() + ":" + bridge_->getPort() + "/api/" + bridge_->getUsername() + "/groups/" + group->getGroupnum().toUTF8();
+    putRequest(url, Json::serialize(groupJSON));*/
+}
+
 void LightManagementWidget::groupAdvancedDialog(Group *group) {
     groupAdvancedDialog_ = new WDialog("Advanced"); // title
-    
-    //this needs to go into an "Edit" Dialog
-    /*new WLabel("Group Name: ", groupAdvancedDialog_->contents());
-    groupName = new WLineEdit(groupAdvancedDialog_->contents());
-    groupName->setValueText("Custom Group");
-    new WBreak(groupAdvancedDialog_->contents());*/
     
     new WLabel("State: ", groupAdvancedDialog_->contents());
     onButtonGroup = new WButtonGroup(this);

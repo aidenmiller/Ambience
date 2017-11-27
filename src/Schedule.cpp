@@ -46,7 +46,7 @@ Schedule::Schedule(WString scheduleNum, Json::Object scheduleData) {
     else bri_ = -1;
     
     if(body.type("transition") != 0) transition_ = body.get("transition");
-    else transition_ = -1;
+    else transition_ = 4; //default value from Hue is 0.4s (400ms)
     
     if(body.type("on") != 0) on_ = body.get("on");
     else on_ = 0;

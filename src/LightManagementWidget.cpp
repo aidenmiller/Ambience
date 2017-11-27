@@ -217,12 +217,12 @@ void LightManagementWidget::updateLightsTable() {
     Json::Object bridgeJson;
     Json::parse(bridge_->getJson(), bridgeJson);
     Json::Object lights = bridgeJson.get("lights");
-    
+
     set<string> data = lights.names();
     for(string num : data) {
         Json::Object lightData = lights.get(num);
         Light *light = new Light(num, lightData);
-        
+
         //create new row for entry <tr>
         tableRow = lightsTable_->insertRow(lightsTable_->rowCount());
         
@@ -279,7 +279,7 @@ void LightManagementWidget::updateLightsTable() {
         tableRow->elementAt(4)->addWidget(switchButton_);
         tableRow->elementAt(4)->addWidget(colourButton_);
         tableRow->elementAt(4)->addWidget(editLightButton_);
-        
+
         WPushButton *removeLightButton = new WPushButton("Remove");
         removeLightButton->clicked().connect(boost::bind(&LightManagementWidget::removeLight, this, light));
         tableRow->elementAt(4)->addWidget(removeLightButton);
@@ -296,13 +296,12 @@ void LightManagementWidget::updateGroupsTable() {
     tableRow->elementAt(1)->addWidget(new Wt::WText("Name"));
     tableRow->elementAt(2)->addWidget(new Wt::WText("Lights"));
     tableRow->elementAt(3)->addWidget(new Wt::WText("Transitions"));
-    tableRow->elementAt(4)->addWidget(new Wt::WText("Brightness"));
-    tableRow->elementAt(5)->addWidget(new Wt::WText("Actions"));
+    tableRow->elementAt(4)->addWidget(new Wt::WText("Actions"));
     //convert json string into json object
     Json::Object bridgeJson;
     Json::parse(bridge_->getJson(), bridgeJson);
     Json::Object groups = bridgeJson.get("groups");
-    
+
     set<string> data = groups.names();
     for(string num : data) {
         Json::Object groupData = groups.get(num);
@@ -314,7 +313,7 @@ void LightManagementWidget::updateGroupsTable() {
         //table data <td>
         tableRow->elementAt(0)->addWidget(new WText(group->getGroupnum()));
         tableRow->elementAt(1)->addWidget(new WText(group->getName()));
-        
+
         for(WString lightNum : group->getLights()) {
             tableRow->elementAt(2)->addWidget(new WText(lightNum + " "));
         }
@@ -333,32 +332,15 @@ void LightManagementWidget::updateGroupsTable() {
             group->setTransition(boost::lexical_cast<int>(editGroupTransition->valueText()));
         }));
         tableRow->elementAt(3)->addWidget(new WText(" seconds"));
-        
-        //brightness slider
-        WSlider *brightnessSlider_ = new WSlider();
-        brightnessSlider_->resize(200,20);
-        brightnessSlider_->setMinimum(0);
-        
-        brightnessSlider_->setMaximum(254);
-        brightnessSlider_->setValue(group->getBri());
-        brightnessSlider_->setDisabled(!group->getOn()); //disable if light off
-        brightnessSlider_->valueChanged().connect(boost::bind(&LightManagementWidget::updateGroupBri, this, brightnessSlider_, group));
-        tableRow->elementAt(4)->addWidget(brightnessSlider_);
-        
-        string onButton = group->getOn() == 1 ? "On" : "Off";
-        WPushButton *switchButton_ = new WPushButton(onButton);
-        switchButton_->clicked().connect(boost::bind(&LightManagementWidget::updateGroupOn, this, switchButton_, group));
-        tableRow->elementAt(5)->addWidget(switchButton_);
-        
-        // color stuff
-        
-        WPushButton *removeGroupButton = new WPushButton("Remove");
-        removeGroupButton->clicked().connect(boost::bind(&LightManagementWidget::removeGroup, this, group));
-        tableRow->elementAt(5)->addWidget(removeGroupButton);
-        
+
         WPushButton *advancedButton_ = new WPushButton("Advanced");
         advancedButton_->clicked().connect(boost::bind(&LightManagementWidget::groupAdvancedDialog, this, group));
-        tableRow->elementAt(5)->addWidget(advancedButton_);
+        tableRow->elementAt(4)->addWidget(advancedButton_);
+
+        // remove group
+        WPushButton *removeGroupButton = new WPushButton("Remove");
+        removeGroupButton->clicked().connect(boost::bind(&LightManagementWidget::removeGroup, this, group));
+        tableRow->elementAt(4)->addWidget(removeGroupButton);
     }
 }
 
@@ -376,7 +358,7 @@ void LightManagementWidget::createGroupDialog() {
     Json::Object bridgeJson;
     Json::parse(bridge_->getJson(), bridgeJson);
     Json::Object lights = bridgeJson.get("lights");
-    
+
     set<string> data = lights.names();
     for(string num : data) {
         Json::Object lightData = lights.get(num);
@@ -393,7 +375,7 @@ void LightManagementWidget::createGroupDialog() {
     
     ok->clicked().connect(createGroupDialog_, &WDialog::accept);
     cancel->clicked().connect(createGroupDialog_, &WDialog::reject);
-    
+
     //createGroupDialog_->finished().connect(boost::bind(&LightManagementWidget::createGroup, this));
     
     createGroupDialog_->show();
@@ -451,48 +433,91 @@ void LightManagementWidget::updateGroupBri(WSlider *slider_, Group *group){
 
 void LightManagementWidget::groupAdvancedDialog(Group *group) {
     groupAdvancedDialog_ = new WDialog("Advanced"); // title
-    
+
+    new WLabel("State: ", groupAdvancedDialog_->contents());
+    onButtonGroup = new WButtonGroup(this);
+    WRadioButton *onRadioButton;
+    onRadioButton = new WRadioButton("On", groupAdvancedDialog_->contents());
+    onButtonGroup->addButton(onRadioButton, 0);
+    onRadioButton = new WRadioButton("Off", groupAdvancedDialog_->contents());
+    onButtonGroup->addButton(onRadioButton, 1);
+    onButtonGroup->setCheckedButton(onButtonGroup->button(0));
+    new WBreak(groupAdvancedDialog_->contents());
+
+    //brightness slider
+    new WLabel("Brightness: ", groupAdvancedDialog_->contents());
+    brightnessSlider_ = new WSlider(groupAdvancedDialog_->contents());
+    brightnessSlider_->resize(200,20);
+    brightnessSlider_->setMinimum(0);
+    brightnessSlider_->setMaximum(254);
+    brightnessSlider_->setValue(group->getBri());
+    brightnessSlider_->setDisabled(!group->getOn()); //disable if light off
+    new WBreak(groupAdvancedDialog_->contents());
+
+    // color
+    new WLabel("Color: ", groupAdvancedDialog_->contents());
+    xEdit = new WLineEdit(groupAdvancedDialog_->contents());
+    xEdit->setPlaceholderText("X");
+    yEdit = new WLineEdit(groupAdvancedDialog_->contents());
+    yEdit->setPlaceholderText("Y");
+    xEdit->resize(40,20);
+    yEdit->resize(40,20);
+    new WBreak(groupAdvancedDialog_->contents());
+
+    // hue
     new WLabel("Hue: ", groupAdvancedDialog_->contents());
-    WLineEdit *hue = new WLineEdit(groupAdvancedDialog_->contents());
+    hue = new WLineEdit(groupAdvancedDialog_->contents());
     hue->setValueText(boost::lexical_cast<string>(group->getHue()));
     new WBreak(groupAdvancedDialog_->contents());
-    
+
+    // saturation
     new WLabel("Saturation: ", groupAdvancedDialog_->contents());
-    WLineEdit *saturation = new WLineEdit(groupAdvancedDialog_->contents());
+    saturation = new WLineEdit(groupAdvancedDialog_->contents());
     saturation->setValueText(boost::lexical_cast<string>(group->getSat()));
     new WBreak(groupAdvancedDialog_->contents());
-    
+
+    // CT
     new WLabel("CT: ", groupAdvancedDialog_->contents());
-    WLineEdit *ct = new WLineEdit(groupAdvancedDialog_->contents());
-    saturation->setValueText(boost::lexical_cast<string>(group->getCt()));
+    ct = new WLineEdit(groupAdvancedDialog_->contents());
+    ct->setValueText(boost::lexical_cast<string>(group->getCt()));
     new WBreak(groupAdvancedDialog_->contents());
-    
+
+    // alert
     new WLabel("Alert: ", groupAdvancedDialog_->contents());
-    WComboBox *alert = new WComboBox(groupAdvancedDialog_->contents());
+    alert = new WComboBox(groupAdvancedDialog_->contents());
     alert->addItem("none");
     alert->addItem("colorloop");
     alert->setCurrentIndex(boost::lexical_cast<string>(group->getAlert()) == "none" ? 0 : 1);
     new WBreak(groupAdvancedDialog_->contents());
-    
+
+    // effect
     new WLabel("Effect: ", groupAdvancedDialog_->contents());
-    WComboBox *effect = new WComboBox(groupAdvancedDialog_->contents());
+    effect = new WComboBox(groupAdvancedDialog_->contents());
     effect->addItem("null");
     effect->addItem("select");
     effect->setCurrentIndex(boost::lexical_cast<string>(group->getEffect()) == "null" ? 0 : 1);
     new WBreak(groupAdvancedDialog_->contents());
-    
-    new WLabel("Color Mode: ", groupAdvancedDialog_->contents());
-    WComboBox *colormode = new WComboBox(groupAdvancedDialog_->contents());
-    colormode->addItem("xy");
-    colormode->addItem("hs");
-    colormode->setCurrentIndex(boost::lexical_cast<string>(group->getColormode()) == "xy" ? 0 : 1);
-    new WBreak(groupAdvancedDialog_->contents());
-    
+
+    // reachable
     new WLabel("Reachable: ", groupAdvancedDialog_->contents());
-    WComboBox *reachable = new WComboBox(groupAdvancedDialog_->contents());
+    reachable = new WComboBox(groupAdvancedDialog_->contents());
     reachable->addItem("null");
     new WBreak(groupAdvancedDialog_->contents());
-    
+
+    // disable all fields while group is off
+    onButtonGroup->checkedChanged().connect(bind([=] {
+        bool onStatus = onButtonGroup->checkedButton()->text() == "On" ? 1 : 0;
+        brightnessSlider_->setDisabled(!onStatus);
+        xEdit->setDisabled(!onStatus);
+        yEdit->setDisabled(!onStatus);
+        hue->setDisabled(!onStatus);
+        saturation->setDisabled(!onStatus);
+        ct->setDisabled(!onStatus);
+        alert->setDisabled(!onStatus);
+        effect->setDisabled(!onStatus);
+        reachable->setDisabled(!onStatus);
+    }));
+
     // make okay and cancel buttons, cancel sends a reject dialogstate, okay sends an accept
     WPushButton *ok = new WPushButton("OK", groupAdvancedDialog_->contents());
     WPushButton *cancel = new WPushButton("Cancel", groupAdvancedDialog_->contents());
@@ -501,14 +526,32 @@ void LightManagementWidget::groupAdvancedDialog(Group *group) {
     cancel->clicked().connect(groupAdvancedDialog_, &WDialog::reject);
     
     // when the user is finished, call function to update group
-    //groupAdvancedDialog_->finished().connect(boost::bind(&LightManagementWidget::udpateAdvanced, this, etc));
+    groupAdvancedDialog_->finished().connect(boost::bind(&LightManagementWidget::groupUpdateAdvanced, this, group));
     groupAdvancedDialog_->show();
 }
-/*
- void LightManagementWidget::updateAdvanced(){
- 
- }
- */
+
+void LightManagementWidget::groupUpdateAdvanced(Group *group){
+    if (groupAdvancedDialog_->result() == WDialog::DialogCode::Rejected)
+        return;
+    
+    string on;
+    if(onButtonGroup->checkedButton() != 0) {
+        on = onButtonGroup->checkedButton()->text() == "On" ? "1" : "0";
+    }
+    cout << on << '\n';
+    if(on == "1") {
+    cout << boost::lexical_cast<string>(brightnessSlider_->value()) << '\n';
+    cout << boost::lexical_cast<string>(xEdit->text().toUTF8()) << '\n';
+    cout << boost::lexical_cast<string>(yEdit->text().toUTF8()) << '\n';
+    cout << boost::lexical_cast<string>(hue->text().toUTF8()) << '\n';
+    cout << boost::lexical_cast<string>(saturation->text().toUTF8()) << '\n';
+    cout << boost::lexical_cast<string>(ct->text().toUTF8()) << '\n';
+    cout << boost::lexical_cast<string>(alert->valueText().toUTF8()) << '\n';
+    cout << boost::lexical_cast<string>(effect->valueText().toUTF8()) << '\n';
+    cout << boost::lexical_cast<string>(reachable->valueText().toUTF8()) << '\n';
+    }
+}
+
 void LightManagementWidget::updateSchedulesTable() {
     schedulesTable_->clear();
     
@@ -524,29 +567,29 @@ void LightManagementWidget::updateSchedulesTable() {
     Json::Object bridgeJson;
     Json::parse(bridge_->getJson(), bridgeJson);
     Json::Object schedules = bridgeJson.get("schedules");
-    
+
     set<string> data = schedules.names();
     for(string num : data) {
         Json::Object scheduleData = schedules.get(num);
         Schedule *schedule = new Schedule(num, scheduleData);
-        
+
         tableRow = schedulesTable_->insertRow(schedulesTable_->rowCount());
         
         tableRow->elementAt(0)->addWidget(new WText(schedule->getName()));
         tableRow->elementAt(1)->addWidget(new WText(schedule->getDescription()));
-        
+
         tableRow->elementAt(2)->addWidget(new WText(schedule->getMethod().toUTF8()));
         tableRow->elementAt(2)->addWidget(new WBreak());
-        
+
         tableRow->elementAt(2)->addWidget(new WText(schedule->getAddress().toUTF8()));
         tableRow->elementAt(2)->addWidget(new WBreak());
-        
+
         if(schedule->getMethod().toUTF8() != "DELETE") {
             string onState = schedule->getOn() == 1 ? "true" : "false";
             tableRow->elementAt(2)->addWidget(new WText("On: " + onState));
             tableRow->elementAt(2)->addWidget(new WBreak());
-            
-            if(schedule->getX() >= 0 && schedule->getY() >= 0) {
+
+            if(schedule->getX() != -1 && schedule->getY() != -1) {
                 tableRow->elementAt(2)->addWidget(new WText("Color: [" + boost::lexical_cast<string>(schedule->getX()) + "," + boost::lexical_cast<string>(schedule->getY()) + "]"));
                 tableRow->elementAt(2)->addWidget(new WBreak());
             }
@@ -558,15 +601,15 @@ void LightManagementWidget::updateSchedulesTable() {
                 tableRow->elementAt(2)->addWidget(new WText("Transition: " + boost::lexical_cast<string>(schedule->getTransition())));
             }
         }
-        
+
         tableRow->elementAt(3)->addWidget(new WText(schedule->getTime()));
-        
+
         WPushButton *editScheduleButton = new WPushButton("Edit");
         //editScheduleButton->clicked().connect
-        
+
         WPushButton *removeScheduleButton = new WPushButton("Remove");
         removeScheduleButton->clicked().connect(boost::bind(&LightManagementWidget::removeSchedule, this, schedule));
-        
+
         tableRow->elementAt(4)->addWidget(editScheduleButton);
         tableRow->elementAt(4)->addWidget(removeScheduleButton);
     }
@@ -590,13 +633,13 @@ void LightManagementWidget::removeLight(Light *light) {
 
 void LightManagementWidget::deleteRequest(string url) {
     Http::Message *data = new Http::Message();
-    
+
     cout << "DELETE: Deleting at URL " << url << "\n";
     Wt::Http::Client *client = new Wt::Http::Client(this);
     client->setTimeout(2); //2 second timeout of request
     client->setMaximumResponseSize(1000000);
     client->done().connect(boost::bind(&LightManagementWidget::handlePutHttp, this, _1, _2));
-    
+
     if(client->deleteRequest(url, *data)) {
         WApplication::instance()->deferRendering();
     }
@@ -662,7 +705,7 @@ void LightManagementWidget::createScheduleDialog() {
     
     //WTemplate *form = new WTemplate(WString::tr("dateEdit-template"), createScheduleDialog_->contents());
     //form->addFunction("id", &WTemplate::Functions::id);
-    
+
     // Container for Resource Buttons
     Wt::WGroupBox *resourceGroupContainer = new Wt::WGroupBox("Resource", createScheduleDialog_->contents());
     resourceButtonGroup = new Wt::WButtonGroup(this);
@@ -680,7 +723,7 @@ void LightManagementWidget::createScheduleDialog() {
     intValidator->setMandatory(true);
     resourceNum->setValidator(intValidator);
     new WBreak(createScheduleDialog_->contents());
-    
+
     // Container for Action Buttons
     Wt::WGroupBox *actionGroupContainer = new Wt::WGroupBox("Action", createScheduleDialog_->contents());
     actionButtonGroup = new Wt::WButtonGroup(this);
@@ -693,7 +736,7 @@ void LightManagementWidget::createScheduleDialog() {
     actionButtonGroup->addButton(actionRadioButton, 2);
     actionButtonGroup->setCheckedButton(actionButtonGroup->button(0));
     new WBreak(createScheduleDialog_->contents());
-    
+
     // Container for Body Buttons
     Wt::WGroupBox *bodyGroupContainer = new Wt::WGroupBox("State", createScheduleDialog_->contents());
     // on or off
@@ -712,7 +755,7 @@ void LightManagementWidget::createScheduleDialog() {
         blueSlider->setDisabled(!onStatus);
         transitionSchedule->setDisabled(!onStatus);
     }));
-    
+
     new WBreak(bodyGroupContainer);
     // brightness slider
     new WLabel("Brightness: ", bodyGroupContainer);
@@ -741,7 +784,7 @@ void LightManagementWidget::createScheduleDialog() {
     transitionSchedule->setValidator(intValidator);
     new WText(" seconds", bodyGroupContainer);
     new WBreak(bodyGroupContainer);
-    
+
     // Container for Date and Time
     Wt::WGroupBox *datetimeGroupContainer = new Wt::WGroupBox("Date & Time", createScheduleDialog_->contents());
     dateEdit = new WDateEdit(datetimeGroupContainer);
@@ -749,9 +792,9 @@ void LightManagementWidget::createScheduleDialog() {
     dateEdit->setDate(WDate::currentServerDate());
     timeEdit = new WTimeEdit(datetimeGroupContainer);
     timeEdit->setTime(WTime::currentTime());
-    
+
     new WBreak(createScheduleDialog_->contents());
-    
+
     // make okay and cancel buttons, cancel sends a reject dialogstate, okay sends an accept
     WPushButton *ok = new WPushButton("OK", createScheduleDialog_->contents());
     WPushButton *cancel = new WPushButton("Cancel", createScheduleDialog_->contents());
@@ -769,13 +812,13 @@ void LightManagementWidget::createSchedule() {
         return;
     if (resourceNum->validate() != 2)
         return;
-    
+
     string name = scheduleName->valueText().toUTF8();
     string desc = description->valueText().toUTF8();
     string date = dateEdit->valueText().toUTF8();
     string time = timeEdit->valueText().toUTF8();
     string localtime = date + "T" + time;
-    
+
     string resource = "";
     string resourceTwo = "";
     string action = "";
@@ -791,15 +834,15 @@ void LightManagementWidget::createSchedule() {
         resourceTwo = "action";
     }
     string num = resourceNum->valueText().toUTF8();
-    
+
     if(actionButtonGroup->checkedButton()->text() == "Change") action = "PUT";
     else if(actionButtonGroup->checkedButton()->text() == "Add") action = "POST";
     else action = "DELETE";
-    
+
     if(onButtonGroup->checkedButton() != 0) {
         on = onButtonGroup->checkedButton()->text() == "On" ? "1" : "0";
     }
-    
+
     //if value is 1 user did not change it
     string bri = boost::lexical_cast<string>(brightnessSchedule->value());
     
@@ -809,20 +852,20 @@ void LightManagementWidget::createSchedule() {
         xval = boost::lexical_cast<string>(cols->x);
         yval = boost::lexical_cast<string>(cols->y);
     }
-    
+
     //if value is 4 user did not change it
     int transition = boost::lexical_cast<int>(transitionSchedule->valueText());
-    
+
     //json formatting
     Json::Object scheduleJSON;
     if(name != "") scheduleJSON["name"] = Json::Value(name);
     if(desc != "") scheduleJSON["description"] = Json::Value(desc);
-    
+
     Json::Object commandJSON;
     commandJSON["address"] = Json::Value("/api/" + bridge_->getUsername() + "/" + resource + "/" + num + "/" + resourceTwo);
     commandJSON["method"] = Json::Value(action);
     commandJSON["body"] = Json::Value(Json::ObjectType);
-    
+
     Json::Object bodyJSON;
     if(on != "") bodyJSON["on"] = Json::Value((bool)boost::lexical_cast<int>(on));
     else bodyJSON["on"] = Json::Value(Json::Value::Null);
@@ -837,11 +880,11 @@ void LightManagementWidget::createSchedule() {
     else bodyJSON["xy"] = Json::Value(Json::Value::Null);
     if(transition != 4 && on != "0") bodyJSON["transitiontime"] = Json::Value(transition);
     else bodyJSON["transitiontime"] = Json::Value(Json::Value::Null);
-    
+
     commandJSON["body"] = Json::Value(bodyJSON);
     scheduleJSON["command"] = Json::Value(commandJSON);
     scheduleJSON["time"] = Json::Value(localtime);
-    
+
     string url = "http://" + bridge_->getIP() + ":" + bridge_->getPort() + "/api/" + bridge_->getUsername() + "/schedules";
     postRequest(url, Json::serialize(scheduleJSON));
 }
@@ -850,13 +893,13 @@ void LightManagementWidget::createSchedule() {
 void LightManagementWidget::postRequest(string url, string json) {
     Http::Message *data = new Http::Message();
     data->addBodyText(json);
-    
+
     cout << "POST: Updating at URL " << url << "\n";
     Wt::Http::Client *client = new Wt::Http::Client(this);
     client->setTimeout(2); //2 second timeout of request
     client->setMaximumResponseSize(1000000);
     client->done().connect(boost::bind(&LightManagementWidget::handlePutHttp, this, _1, _2));
-    
+
     if(client->post(url, *data)) {
         WApplication::instance()->deferRendering();
     }

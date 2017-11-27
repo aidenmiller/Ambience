@@ -49,6 +49,8 @@ private:
     Wt::WContainerWidget *lightsWidget_;
     Wt::WContainerWidget *groupsWidget_;
     Wt::WContainerWidget *schedulesWidget_;
+    
+    Wt::WContainerWidget *rgbContainer_; //contains XY RGB slider
 
     void updateLightBri(WSlider *slider_, Light *light);
     void updateLightOn(WPushButton *button_, Light *light);

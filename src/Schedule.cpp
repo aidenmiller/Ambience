@@ -53,12 +53,12 @@ Schedule::Schedule(WString scheduleNum, Json::Object scheduleData) {
     
     if(body.type("xy") != 0) {
         Json::Array xy = body.get("xy");
-        xy_[0] = xy[0];
-        xy_[1] = xy[1];
+        xy_.push_back(xy[0]);
+        xy_.push_back(xy[1]);
     }
     else {
-        xy_[0] = -1.0;
-        xy_[1] = -1.0;
+        xy_.push_back(-1.0);
+        xy_.push_back(-1.0);
     }
 }
 

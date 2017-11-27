@@ -546,7 +546,7 @@ void LightManagementWidget::updateSchedulesTable() {
             tableRow->elementAt(2)->addWidget(new WText("On: " + onState));
             tableRow->elementAt(2)->addWidget(new WBreak());
             
-            if(schedule->getX() != -1 && schedule->getY() != -1) {
+            if(schedule->getX() >= 0 && schedule->getY() >= 0) {
                 tableRow->elementAt(2)->addWidget(new WText("Color: [" + boost::lexical_cast<string>(schedule->getX()) + "," + boost::lexical_cast<string>(schedule->getY()) + "]"));
                 tableRow->elementAt(2)->addWidget(new WBreak());
             }
@@ -703,11 +703,13 @@ void LightManagementWidget::createScheduleDialog() {
     onButtonGroup->addButton(onRadioButton, 0);
     onRadioButton = new Wt::WRadioButton("Off", bodyGroupContainer);
     onButtonGroup->addButton(onRadioButton, 1);
+    onButtonGroup->setCheckedButton(onButtonGroup->button(0));
     onButtonGroup->checkedChanged().connect(bind([=] {
         bool onStatus = onButtonGroup->checkedButton()->text() == "On" ? 1 : 0;
         brightnessSchedule->setDisabled(!onStatus);
-        xEdit->setDisabled(!onStatus);
-        yEdit->setDisabled(!onStatus);
+        redSlider->setDisabled(!onStatus);
+        greenSlider->setDisabled(!onStatus);
+        blueSlider->setDisabled(!onStatus);
         transitionSchedule->setDisabled(!onStatus);
     }));
     
@@ -722,10 +724,13 @@ void LightManagementWidget::createScheduleDialog() {
     new WBreak(bodyGroupContainer);
     // color picker
     new WLabel("Color: ", bodyGroupContainer);
-    xEdit = new WLineEdit(bodyGroupContainer);
-    xEdit->setPlaceholderText("X");
-    yEdit = new WLineEdit(bodyGroupContainer);
-    yEdit->setPlaceholderText("Y");
+    bodyGroupContainer->addWidget(rgbContainer_);
+    redSlider->setValue(0);
+    greenSlider->setValue(0);
+    blueSlider->setValue(0);
+    WCssDecorationStyle *colour = new WCssDecorationStyle();
+    colour->setBackgroundColor(WColor(redSlider->value(), greenSlider->value(), blueSlider->value()));
+    rgbContainer_->setDecorationStyle(*colour);
     new WBreak(bodyGroupContainer);
     // transition time
     new WLabel("Transition time: ", bodyGroupContainer);
@@ -798,9 +803,11 @@ void LightManagementWidget::createSchedule() {
     //if value is 1 user did not change it
     string bri = boost::lexical_cast<string>(brightnessSchedule->value());
     
-    if(xEdit->valueText().toUTF8() != "" && yEdit->valueText().toUTF8() != "") {
-        xval = xEdit->valueText().toUTF8();
-        yval = yEdit->valueText().toUTF8();
+    if(redSlider->value() != 0 && greenSlider->value() != 0 && blueSlider->value() != 0) {
+        struct xy *cols = ColourConvert::rgb2xy(redSlider->value(), greenSlider->value(), blueSlider->value());
+        
+        xval = boost::lexical_cast<string>(cols->x);
+        yval = boost::lexical_cast<string>(cols->y);
     }
     
     //if value is 4 user did not change it
@@ -819,16 +826,16 @@ void LightManagementWidget::createSchedule() {
     Json::Object bodyJSON;
     if(on != "") bodyJSON["on"] = Json::Value((bool)boost::lexical_cast<int>(on));
     else bodyJSON["on"] = Json::Value(Json::Value::Null);
-    if(bri != "1" && on == "1") bodyJSON["bri"] = Json::Value(boost::lexical_cast<int>(bri));
+    if(bri != "1" && on != "0") bodyJSON["bri"] = Json::Value(boost::lexical_cast<int>(bri));
     else bodyJSON["bri"] = Json::Value(Json::Value::Null);
-    if(xval != "" && yval != "" && on == "1") {
+    if(xval != "" && yval != "" && on != "0") {
         Json::Array xyJSON;
         xyJSON.push_back(Json::Value(boost::lexical_cast<double>(xval)));
         xyJSON.push_back(Json::Value(boost::lexical_cast<double>(yval)));
         bodyJSON["xy"] = Json::Value(xyJSON);
     }
     else bodyJSON["xy"] = Json::Value(Json::Value::Null);
-    if(transition != 4 && on == "1") bodyJSON["transitiontime"] = Json::Value(transition);
+    if(transition != 4 && on != "0") bodyJSON["transitiontime"] = Json::Value(transition);
     else bodyJSON["transitiontime"] = Json::Value(Json::Value::Null);
     
     commandJSON["body"] = Json::Value(bodyJSON);

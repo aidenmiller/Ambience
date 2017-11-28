@@ -62,6 +62,8 @@ account_("","","","") {
     WCssDecorationStyle *bgCss = new WCssDecorationStyle();
     bgCss->setBackgroundImage(WLink("images/bulb.png"));
     setDecorationStyle(*bgCss);
+    //minimum window size of application
+    setMinimumSize(1024,768);
 
     //Left Menu for Login/Create/Profile/Bridges depending on login status
     WMenu *leftMenu = new WMenu();

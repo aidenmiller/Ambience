@@ -80,6 +80,7 @@ void BridgeScreenWidget::update()
     title->setStyleClass("title");
 
     new WBreak(this);
+    new WBreak(this);
 
     //Bridge Name
     new WText("Bridge Name: ", this);
@@ -145,11 +146,13 @@ void BridgeScreenWidget::update()
 
     new WBreak(this);
     new WBreak(this);
+    new WBreak(this);
 
     // Page title
     WText *title2 = new WText("Your Bridges", this);
     title2->setStyleClass("title");
 
+    new WBreak(this);
     new WBreak(this);
 
     //create WTable and call updateBridgeTable

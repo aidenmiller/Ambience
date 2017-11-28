@@ -68,7 +68,6 @@ void LightManagementWidget::update()
 {
     clear(); // everytime you come back to page, reset the widgets
 
-<<<<<<< HEAD
     WBorderLayout *layout = new WBorderLayout();
     WContainerWidget *left = new WContainerWidget();
     WContainerWidget *central = new WContainerWidget();
@@ -77,8 +76,7 @@ void LightManagementWidget::update()
     layout->addWidget(left, WBorderLayout::West);
     layout->addWidget(central, WBorderLayout::Center);
 
-=======
->>>>>>> d4927673e7f5722ee356e944d12e15c47b9cb727
+
     //create refreshButton for refreshing Bridge JSON data
     WPushButton *refreshButton = new WPushButton("Refresh Bridge");
     refreshButton->clicked().connect(boost::bind(&LightManagementWidget::refreshBridge, this));
@@ -1006,45 +1004,6 @@ void LightManagementWidget::groupAdvancedDialog(Group *group) {
     rgbContainer_->setDecorationStyle(*colour);
     new WBreak(groupAdvancedDialog_->contents());
 
-<<<<<<< HEAD
-    /*
-     // hue
-     new WLabel("Hue: ", groupAdvancedDialog_->contents());
-     hue = new WLineEdit(groupAdvancedDialog_->contents());
-     hue->setValueText(boost::lexical_cast<string>(group->getHue()));
-     new WBreak(groupAdvancedDialog_->contents());
-
-     // saturation
-     new WLabel("Saturation: ", groupAdvancedDialog_->contents());
-     saturation = new WLineEdit(groupAdvancedDialog_->contents());
-     saturation->setValueText(boost::lexical_cast<string>(group->getSat()));
-     new WBreak(groupAdvancedDialog_->contents());
-
-     // CT
-     new WLabel("CT: ", groupAdvancedDialog_->contents());
-     ct = new WLineEdit(groupAdvancedDialog_->contents());
-     ct->setValueText(boost::lexical_cast<string>(group->getCt()));
-     new WBreak(groupAdvancedDialog_->contents());
-
-     // alert
-     new WLabel("Alert: ", groupAdvancedDialog_->contents());
-     alert = new WComboBox(groupAdvancedDialog_->contents());
-     alert->addItem("none");
-     alert->addItem("colorloop");
-     alert->setCurrentIndex(boost::lexical_cast<string>(group->getAlert()) == "none" ? 0 : 1);
-     new WBreak(groupAdvancedDialog_->contents());
-
-     // effect
-     new WLabel("Effect: ", groupAdvancedDialog_->contents());
-     effect = new WComboBox(groupAdvancedDialog_->contents());
-     effect->addItem("null");
-     effect->addItem("select");
-     effect->setCurrentIndex(boost::lexical_cast<string>(group->getEffect()) == "null" ? 0 : 1);
-     new WBreak(groupAdvancedDialog_->contents());
-     */
-
-=======
->>>>>>> d4927673e7f5722ee356e944d12e15c47b9cb727
     // disable all fields while group is off
     onButtonGroup->checkedChanged().connect(bind([=] {
         bool onStatus = onButtonGroup->checkedButton()->text() == "On" ? 1 : 0;

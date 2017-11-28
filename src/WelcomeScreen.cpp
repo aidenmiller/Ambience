@@ -238,10 +238,7 @@ void WelcomeScreen::profileScreen() {
 void WelcomeScreen::loginSuccess() {
     account_.setAuth(true); //set account to authorized (logged in status)
     bridgesMenuItem_->select(); //click bridge menu item
-    ppic_ = new WImage(WLink("images/ppics/" + account_.getEmail() + "?" + to_string(WTime::currentTime().minute()) + to_string(WTime::currentTime().second()) +
-                                       to_string(WTime::currentTime().msec())) , picContainer_);
-    ppic_->setStyleClass("img-circle");
-    ppic_->resize(50,50);
+
     WApplication::instance()->setInternalPath("/bridges", true);
 }
 
@@ -267,6 +264,12 @@ void WelcomeScreen::bridgeScreen() {
     if (!bridgeScreen_) {
         bridgeScreen_ = new BridgeScreenWidget(mainStack_, &account_, this);
     }
+    if (ppic_)
+        picContainer_->removeWidget(ppic_);
+    ppic_ = new WImage(WLink("images/ppics/" + account_.getEmail() + "?" + to_string(WTime::currentTime().minute()) + to_string(WTime::currentTime().second()) +
+                                       to_string(WTime::currentTime().msec())) , picContainer_);
+    ppic_->setStyleClass("img-circle");
+    ppic_->resize(50,50);
     mainStack_->setCurrentWidget(bridgeScreen_);
     bridgeScreen_->update();
 }

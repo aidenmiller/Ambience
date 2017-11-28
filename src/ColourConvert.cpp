@@ -58,6 +58,14 @@ struct xy *ColourConvert::rgb2xy(float r, float g, float b)
     // TO DO : check for if the xy value lays in the color gamut triangle for the light
     // use the Y value of the XYZ as brightness
 
+    // xy values cannot be less than zero
+    if (x < 0)
+        x = 0.0f;
+    if (y < 0)
+        y = 0.0f;
+    if (Y < 0)
+        Y = 0.0f;
+
 
     struct xy *xyStruct = (struct xy*) malloc(sizeof(struct xy));
 

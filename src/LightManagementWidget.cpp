@@ -64,8 +64,16 @@ schedulesWidget_(0)
 void LightManagementWidget::update()
 {
     clear(); // everytime you come back to page, reset the widgets
+    
+    //create refreshButton for refreshing Bridge JSON data
+    WPushButton *refreshButton = new WPushButton("Refresh Bridge");
+    refreshButton->clicked().connect(boost::bind(&LightManagementWidget::refreshBridge, this));
+    addWidget(refreshButton);
 
+    //Menu to navigate through different pages
     WMenu *menu = new WMenu();
+    menu->setStyleClass("nav nav-pills nav-stacked");
+    menu->setWidth(150);
     addWidget(menu);
 
     WMenuItem *overviewMenuItem = new WMenuItem("Overview");
@@ -84,23 +92,20 @@ void LightManagementWidget::update()
     menu->addItem(schedulesMenuItem);
     schedulesMenuItem->triggered().connect(this, &LightManagementWidget::viewSchedulesWidget);
 
+    //stack to handle different menu pages
     lightManagementStack_ = new WStackedWidget();
     lightManagementStack_->setContentAlignment(AlignCenter);
-
-    menu->setStyleClass("nav nav-pills nav-stacked");
-    menu->setWidth(150);
-
-    //create refreshButton for refreshing Bridge JSON data
-    WPushButton *refreshButton = new WPushButton("Refresh Bridge");
-    refreshButton->clicked().connect(boost::bind(&LightManagementWidget::refreshBridge, this));
-
-    addWidget(refreshButton);
-
     addWidget(lightManagementStack_);
 
     //create overviewWidget
     overviewWidget_ = new WContainerWidget(lightManagementStack_);
     overviewWidget_->setContentAlignment(AlignCenter);
+    //Widget title
+    WText *overviewTitle = new WText("Bridge Overview", overviewWidget_);
+    overviewTitle->setStyleClass("title");
+    new WBreak(overviewWidget_);
+    new WBreak(overviewWidget_);
+    //Widget Contents
     new WText("Bridge Name: " + bridge_->getName(), overviewWidget_);
     new WBreak(overviewWidget_);
     new WText("Bridge Location: " + bridge_->getLocation(), overviewWidget_);
@@ -108,6 +113,12 @@ void LightManagementWidget::update()
     //create lightsWidget
     lightsWidget_ = new WContainerWidget(lightManagementStack_);
     lightsWidget_->setContentAlignment(AlignCenter);
+    //Lights title
+    WText *lightsTitle = new WText("Lights", lightsWidget_);
+    lightsTitle->setStyleClass("title");
+    new WBreak(lightsWidget_);
+    new WBreak(lightsWidget_);
+    //Lights table
     lightsTable_ = new WTable(lightsWidget_);
     lightsTable_->setHeaderCount(1); //set first row as header
     updateLightsTable();
@@ -115,6 +126,12 @@ void LightManagementWidget::update()
     //create groupsWidget
     groupsWidget_ = new WContainerWidget(lightManagementStack_);
     groupsWidget_->setContentAlignment(AlignCenter);
+    //Groups title
+    WText *groupsTitle = new WText("Groups", groupsWidget_);
+    groupsTitle->setStyleClass("title");
+    new WBreak(groupsWidget_);
+    new WBreak(groupsWidget_);
+    //Groups table
     WPushButton *newGroupButton = new WPushButton("Add +");
     newGroupButton->clicked().connect(boost::bind(&LightManagementWidget::createGroupDialog, this));
     groupsWidget_->addWidget(newGroupButton);
@@ -125,6 +142,12 @@ void LightManagementWidget::update()
     //create schedulesWidget
     schedulesWidget_ = new WContainerWidget(lightManagementStack_);
     schedulesWidget_->setContentAlignment(AlignCenter);
+    //Schedules title
+    WText *schedulesTitle = new WText("Schedules", schedulesWidget_);
+    schedulesTitle->setStyleClass("title");
+    new WBreak(schedulesWidget_);
+    new WBreak(schedulesWidget_);
+    //Groups table
     WPushButton *newScheduleButton = new WPushButton("Add +");
     newScheduleButton->clicked().connect(boost::bind(&LightManagementWidget::createScheduleDialog, this));
     schedulesWidget_->addWidget(newScheduleButton);

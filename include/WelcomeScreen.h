@@ -40,7 +40,6 @@ public:
     void loginSuccess();
 
 private:
-    Wt::WImage *welcome_image_;
     Wt::WNavigationBar *navBar_;
     Wt::WMenuItem *loginMenuItem_;
     Wt::WMenuItem *createMenuItem_;

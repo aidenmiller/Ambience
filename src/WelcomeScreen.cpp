@@ -27,6 +27,7 @@
 #include <Wt/WMenu>
 #include <Wt/WTableCell>
 #include <Wt/WServer>
+#include <Wt/WLength>
 #include <Wt/WStackedWidget>
 #include "CreateAccountWidget.h"
 #include "LoginWidget.h"
@@ -56,6 +57,11 @@ account_("","","","") {
     navBar_ = new WNavigationBar(this);
     navBar_->setTitle("Ambience");
     navBar_->setResponsive(true);
+    
+    //background colour of application
+    WCssDecorationStyle *bgCss = new WCssDecorationStyle();
+    bgCss->setBackgroundImage(WLink("images/bulb.png"));
+    setDecorationStyle(*bgCss);
 
     //Left Menu for Login/Create/Profile/Bridges depending on login status
     WMenu *leftMenu = new WMenu();
@@ -93,11 +99,20 @@ account_("","","","") {
     serverMessage_ = new WText("You are connected to the Team 13 Production Server", this);
     new WBreak(this);
     
-    welcome_image_ = new WImage(WLink("images/login_lights.jpeg"));
-    addWidget(welcome_image_);
+    mainStack_ = new WStackedWidget(this);
+    mainStack_->setPadding("5%"); //give 5% padding to widgets in mainStack
     
-    mainStack_ = new WStackedWidget();
-    addWidget(mainStack_);
+    //WContainer for Application's landing page
+    WContainerWidget *landingPage = new WContainerWidget(mainStack_);
+    landingPage->setContentAlignment(AlignCenter);
+    new WImage(WLink("images/ambience.png"), landingPage); //ambience logo
+    new WBreak(landingPage);
+    new WText("Team 13 - John Abed, Trevor Ducharme, Kevin Hong, Maksym Koval, Aiden Miller", landingPage);
+    new WBreak(landingPage);
+    new WBreak(landingPage);
+    new WText("Web access to Lights, Groups, and Schedules through your Philips Hue Bridge.", landingPage);
+    new WBreak(landingPage);
+    new WText("Select Create Account above to get started, or Login if you have already registered with Ambience.", landingPage);
     
     // detects any changes to the internal path and sends to the handle internal path function
     WApplication::instance()->internalPathChanged().connect(this, &WelcomeScreen::handleInternalPath);
@@ -111,7 +126,6 @@ account_("","","","") {
  */
 void WelcomeScreen::handleInternalPath(const string &internalPath) {
     if (account_.isAuth()) {
-        welcome_image_->setHidden(true);
         serverMessage_->setHidden(true);
         profileMenuItem_->setHidden(false);
         bridgesMenuItem_->setHidden(false);
@@ -143,7 +157,6 @@ void WelcomeScreen::handleInternalPath(const string &internalPath) {
         }
     }
     else {
-        welcome_image_->setHidden(true);
         serverMessage_->setHidden(false);
         profileMenuItem_->setHidden(true);
         bridgesMenuItem_->setHidden(true);

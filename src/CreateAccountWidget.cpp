@@ -71,6 +71,7 @@ void CreateAccountWidget::update()
     title->setStyleClass("title");
     
     new WBreak(this);
+    new WBreak(this);
     
     // Username box: create a username that is a valid email address
     new WText("User ID: ", this);

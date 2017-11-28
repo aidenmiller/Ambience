@@ -44,6 +44,13 @@ td {
    	vertical-align: middle;
 }
 
+.img-circle {
+	border-radius: 50%;
+}
+.pic-contain {
+	padding-left: 1%;
+}
+
 tr:nth-child(odd){background-color: #ffffff;}
 tr:nth-child(even){background-color: #f2f2f2;}
 tr:hover {background-color: #ddd;}

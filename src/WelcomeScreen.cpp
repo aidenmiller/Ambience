@@ -58,12 +58,14 @@ account_("","","","") {
     navBar_->setTitle("Ambience");
     navBar_->setResponsive(true);
 
+
+
     //background colour of application
     WCssDecorationStyle *bgCss = new WCssDecorationStyle();
     bgCss->setBackgroundImage(WLink("images/bulb.png"));
     setDecorationStyle(*bgCss);
     //minimum window size of application
-    setMinimumSize(1024,768);
+    setMinimumSize(800,768);
 
     //Left Menu for Login/Create/Profile/Bridges depending on login status
     WMenu *leftMenu = new WMenu();
@@ -93,6 +95,13 @@ account_("","","","") {
     logoutMenuItem_->setLink(WLink(WLink::InternalPath, "/logout"));
     rightMenu->addItem(logoutMenuItem_);
 
+    picContainer_ = new WContainerWidget(this);
+    picContainer_->setContentAlignment(AlignLeft);
+    picContainer_->setStyleClass("pic-contain");
+
+    picContainer_->setHidden(true);
+
+
     //Initially not logged in - hide logged in pages
     profileMenuItem_->setHidden(true);
     bridgesMenuItem_->setHidden(true);
@@ -103,7 +112,7 @@ account_("","","","") {
 
 
     mainStack_ = new WStackedWidget(this);
-    mainStack_->setPadding("5%"); //give 5% padding to widgets in mainStack
+    mainStack_->setPadding("1%"); //give 1% padding to widgets in mainStack
 
     //WContainer for Application's landing page
     WContainerWidget *landingPage = new WContainerWidget(mainStack_);
@@ -136,6 +145,7 @@ void WelcomeScreen::handleInternalPath(const string &internalPath) {
         logoutMenuItem_->setHidden(false);
         loginMenuItem_->setHidden(true);
         createMenuItem_->setHidden(true);
+        picContainer_->setHidden(false);
 
         updateProfileName(); //set name of logged in user
 
@@ -151,6 +161,7 @@ void WelcomeScreen::handleInternalPath(const string &internalPath) {
             lightManagementScreen(stoi(result));
         }
         else if (internalPath == "/profile") {
+            picContainer_->setHidden(true);
             profileScreen();
         }
         else if (internalPath == "/logout") {
@@ -161,6 +172,7 @@ void WelcomeScreen::handleInternalPath(const string &internalPath) {
         }
     }
     else {
+        picContainer_->setHidden(true);
         serverMessage_->setHidden(false);
         profileMenuItem_->setHidden(true);
         bridgesMenuItem_->setHidden(true);
@@ -219,6 +231,10 @@ void WelcomeScreen::profileScreen() {
 void WelcomeScreen::loginSuccess() {
     account_.setAuth(true); //set account to authorized (logged in status)
     bridgesMenuItem_->select(); //click bridge menu item
+    ppic_ = new WImage(WLink("images/ppics/" + account_.getEmail() + "?" + to_string(WTime::currentTime().minute()) + to_string(WTime::currentTime().second()) +
+                                       to_string(WTime::currentTime().msec())) , picContainer_);
+    ppic_->setStyleClass("img-circle");
+    ppic_->resize(50,50);
     WApplication::instance()->setInternalPath("/bridges", true);
 }
 

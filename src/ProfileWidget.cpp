@@ -120,7 +120,7 @@ void ProfileWidget::update()
     addWidget(picture);
 
     picUpload_ = new WFileUpload();
-    picUpload_->setFileTextSize(1000); // 1mb maximum pic size
+    picUpload_->setFileTextSize(1500); // 1.5mb maximum pic size
     picUpload_->setProgressBar(new WProgressBar());
     picUpload_->setMargin(10, Side::Right);
 

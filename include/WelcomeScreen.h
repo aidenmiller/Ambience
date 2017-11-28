@@ -35,7 +35,7 @@ public:
 
     void connectBridge();
     void handleHttpResponse(boost::system::error_code err, const Wt::Http::Message &response);
-    
+
     void updateProfileName();
     void loginSuccess();
 
@@ -51,13 +51,15 @@ private:
     Wt::WAnchor *homeAnchor_;
     Wt::WStackedWidget *mainStack_; // main stack of the application
     Wt::WContainerWidget *links_; // links container that stores anchors
-    
+    Wt::WImage *ppic_;
+    Wt::WContainerWidget *picContainer_;
+
     CreateAccountWidget *createScreen_; // create widget
     LoginWidget *loginScreen_; // login widget
     BridgeScreenWidget *bridgeScreen_; // bridge widget
     ProfileWidget *profileScreen_; // profile widget
     LightManagementWidget *lightManage_; // light management widget
-    
+
     void loginScreen();
     void createAccountScreen();
     void bridgeScreen();

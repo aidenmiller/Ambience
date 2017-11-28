@@ -16,7 +16,10 @@
 #include <Wt/WText>
 #include <Wt/WLabel>
 #include <Wt/WTable>
+#include <Wt/WImage>
+#include <Wt/WTime>
 #include <Wt/WDialog>
+#include <Wt/WBorderLayout>
 #include <fstream> // writing new accounts to a file
 #include "BridgeScreenWidget.h"
 #include "Bridge.h"
@@ -59,6 +62,7 @@ WContainerWidget(parent)
 void BridgeScreenWidget::update()
 {
     clear(); // everytime you come back to page, reset the widgets
+
 
     //ip address validator - ensure non-empty proper IP format
     ipValidator_ = new WRegExpValidator("(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])", this);
@@ -137,7 +141,7 @@ void BridgeScreenWidget::update()
     addWidget(registerBridgeButton_);
     registerBridgeButton_->clicked().connect(this, &BridgeScreenWidget::registerBridge);
 
-    new WBreak(this);
+
 
     //WText to handle any status messaging from user actions
     statusMessage_ = new WText("", this);
@@ -145,11 +149,9 @@ void BridgeScreenWidget::update()
     statusMessage_->setHidden(true);
 
     new WBreak(this);
-    new WBreak(this);
-    new WBreak(this);
 
     // Page title
-    WText *title2 = new WText("Your Bridges", this);
+    WText *title2 = new WText( account_->getFirstName()+ "'s Bridges", this);
     title2->setStyleClass("title");
 
     new WBreak(this);
@@ -159,6 +161,7 @@ void BridgeScreenWidget::update()
     bridgeTable_ = new WTable(this);
     bridgeTable_->setHeaderCount(1); //set first row as header
     BridgeScreenWidget::updateBridgeTable();
+
 }
 
 /**

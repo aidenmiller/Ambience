@@ -182,6 +182,70 @@ void LightManagementWidget::update()
                                           blueSlider->value()));
         rgbContainer_->setDecorationStyle(*colour);
     }));
+
+    //WContainer for Hue/Saturation Colour Picker used for selecting colours
+    hueSatContainer_ = new WContainerWidget();
+    new WText("Hue: ", hueSatContainer_);
+    hueSlider = new WSlider(hueSatContainer_);
+    new WBreak(hueSatContainer_);
+    new WText("Saturation: ", hueSatContainer_);
+    satSlider = new WSlider(hueSatContainer_);
+    new WBreak(hueSatContainer_);
+    new WText("Brightness: ", hueSatContainer_);
+    briSlider = new WSlider(hueSatContainer_);
+    new WBreak(hueSatContainer_);
+
+    hueSlider->resize(200,20);
+    satSlider->resize(200,20);
+    briSlider->resize(200,20);
+
+    hueSlider->setMinimum(0);
+    hueSlider->setMaximum(65280);
+    satSlider->setMinimum(0);
+    satSlider->setMaximum(255);
+    briSlider->setMinimum(0);
+    briSlider->setMaximum(254);
+
+    WCssDecorationStyle *hsColour = new WCssDecorationStyle();
+
+    struct rgb *hsRgb = ColourConvert::hsv2rgb((float)hueSlider->value(),(float) satSlider->value(),
+                                              (float)briSlider->value());
+    hsColour->setBackgroundColor(WColor(hsRgb->r, hsRgb->g, hsRgb->b));
+
+    cout<< "222R: " << hsRgb->r << " G: " << hsRgb->g << " B: " << hsRgb->b << "\n\n";
+
+    hueSatContainer_->setDecorationStyle(*hsColour);
+
+    hueSlider->valueChanged().connect(bind([=] {
+        struct rgb *hsRgb = ColourConvert::hsv2rgb((float)hueSlider->value(),(float) satSlider->value(),
+                                              (float)briSlider->value());
+        cout<< "R: " << hsRgb->r << " G: " << hsRgb->g << " B: " << hsRgb->b << "\n\n";
+        hsColour->setBackgroundColor(WColor(hsRgb->r,
+                                          hsRgb->g,
+                                          hsRgb->b));
+        hueSatContainer_->setDecorationStyle(*hsColour);
+    }));
+    satSlider->valueChanged().connect(bind([=] {
+        struct rgb *hsRgb = ColourConvert::hsv2rgb((float)hueSlider->value(),(float) satSlider->value(),
+                                              (float)briSlider->value());
+        hsColour->setBackgroundColor(WColor(hsRgb->r,
+                                          hsRgb->g,
+                                          hsRgb->b));
+        hueSatContainer_->setDecorationStyle(*hsColour);
+    }));
+
+    briSlider->valueChanged().connect(bind([=] {
+        struct rgb *hsRgb = ColourConvert::hsv2rgb((float)hueSlider->value(),(float) satSlider->value(),
+                                              (float)briSlider->value());
+        hsColour->setBackgroundColor(WColor(hsRgb->r,
+                                          hsRgb->g,
+                                          hsRgb->b));
+        hueSatContainer_->setDecorationStyle(*hsColour);
+    }));
+
+
+
+
 }
 
 void LightManagementWidget::viewOverviewWidget(){
@@ -240,6 +304,54 @@ void LightManagementWidget::editRGBDialog(Light *light) {
     // when the user is finished, call the updateBridge function
     editRGBDialog_->finished().connect(boost::bind(&LightManagementWidget::updateLightXY, this, light));
     editRGBDialog_->show();
+}
+
+/**
+ *   @brief  Opens a WDialog box to edit rgb for specified light
+ *
+ *   @param   lightNum the position of the Light to view
+ *
+ *   @return  void
+ *
+ */
+void LightManagementWidget::editHueSatDialog(Light *light) {
+
+    editHueSatDialog_ = new WDialog("Change Hue/Saturation"); // title
+
+    editHueSatDialog_->contents()->addWidget(hueSatContainer_);
+
+    //get current RGB values and set the Slider and BG colours to match
+    int hue = light->getHue();
+    int sat = light->getSat();
+    int bri = light->getBri();
+
+
+    hueSlider->setValue(hue);
+    satSlider->setValue(sat);
+    briSlider->setValue(bri);
+
+    hueSlider->setDisabled(false);
+    satSlider->setDisabled(false);
+    briSlider->setDisabled(false);
+
+    WCssDecorationStyle *hsColour = new WCssDecorationStyle();
+
+    if (light->getColormode() == "hs")
+        hsColour->setBackgroundColor(WColor(hueSlider->value(), satSlider->value(), briSlider->value()));
+        hueSatContainer_->setDecorationStyle(*hsColour);
+
+    new WBreak(editHueSatDialog_->contents());
+
+    // make okay and cancel buttons, cancel sends a reject dialogstate, okay sends an accept
+    WPushButton *ok = new WPushButton("OK", editHueSatDialog_->contents());
+    WPushButton *cancel = new WPushButton("Cancel", editHueSatDialog_->contents());
+
+    ok->clicked().connect(editHueSatDialog_ ,&WDialog::accept);
+    cancel->clicked().connect(editHueSatDialog_, &WDialog::reject);
+
+    // when the user is finished, call the updateBridge function
+    editHueSatDialog_->finished().connect(boost::bind(&LightManagementWidget::updateLightHS, this, light));
+    editHueSatDialog_->show();
 }
 
 void LightManagementWidget::updateLightsTable() {
@@ -310,7 +422,7 @@ void LightManagementWidget::updateLightsTable() {
         colourButton_->dropDownButton()->setMenu(colourPopup);
         WPopupMenuItem *hsv = new WPopupMenuItem("Hue/Saturation");
         colourPopup->addItem(hsv);
-        //hsv->triggered().connect(boost::bind(&LightManagementWidget::editHSVDialog, this, i));
+        hsv->triggered().connect(boost::bind(&LightManagementWidget::editHueSatDialog, this, light));
         colourButton_->setDisabled(!light->getOn());  //disable if light off
         colourButton_->actionButton()->clicked().connect(boost::bind(&LightManagementWidget::editRGBDialog, this, light));
 
@@ -437,6 +549,34 @@ void LightManagementWidget::updateLightXY(Light *light){
     data->addBodyText("{\"xy\":[" + boost::lexical_cast<string>(cols->x) + "," + boost::lexical_cast<string>(cols->y) + "]" + ", \"transitiontime\":" + boost::lexical_cast<string>(light->getTransition()) + "}");
 
     cout << "Light: Updating light brightness at URL " << url << "\n";
+    Wt::Http::Client *client = new Wt::Http::Client(this);
+    client->setTimeout(2); //2 second timeout of request
+    client->setMaximumResponseSize(1000000);
+    client->done().connect(boost::bind(&LightManagementWidget::handlePutHttp, this, _1, _2));
+
+    if(client->put(url, *data)) {
+        WApplication::instance()->deferRendering();
+    }
+    else {
+        cerr << "Light: Error in client->put(url) call\n";
+    }
+}
+
+void LightManagementWidget::updateLightHS(Light *light){
+    if (editHueSatDialog_->result() == WDialog::DialogCode::Rejected)
+        return;
+
+    string url = "http://" + bridge_->getIP() + ":" + bridge_->getPort() + "/api/" + bridge_->getUsername() + "/lights/" + light->getLightnum().toUTF8() + "/state";
+
+
+
+    Http::Message *data = new Http::Message();
+    data->addBodyText("{\"hue\":" + boost::lexical_cast<string>(hueSlider->value()) + ", \"sat\":" +
+                      boost::lexical_cast<string>(satSlider->value()) +
+                      ", \"bri\":" + boost::lexical_cast<string>(briSlider->value()) +
+                      ", \"transitiontime\":" + boost::lexical_cast<string>(light->getTransition()) + "}");
+
+    cout << "Light: Updating light hue/sat at URL " << url << "\n";
     Wt::Http::Client *client = new Wt::Http::Client(this);
     client->setTimeout(2); //2 second timeout of request
     client->setMaximumResponseSize(1000000);

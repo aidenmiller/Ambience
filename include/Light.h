@@ -12,17 +12,16 @@
 #include <Wt/Json/Parser>
 #include <Wt/Json/Array>
 
-
 using namespace std;
 using namespace Wt;
 
 class Light {
-    
+
 public:
     Light(WString lightNum, Json::Object lightData);
-    
+
     virtual ~Light();
-    
+
     //GETTERS
     WString getLightnum() {return lightnum_;}
     WString getName() {return name_;}
@@ -40,26 +39,26 @@ public:
     double getX() {return xy_[0];}
     double getY() {return xy_[1];}
     int getTransition() {return transitiontime_;}
-    
+
     //SETTERS
     void setTransition(int transitiontime) {transitiontime_ = transitiontime;}
-    
+
 private:
-    WString lightnum_;
-    WString name_;
-    WString type_;
-    WString modelid_;
-    WString alert_;
-    int bri_;
-    WString colormode_;
-    int ct_;
-    WString effect_;
-    int hue_;
-    bool on_;
-    bool reachable_;
-    int sat_;
-    double xy_[2];
-    int transitiontime_;
+    WString lightnum_; // light number
+    WString name_; // name of light
+    WString type_; // type of light
+    WString modelid_; // id
+    WString alert_; // alert mode
+    int bri_; // brightness value
+    WString colormode_; // color mode
+    int ct_; // ct
+    WString effect_; // effect
+    int hue_; // hue value
+    bool on_; // on/off toggle
+    bool reachable_; // reachable
+    int sat_;// saturation value
+    double xy_[2]; // XY color value
+    int transitiontime_; // light transition time
 };
 
 #endif //LIGHT_H

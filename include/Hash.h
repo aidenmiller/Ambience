@@ -3,12 +3,13 @@
 
 #include <string>
 
+// XY color structure
 struct xy {
     float x;
     float y;
 };
 
-
+// RGB color structure
 struct rgb {
     float r;
     float g;

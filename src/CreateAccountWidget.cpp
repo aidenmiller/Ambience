@@ -73,6 +73,9 @@ void CreateAccountWidget::update()
 
     new WBreak(this);
 
+    new WBreak(this);
+
+
     // Username box: create a username that is a valid email address
     new WText("User ID: ", this);
     username_ = new WLineEdit();

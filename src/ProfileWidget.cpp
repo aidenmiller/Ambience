@@ -20,6 +20,11 @@
 #include <Wt/WInPlaceEdit>
 #include <Wt/WDialog>
 #include <Wt/WLabel>
+#include <Wt/WHBoxLayout>
+#include <Wt/WFileUpload>
+#include <Wt/WProgressBar>
+#include <Wt/WImage>
+#include <Wt/WTime>
 #include <string>
 #include <stdio.h>
 #include <fstream>
@@ -42,9 +47,10 @@ using namespace std;
 ProfileWidget::ProfileWidget(WContainerWidget *parent, Account *account, WelcomeScreen *main):
   WContainerWidget(parent)
 {
-    setContentAlignment(AlignCenter);
+    //setContentAlignment(AlignCenter);
     parent_ = main;
     account_ = account;
+
 }
 
 /**
@@ -58,23 +64,32 @@ void ProfileWidget::update()
 {
     clear(); // everytime you come back to page, reset the widgets
 
-    // Page title
-    WText *title = new WText("Your Profile", this);
-    title->setStyleClass("title");
-    new WBreak(this);
-    new WBreak(this);
+
+
+    WHBoxLayout *hbox = new WHBoxLayout();
+    this->setLayout(hbox);
+
+    WContainerWidget *left = new WContainerWidget();
+    WContainerWidget *right = new WContainerWidget();
+    hbox->addWidget(left);
+    hbox->addWidget(right);
+    right->setContentAlignment(AlignLeft);
+    left->setContentAlignment(AlignLeft);
 
     //shows the user's first name, and allows them to click to edit the name
-    new WText("First Name: ", this);
-    editableFirstName_ = new WInPlaceEdit(account_->getFirstName(), this);
+    WText *title = new WText("Your Profile", right);
+    title->setStyleClass("title");
+    new WBreak(right);
+    new WText("First Name: ", right);
+    editableFirstName_ = new WInPlaceEdit(account_->getFirstName(), right);
     editableFirstName_->setPlaceholderText("Enter your first name...");
 
     editableFirstName_->valueChanged().connect(this, &ProfileWidget::updateFirstName); // if you change the value of first name, call the updatefirstname function
-    new WBreak(this);
+    new WBreak(right);
 
     // shows the user's last name, and allows them to click to edit the name
-    new WText("Last Name: ", this);
-    editableLastName_ = new WInPlaceEdit(account_->getLastName(), this);
+    new WText("Last Name: ", right);
+    editableLastName_ = new WInPlaceEdit(account_->getLastName(), right);
     editableLastName_->setPlaceholderText("Enter your last name...");
     editableLastName_->valueChanged().connect(this, &ProfileWidget::updateLastName); // if you change the value of the last name, call the updatelastname function
 
@@ -82,13 +97,13 @@ void ProfileWidget::update()
     editableFirstName_->setStyleClass("inplace");
     editableLastName_->setStyleClass("inplace");
 
-    new WBreak(this);
+    new WBreak(right);
 
     // button to launch the update password dialog box
     updatePassword_ = new WPushButton("Update password");
-    addWidget(updatePassword_);
+    right->addWidget(updatePassword_);
 
-    new WBreak(this);
+    new WBreak(right);
 
     // error and success messages hidden by default
     passwordError_ = new WText();
@@ -99,12 +114,86 @@ void ProfileWidget::update()
 
     passwordSuccess_ = new WText("Successfully updated password!");
     passwordSuccess_->setHidden(true);
-    addWidget(passwordSuccess_);
+    right->addWidget(passwordSuccess_);
 
     // if you click the update password button, it shows the dialog box
     updatePassword_->clicked().connect(this, &ProfileWidget::showPasswordDialog);
 
+    new WBreak(right);
+
+    WText *picturetitle = new WText("Profile Picture", left);
+    picturetitle->setStyleClass("title");
+    new WBreak(left);
+
+    WImage *picture = new WImage(WLink("images/ppics/" + account_->getEmail() + "?" + to_string(WTime::currentTime().minute()) + to_string(WTime::currentTime().second()) +
+                                       to_string(WTime::currentTime().msec())) );
+    picture->resize(100,100);
+    left->addWidget(picture);
+
+    picUpload_ = new WFileUpload();
+    picUpload_->setFileTextSize(1000); // 1mb maximum pic size
+    picUpload_->setProgressBar(new WProgressBar());
+    picUpload_->setMargin(10, Side::Right);
+
+    new WBreak(left);
+    left->addWidget(picUpload_);
+    new WBreak(left);
+
+
+    profilePicOutMessage_ = new WText();
+
+    left->addWidget(profilePicOutMessage_);
+
+    if (fileTooLarge)
+        profilePicOutMessage_->setText("Sorry, file too large. Cannot update picture");
+
+
+    //upload automatically when the user entered a file
+
+    picUpload_->changed().connect(bind([=] {
+        picUpload_->upload();
+        profilePicOutMessage_->setText("Upload in progress...");
+                                  }));
+   picUpload_->uploaded().connect(bind([=] {
+        profilePicOutMessage_->setText("Upload successful");
+        ProfileWidget::uploadProfilePicture(picUpload_->spoolFileName());
+        fileTooLarge = false;
+        update();
+                                   }));
+    picUpload_->fileTooLarge().connect(bind([=] {
+        profilePicOutMessage_->setText("File too large");
+        fileTooLarge = true;
+        update();
+
+                                   }));
 }
+
+/**
+*   @brief  uploadProfilePicture function, called if user uploads a profile picture, saves the file in a non-temporary location
+*   @param  location of the temporary file location
+*   @return  void
+*/
+void ProfileWidget::uploadProfilePicture(string fileLocation) {
+
+        // creates profile pictures folder if one does not exist
+    const int dir_err = system("mkdir -p Wt/images/ppics");
+    if (-1 == dir_err)
+    {
+        cout << "ERROR - Could not create directory\n";
+        exit(1);
+    }
+
+
+    string file = "Wt/images/ppics/" + account_->getEmail(); // file extension?
+
+    ifstream in (fileLocation.c_str());
+    ofstream writefile(file.c_str());
+    writefile << in.rdbuf();
+    writefile.close();
+    in.close();
+
+}
+
 
 /**
 *   @brief  updateFirstName function, called if user puts in a new first name, calls the setter function of Account

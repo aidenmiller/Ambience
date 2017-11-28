@@ -51,7 +51,7 @@ profileScreen_(0),
 account_("","","","") {
     //resets URL to base /ambience/ , helpful for logout and page refreshes
     WApplication::instance()->setInternalPath("", false);
-    
+
     //Logged Out Navigation Bar - Login, Create Account
     navBar_ = new WNavigationBar(this);
     navBar_->setTitle("Ambience");
@@ -60,45 +60,45 @@ account_("","","","") {
     //Left Menu for Login/Create/Profile/Bridges depending on login status
     WMenu *leftMenu = new WMenu();
     navBar_->addMenu(leftMenu);
-    
+
     loginMenuItem_ = new WMenuItem("Login");
     loginMenuItem_->setLink(WLink(WLink::InternalPath, "/login"));
     leftMenu->addItem(loginMenuItem_);
-    
+
     createMenuItem_ = new WMenuItem("Create Account");
     createMenuItem_->setLink(WLink(WLink::InternalPath, "/create"));
     leftMenu->addItem(createMenuItem_);
-    
+
     profileMenuItem_ = new WMenuItem("Profile");
     profileMenuItem_->setLink(WLink(WLink::InternalPath, "/profile"));
     leftMenu->addItem(profileMenuItem_);
-    
+
     bridgesMenuItem_ = new WMenuItem("Bridges");
     bridgesMenuItem_->setLink(WLink(WLink::InternalPath, "/bridges"));
     leftMenu->addItem(bridgesMenuItem_);
-    
+
     //Right Menu contains Logout button
     WMenu *rightMenu = new WMenu();
     navBar_->addMenu(rightMenu, AlignmentFlag::AlignRight);
-    
+
     logoutMenuItem_ = new WMenuItem("Logout");
     logoutMenuItem_->setLink(WLink(WLink::InternalPath, "/logout"));
     rightMenu->addItem(logoutMenuItem_);
-    
+
     //Initially not logged in - hide logged in pages
     profileMenuItem_->setHidden(true);
     bridgesMenuItem_->setHidden(true);
     logoutMenuItem_->setHidden(true);
-    
+
     serverMessage_ = new WText("You are connected to the Team 13 Production Server", this);
     new WBreak(this);
-    
+
     welcome_image_ = new WImage(WLink("images/login_lights.jpeg"));
     addWidget(welcome_image_);
-    
+
     mainStack_ = new WStackedWidget();
     addWidget(mainStack_);
-    
+
     // detects any changes to the internal path and sends to the handle internal path function
     WApplication::instance()->internalPathChanged().connect(this, &WelcomeScreen::handleInternalPath);
 }
@@ -118,11 +118,11 @@ void WelcomeScreen::handleInternalPath(const string &internalPath) {
         logoutMenuItem_->setHidden(false);
         loginMenuItem_->setHidden(true);
         createMenuItem_->setHidden(true);
-        
+
         updateProfileName(); //set name of logged in user
-        
+
         regex re("/bridges/(\\d{1,3})");
-        
+
         if (internalPath == "/bridges") { // opens bridge page
             bridgeScreen();
         }
@@ -150,7 +150,7 @@ void WelcomeScreen::handleInternalPath(const string &internalPath) {
         logoutMenuItem_->setHidden(true);
         loginMenuItem_->setHidden(false);
         createMenuItem_->setHidden(false);
-        
+
         if (internalPath == "/create") {// opens create page
             createAccountScreen();
         }
@@ -162,7 +162,7 @@ void WelcomeScreen::handleInternalPath(const string &internalPath) {
 
 void WelcomeScreen::lightManagementScreen(int index) {
     Bridge *bridge = account_.getBridgeAt(index);
-    
+
     //create new LMW on view because bridge data may have changed since last view
     lightManage_ = new LightManagementWidget(mainStack_, bridge, this);
     mainStack_->setCurrentWidget(lightManage_);

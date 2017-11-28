@@ -11,6 +11,8 @@ Ambience
 /bridges/*
 bin/
 obj/
+ppics/
+Wt/images/ppics/
 .DS_Store
  
 .depend 

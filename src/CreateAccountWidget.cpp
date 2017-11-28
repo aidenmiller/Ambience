@@ -18,6 +18,7 @@
 #include <Wt/WTable>
 #include <fstream> // writing new accounts to a file
 #include <string>
+#include <iostream>
 #include <unistd.h>
 #include "CreateAccountWidget.h"
 #include "Hash.h" // for password encryption
@@ -52,7 +53,7 @@ WContainerWidget(parent)
 void CreateAccountWidget::update()
 {
     clear(); // everytime you come back to page, reset the widgets
-    
+
     // username validator - must be a valid email address
     usernameValidator_ = new WRegExpValidator("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}", this);
     usernameValidator_->setInvalidNoMatchText("Username must be valid email address");
@@ -65,13 +66,13 @@ void CreateAccountWidget::update()
     passwordLengthValidator_->setInvalidTooShortText("Password must be at least 6 characters");
     passwordLengthValidator_->setInvalidTooLongText("Password must be max 20 characters");
     passwordLengthValidator_->setMandatory(true);
-    
+
     // Page title
     WText *title = new WText("Create an account", this);
     title->setStyleClass("title");
-    
+
     new WBreak(this);
-    
+
     // Username box: create a username that is a valid email address
     new WText("User ID: ", this);
     username_ = new WLineEdit();
@@ -80,23 +81,23 @@ void CreateAccountWidget::update()
     username_->setValidator(usernameValidator_);
     addWidget(username_);
     new WBreak(this);
-    
+
     new WText("First Name: ", this);
     firstName_ = new WLineEdit();
     firstName_->setTextSize(18);
     firstName_->setValidator(inputNotEmpty_);
     addWidget(firstName_);
     new WBreak(this);
-    
-    
+
+
     new WText("Last Name: ", this);
     lastName_ = new WLineEdit();
     lastName_->setTextSize(18);
     lastName_->setValidator(inputNotEmpty_);
     addWidget(lastName_);
     new WBreak(this);
-    
-    
+
+
     // Password box: create a valid password
     new WText("Password: ", this);
     password_ = new WLineEdit();
@@ -104,36 +105,36 @@ void CreateAccountWidget::update()
     password_->setValidator(passwordLengthValidator_);
     addWidget(password_);
     new WBreak(this);
-    
+
     // user must confirm their password, and they must equal eachother
     new WText("Confirm Password: ", this);
     confirmPassword_ = new WLineEdit();
     confirmPassword_->setEchoMode(WLineEdit::EchoMode::Password);
     addWidget(confirmPassword_);
     new WBreak(this);
-    
-    
+
+
     // submit user details to create account
     createAccountButton_ = new WPushButton("Create Account");
     addWidget(createAccountButton_);
     new WBreak(this);
-    
+
     // if passwords dont match show a warning text
     unsuccessfulPassword_ = new WText("Sorry, passwords do not match");
     unsuccessfulPassword_->setStyleClass("error");
     addWidget(unsuccessfulPassword_);
     unsuccessfulPassword_->setHidden(true); // password match warning text hidden by default
-    
+
     unsuccessfulInput_ = new WText("Please fill all boxes with valid input."); // if password not 6-20 characters or username does not follow name@domain.tld
     unsuccessfulInput_->setStyleClass("error");
     addWidget(unsuccessfulInput_);
-    
+
     unsuccessfulInput_->setHidden(true);
     accountExists_ = new WText("Sorry, username already in use"); // if password not 6-20 characters or username does not follow name@domain.tld
     accountExists_->setStyleClass("error");
     addWidget(accountExists_);
     accountExists_->setHidden(true);
-    
+
     // user create account button connects with helper function
     createAccountButton_->clicked().connect(this, &CreateAccountWidget::submit);
 }
@@ -145,13 +146,13 @@ void CreateAccountWidget::update()
  *           Finally, it redirects to the login screen.
  */
 void CreateAccountWidget::submit(){
-    
-    
+
+
     // If currently showing the unsuccessful password/user text or the password not matching text, erase it
     unsuccessfulPassword_->setHidden(true);
     unsuccessfulInput_->setHidden(true);
     accountExists_->setHidden(true);
-    
+
     if (!CreateAccountWidget::validatePassword()) { // if the password != confirmed password
         unsuccessfulPassword_->setHidden(false); // show user that passwords don't match
     }
@@ -159,14 +160,14 @@ void CreateAccountWidget::submit(){
         unsuccessfulInput_->setHidden(false);
     }
     else if (!CreateAccountWidget::checkNewUserid(username_->text().toUTF8())){
-        
+
         accountExists_->setHidden(false);
     }
     else { // if password and confirmed password match
         CreateAccountWidget::writeUserInfo(username_->text().toUTF8(), password_->text().toUTF8(), firstName_->text().toUTF8(), lastName_->text().toUTF8()); // write the user's credentials to file
         WApplication::instance()->setInternalPath("/login", true);
     }
-    
+
 }
 
 /**
@@ -188,7 +189,7 @@ bool CreateAccountWidget::checkNewUserid(string userid) {
  *   @param  password is a string representing the user's inputted password
  */
 void CreateAccountWidget::writeUserInfo(string username, string password, string firstName, string lastName) {
-    
+
     // creates credentials folder if one does not exist
     const int dir_err = system("mkdir -p credentials");
     if (-1 == dir_err)
@@ -196,20 +197,39 @@ void CreateAccountWidget::writeUserInfo(string username, string password, string
         cout << "ERROR - Could not create directory\n";
         exit(1);
     }
-    
+
     ofstream writefile;
     string file = "credentials/" + username + ".txt";
-    
+
     writefile.open(file.c_str());
-    
+
     writefile << Hash::sha256_hash(password) <<endl; // cryptographically hash password
-    
+
     writefile<< firstName << endl;
     writefile<< lastName << endl;
-    
+
     writefile.close();
     //TODO: Error handling in the file write
-    
+
+    // creates profile pictures folder if one does not exist
+    const int prof_pic_dir_err = system("mkdir -p Wt/images/ppics");
+    if (-1 == prof_pic_dir_err)
+    {
+        cout << "ERROR - Could not create directory\n";
+        exit(1);
+    }
+
+
+    string profPicFile = "Wt/images/ppics/" + username; // file extension?
+    string defaultProfPicFileLocation = "Wt/images/default_ppic.png";
+
+
+    ifstream ppic_in(defaultProfPicFileLocation.c_str());//ios::binary);
+    ofstream ppic_writefile(profPicFile.c_str());
+    ppic_writefile << ppic_in.rdbuf();
+    ppic_writefile.close();
+    ppic_in.close();
+
 }
 
 /**

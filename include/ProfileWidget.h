@@ -31,6 +31,9 @@ private:
     Wt::WLineEdit *confirmNewPass_;
     Wt::WText *passwordError_;
     Wt::WText *passwordSuccess_;
+    Wt::WFileUpload *picUpload_;
+    Wt::WText *profilePicOutMessage_;
+    bool fileTooLarge = false;
 
     Wt::WValidator *inputNotEmpty_;
     Wt::WLengthValidator *passwordLengthValidator_;
@@ -40,6 +43,7 @@ private:
     void showPasswordDialog();
     bool checkValidPassword(std::string pass);
     void updatePassword();
+    void uploadProfilePicture(std::string file);
 
 };
 

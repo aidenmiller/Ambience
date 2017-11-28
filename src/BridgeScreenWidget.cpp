@@ -51,6 +51,9 @@ WContainerWidget(parent)
     setContentAlignment(AlignCenter);
     parent_ = main;
     account_ = account;
+
+    setStyleClass("w3-animate-opacity");
+
 }
 
 /**

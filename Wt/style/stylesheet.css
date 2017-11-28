@@ -51,6 +51,8 @@ td {
 	padding-left: 1%;
 }
 
+.w3-animate-opacity{animation:opac 0.8s}@keyframes opac{from{opacity:0} to{opacity:1}}
+
 tr:nth-child(odd){background-color: #ffffff;}
 tr:nth-child(even){background-color: #f2f2f2;}
 tr:hover {background-color: #ddd;}

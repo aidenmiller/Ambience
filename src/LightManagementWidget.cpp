@@ -53,6 +53,7 @@ schedulesWidget_(0)
     setContentAlignment(AlignLeft);
     parent_ = main;
     bridge_ = bridge;
+    setStyleClass("w3-animate-opacity");
 }
 
 

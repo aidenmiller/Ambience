@@ -14,6 +14,7 @@
 
 #include <Wt/WApplication>
 #include <Wt/WServer>
+#include <Wt/WLink>
 #include <Wt/WBootstrapTheme>
 
 #include "WelcomeScreen.h"
@@ -26,8 +27,10 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env)
     Wt::WApplication *app = new Wt::WApplication(env);
 
     app->setTitle("Ambience - CS3307 Team 13");
+
     app->setTheme(new Wt::WBootstrapTheme(app));
     app->useStyleSheet("style/stylesheet.css");
+
 
     new WelcomeScreen(app->root());
     return app;

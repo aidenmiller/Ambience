@@ -104,11 +104,11 @@ private:
     void deleteRequest(string url);
 
     //group add/edit
+    Wt::WDialog *createGroupDialog_;
     Wt::WLineEdit *groupName;
     vector<WCheckBox*> lightBoxes;
     
     //group advanced
-    Wt::WDialog *createGroupDialog_;
     Wt::WDialog *groupAdvancedDialog_;
     Wt::WSlider *brightnessGroup;
     Wt::WLineEdit *hue;

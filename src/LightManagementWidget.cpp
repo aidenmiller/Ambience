@@ -364,9 +364,6 @@ void LightManagementWidget::createGroupDialog() {
     set<string> data = lights.names();
     lightBoxes.clear(); //empty lightbox
     for(string num : data) {
-        Json::Object lightData = lights.get(num);
-        //Light *light = new Light(num, lightData);
-        
         WCheckBox *lightButton_ = new WCheckBox(num, createGroupDialog_->contents());
         lightBoxes.push_back(lightButton_);
     }
@@ -401,7 +398,10 @@ void LightManagementWidget::createGroup(){
                 lightsJSON.push_back(Json::Value(lightNum.toUTF8()));
             }
         }
-        groupJSON["lights"] = Json::Value(lightsJSON);
+        //if at least one was checked
+        if(!lightsJSON.empty()) {
+            groupJSON["lights"] = Json::Value(lightsJSON);
+        }
     }
     
     string url = "http://" + bridge_->getIP() + ":" + bridge_->getPort() + "/api/" + bridge_->getUsername() + "/groups";
@@ -409,7 +409,7 @@ void LightManagementWidget::createGroup(){
 }
 
 void LightManagementWidget::editGroupDialog(Group *group) {
-    /*editGroupDialog_ = new WDialog("Edit Group #" + group->getGroupnum().toUTF8()); // title
+    editGroupDialog_ = new WDialog("Edit Group #" + group->getGroupnum().toUTF8()); // title
     
     new WLabel("Group Name: ", editGroupDialog_->contents());
     editGroupName = new WLineEdit(editGroupDialog_->contents());
@@ -424,9 +424,6 @@ void LightManagementWidget::editGroupDialog(Group *group) {
     set<string> data = lights.names();
     lightBoxes.clear(); //empty lightbox
     for(string num : data) {
-        Json::Object lightData = lights.get(num);
-        //Light *light = new Light(num, lightData);
-        
         WCheckBox *lightButton_ = new WCheckBox(num, editGroupDialog_->contents());
         lightBoxes.push_back(lightButton_);
     }
@@ -441,18 +438,20 @@ void LightManagementWidget::editGroupDialog(Group *group) {
     
     editGroupDialog_->finished().connect(boost::bind(&LightManagementWidget::updateGroupInfo, this, group));
     
-    editGroupDialog_->show();*/
+    editGroupDialog_->show();
 }
 
 void LightManagementWidget::updateGroupInfo(Group *group){
-    /*if (editGroupDialog_->result() == WDialog::DialogCode::Rejected)
+    if (editGroupDialog_->result() == WDialog::DialogCode::Rejected)
         return;
     
-    string name = groupName->valueText().toUTF8();
+    string name = editGroupName->valueText().toUTF8();
     
     //json formatting
     Json::Object groupJSON;
     if(name != "") groupJSON["name"] = Json::Value(name);
+    cout << lightBoxes.size() << "\n";
+    //if there are no lights on the bridge, basically
     if(!lightBoxes.empty()) {
         Json::Array lightsJSON;
         for(WCheckBox *lightBox : lightBoxes) {
@@ -461,11 +460,14 @@ void LightManagementWidget::updateGroupInfo(Group *group){
                 lightsJSON.push_back(Json::Value(lightNum.toUTF8()));
             }
         }
-        groupJSON["lights"] = Json::Value(lightsJSON);
+        //if at least one was checked
+        if(!lightsJSON.empty()) {
+            groupJSON["lights"] = Json::Value(lightsJSON);
+        }
     }
     
     string url = "http://" + bridge_->getIP() + ":" + bridge_->getPort() + "/api/" + bridge_->getUsername() + "/groups/" + group->getGroupnum().toUTF8();
-    putRequest(url, Json::serialize(groupJSON));*/
+    putRequest(url, Json::serialize(groupJSON));
 }
 
 void LightManagementWidget::groupAdvancedDialog(Group *group) {
@@ -506,39 +508,39 @@ void LightManagementWidget::groupAdvancedDialog(Group *group) {
     new WBreak(groupAdvancedDialog_->contents());
     
     /*
-    // hue
-    new WLabel("Hue: ", groupAdvancedDialog_->contents());
-    hue = new WLineEdit(groupAdvancedDialog_->contents());
-    hue->setValueText(boost::lexical_cast<string>(group->getHue()));
-    new WBreak(groupAdvancedDialog_->contents());
-    
-    // saturation
-    new WLabel("Saturation: ", groupAdvancedDialog_->contents());
-    saturation = new WLineEdit(groupAdvancedDialog_->contents());
-    saturation->setValueText(boost::lexical_cast<string>(group->getSat()));
-    new WBreak(groupAdvancedDialog_->contents());
-    
-    // CT
-    new WLabel("CT: ", groupAdvancedDialog_->contents());
-    ct = new WLineEdit(groupAdvancedDialog_->contents());
-    ct->setValueText(boost::lexical_cast<string>(group->getCt()));
-    new WBreak(groupAdvancedDialog_->contents());
-    
-    // alert
-    new WLabel("Alert: ", groupAdvancedDialog_->contents());
-    alert = new WComboBox(groupAdvancedDialog_->contents());
-    alert->addItem("none");
-    alert->addItem("colorloop");
-    alert->setCurrentIndex(boost::lexical_cast<string>(group->getAlert()) == "none" ? 0 : 1);
-    new WBreak(groupAdvancedDialog_->contents());
-    
-    // effect
-    new WLabel("Effect: ", groupAdvancedDialog_->contents());
-    effect = new WComboBox(groupAdvancedDialog_->contents());
-    effect->addItem("null");
-    effect->addItem("select");
-    effect->setCurrentIndex(boost::lexical_cast<string>(group->getEffect()) == "null" ? 0 : 1);
-    new WBreak(groupAdvancedDialog_->contents());
+     // hue
+     new WLabel("Hue: ", groupAdvancedDialog_->contents());
+     hue = new WLineEdit(groupAdvancedDialog_->contents());
+     hue->setValueText(boost::lexical_cast<string>(group->getHue()));
+     new WBreak(groupAdvancedDialog_->contents());
+     
+     // saturation
+     new WLabel("Saturation: ", groupAdvancedDialog_->contents());
+     saturation = new WLineEdit(groupAdvancedDialog_->contents());
+     saturation->setValueText(boost::lexical_cast<string>(group->getSat()));
+     new WBreak(groupAdvancedDialog_->contents());
+     
+     // CT
+     new WLabel("CT: ", groupAdvancedDialog_->contents());
+     ct = new WLineEdit(groupAdvancedDialog_->contents());
+     ct->setValueText(boost::lexical_cast<string>(group->getCt()));
+     new WBreak(groupAdvancedDialog_->contents());
+     
+     // alert
+     new WLabel("Alert: ", groupAdvancedDialog_->contents());
+     alert = new WComboBox(groupAdvancedDialog_->contents());
+     alert->addItem("none");
+     alert->addItem("colorloop");
+     alert->setCurrentIndex(boost::lexical_cast<string>(group->getAlert()) == "none" ? 0 : 1);
+     new WBreak(groupAdvancedDialog_->contents());
+     
+     // effect
+     new WLabel("Effect: ", groupAdvancedDialog_->contents());
+     effect = new WComboBox(groupAdvancedDialog_->contents());
+     effect->addItem("null");
+     effect->addItem("select");
+     effect->setCurrentIndex(boost::lexical_cast<string>(group->getEffect()) == "null" ? 0 : 1);
+     new WBreak(groupAdvancedDialog_->contents());
      */
     
     // disable all fields while group is off
@@ -549,10 +551,10 @@ void LightManagementWidget::groupAdvancedDialog(Group *group) {
         greenSlider->setDisabled(!onStatus);
         blueSlider->setDisabled(!onStatus);
         /*hue->setDisabled(!onStatus);
-        saturation->setDisabled(!onStatus);
-        ct->setDisabled(!onStatus);
-        alert->setDisabled(!onStatus);
-        effect->setDisabled(!onStatus);*/
+         saturation->setDisabled(!onStatus);
+         ct->setDisabled(!onStatus);
+         alert->setDisabled(!onStatus);
+         effect->setDisabled(!onStatus);*/
     }));
     
     // make okay and cancel buttons, cancel sends a reject dialogstate, okay sends an accept

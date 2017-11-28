@@ -76,46 +76,6 @@ struct xy *ColourConvert::rgb2xy(float r, float g, float b)
 struct rgb *ColourConvert::xy2rgb(float inputX, float inputY, float brightness)
 {
 
-    /*
-    float z = 1.0 -inputX - inputY;
-    float Y = brightness/255.0;
-    float X = (Y/ inputY) * inputX;
-    float Z = (Y / inputY) * z;
-
-    float r = X * 1.612 - Y * 0.203 - Z * 0.302;
-    float g = -X * 0.509 + Y * 1.412 + Z + 0.066;
-    float b = X * 0.026 - Y * 0.072 + Z * 0.962;
-
-    r = r<= 0.0031308 ? 12.92 * r : (1.0 + 0.055) * pow(r, (1.0/2.4)) - 0.055;
-    g = g<= 0.0031308 ? 12.92 * g : (1.0 + 0.055) * pow(g, (1.0/2.4)) - 0.055;
-    r = b<= 0.0031308 ? 12.92 * b : (1.0 + 0.055) * pow(b, (1.0/2.4)) - 0.055;
-
-    float maxValue;
-
-    if (r > g && r > b)
-        maxValue = r;
-    else if (g > r && g > b)
-        maxValue = g;
-    else
-        maxValue = b;
-
-    r /= maxValue;
-    g /= maxValue;
-    b /= maxValue;
-
-    r = r*255;
-    if (r<0) {
-            r = 255;
-    }
-    g = g * 255;
-    if (g < 0) {
-            g = 255;
-    }
-    b = b * 255;
-    if (b < 0) {
-            b = 255;
-    } */
-
     // CONVERT TO XYZ
     float x = inputX;
     float y = inputY;
@@ -168,4 +128,80 @@ struct rgb *ColourConvert::xy2rgb(float inputX, float inputY, float brightness)
     rgbStruct->g = g;
 
     return rgbStruct;
+}
+
+struct rgb *ColourConvert::hsv2rgb(float hue, float sat, float bri) {
+    float r, g, b;
+    double hh, p, q, t, ff;
+    long i;
+
+    double h = hue/ 65280.0; // hue in smartlights is 0-65280
+    h = h * 360.0; // this formula uses an angle for hue
+
+    struct rgb *rgbStruct = (struct rgb*) malloc(sizeof(struct rgb));
+
+    bri = bri / 254.0; // expected brightness value 0-1
+    sat = sat / 255.0; // expected saturation value 0-1
+
+    if (sat <= 0.0) {
+        rgbStruct->r = bri * 254.0;
+        rgbStruct->b = bri * 254.0;
+        rgbStruct->g = bri * 254.0;
+
+        return rgbStruct;
+
+    }
+
+    hh = h;
+
+    if (hh >= 360.0) hh = 0.0;
+    hh /= 60.0;
+
+    i = (long)hh;
+
+    ff = hh - i;
+
+    p = bri * (1.0 - sat);
+    q = bri * (1.0 - (sat * ff));
+    t = bri * (1.0 - (sat * (1.0 - ff)));
+
+    switch(i){
+    case 0:
+        r = bri;
+        g = (float)t;
+        b = (float)p;
+        break;
+    case 1:
+        r = (float)q;
+        g = bri;
+        b = (float)p;
+        break;
+    case 2:
+        r = (float)p;
+        g = bri;
+        b = (float)t;
+        break;
+    case 3:
+        r = (float)p;
+        g = (float)q;
+        b = bri;
+        break;
+    case 4:
+        r = (float)t;
+        g = (float)p;
+        b = bri;
+        break;
+    case 5:
+    default:
+        r = bri;
+        g = (float)p;
+        b = (float)q;
+        break;
+    }
+
+    rgbStruct->r = r * 255.0;
+    rgbStruct->g = g * 255.0;
+    rgbStruct->b = b * 255.0;
+    return rgbStruct;
+
 }

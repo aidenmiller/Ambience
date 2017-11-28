@@ -47,7 +47,7 @@ using namespace std;
 ProfileWidget::ProfileWidget(WContainerWidget *parent, Account *account, WelcomeScreen *main):
   WContainerWidget(parent)
 {
-    //setContentAlignment(AlignCenter);
+    setContentAlignment(AlignCenter);
     parent_ = main;
     account_ = account;
 
@@ -65,31 +65,20 @@ void ProfileWidget::update()
     clear(); // everytime you come back to page, reset the widgets
 
 
-
-    WHBoxLayout *hbox = new WHBoxLayout();
-    this->setLayout(hbox);
-
-    WContainerWidget *left = new WContainerWidget();
-    WContainerWidget *right = new WContainerWidget();
-    hbox->addWidget(left);
-    hbox->addWidget(right);
-    right->setContentAlignment(AlignLeft);
-    left->setContentAlignment(AlignLeft);
-
     //shows the user's first name, and allows them to click to edit the name
-    WText *title = new WText("Your Profile", right);
+    WText *title = new WText("Your Profile", this);
     title->setStyleClass("title");
-    new WBreak(right);
-    new WText("First Name: ", right);
-    editableFirstName_ = new WInPlaceEdit(account_->getFirstName(), right);
+    new WBreak(this);
+    new WText("First Name: ", this);
+    editableFirstName_ = new WInPlaceEdit(account_->getFirstName(), this);
     editableFirstName_->setPlaceholderText("Enter your first name...");
 
     editableFirstName_->valueChanged().connect(this, &ProfileWidget::updateFirstName); // if you change the value of first name, call the updatefirstname function
-    new WBreak(right);
+    new WBreak(this);
 
     // shows the user's last name, and allows them to click to edit the name
-    new WText("Last Name: ", right);
-    editableLastName_ = new WInPlaceEdit(account_->getLastName(), right);
+    new WText("Last Name: ", this);
+    editableLastName_ = new WInPlaceEdit(account_->getLastName(), this);
     editableLastName_->setPlaceholderText("Enter your last name...");
     editableLastName_->valueChanged().connect(this, &ProfileWidget::updateLastName); // if you change the value of the last name, call the updatelastname function
 
@@ -97,13 +86,13 @@ void ProfileWidget::update()
     editableFirstName_->setStyleClass("inplace");
     editableLastName_->setStyleClass("inplace");
 
-    new WBreak(right);
+    new WBreak(this);
 
     // button to launch the update password dialog box
     updatePassword_ = new WPushButton("Update password");
-    right->addWidget(updatePassword_);
+    addWidget(updatePassword_);
 
-    new WBreak(right);
+    new WBreak(this);
 
     // error and success messages hidden by default
     passwordError_ = new WText();
@@ -114,35 +103,35 @@ void ProfileWidget::update()
 
     passwordSuccess_ = new WText("Successfully updated password!");
     passwordSuccess_->setHidden(true);
-    right->addWidget(passwordSuccess_);
+    addWidget(passwordSuccess_);
 
     // if you click the update password button, it shows the dialog box
     updatePassword_->clicked().connect(this, &ProfileWidget::showPasswordDialog);
 
-    new WBreak(right);
+    new WBreak(this);
 
-    WText *picturetitle = new WText("Profile Picture", left);
+    WText *picturetitle = new WText("Profile Picture", this);
     picturetitle->setStyleClass("title");
-    new WBreak(left);
+    new WBreak(this);
 
     WImage *picture = new WImage(WLink("images/ppics/" + account_->getEmail() + "?" + to_string(WTime::currentTime().minute()) + to_string(WTime::currentTime().second()) +
                                        to_string(WTime::currentTime().msec())) );
     picture->resize(100,100);
-    left->addWidget(picture);
+    addWidget(picture);
 
     picUpload_ = new WFileUpload();
     picUpload_->setFileTextSize(1000); // 1mb maximum pic size
     picUpload_->setProgressBar(new WProgressBar());
     picUpload_->setMargin(10, Side::Right);
 
-    new WBreak(left);
-    left->addWidget(picUpload_);
-    new WBreak(left);
+    new WBreak(this);
+    addWidget(picUpload_);
+    new WBreak(this);
 
 
     profilePicOutMessage_ = new WText();
 
-    left->addWidget(profilePicOutMessage_);
+    addWidget(profilePicOutMessage_);
 
     if (fileTooLarge)
         profilePicOutMessage_->setText("Sorry, file too large. Cannot update picture");

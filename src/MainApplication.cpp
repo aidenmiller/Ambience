@@ -21,6 +21,13 @@
 using namespace Wt;
 using namespace std;
 
+/**
+ *   @brief  Function to create Wt application environment and adds WelcomeScreen as a widget on the WApplication root
+ *
+ *   @param   &env the WEnvironment to run the application
+ *
+ *   @return  void
+ */
 Wt::WApplication *createApplication(const Wt::WEnvironment& env)
 {
     Wt::WApplication *app = new Wt::WApplication(env);

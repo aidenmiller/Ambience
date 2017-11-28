@@ -58,7 +58,6 @@ ProfileWidget::ProfileWidget(WContainerWidget *parent, Account *account, Welcome
 *           screen
 *
 *   @return  void
-*
 */
 void ProfileWidget::update()
 {
@@ -159,7 +158,9 @@ void ProfileWidget::update()
 
 /**
 *   @brief  uploadProfilePicture function, called if user uploads a profile picture, saves the file in a non-temporary location
+*
 *   @param  location of the temporary file location
+*
 *   @return  void
 */
 void ProfileWidget::uploadProfilePicture(string fileLocation) {
@@ -185,8 +186,8 @@ void ProfileWidget::uploadProfilePicture(string fileLocation) {
 
 
 /**
-*   @brief  updateFirstName function, called if user puts in a new first name, calls the setter function of Account
-*           screen
+*   @brief  updateFirstName function, called if user puts in a new first name, calls the setter function of Account screen
+*
 *   @return  void
 */
 void ProfileWidget::updateFirstName() {
@@ -199,6 +200,7 @@ void ProfileWidget::updateFirstName() {
 /**
 *   @brief  updateLastName function, called if user puts in a new last name, calls the setter function of Account
 *           screen
+*
 *   @return  void
 */
 void ProfileWidget::updateLastName() {
@@ -209,8 +211,8 @@ void ProfileWidget::updateLastName() {
 
 /**
 *   @brief  showPasswordDialog function, called if user chooses to update their password.
-*           Opens a WDialog box asking them to confirm their current password, and choose a new password
-*           , goes through same validation process as the create account page
+*           Opens a WDialog box asking them to confirm their current password, and choose a new password, goes through same validation process as the create account page
+*
 *   @return  void
 */
 void ProfileWidget::showPasswordDialog() {
@@ -272,8 +274,8 @@ void ProfileWidget::showPasswordDialog() {
 }
 
 /**
-*   @brief  updatePassword function, called upon submission of the update password dialog box. Validates password
-*           and sets the Account's new password using Account setter
+*   @brief  updatePassword function, called upon submission of the update password dialog box. Validates password and sets the Account's new password using Account setter
+*
 *   @return  void
 */
 void ProfileWidget::updatePassword() {
@@ -316,6 +318,7 @@ void ProfileWidget::updatePassword() {
 
 /**
 *   @brief  checkValidPassword function, ensures that the password that the user has entered is the password connected to their account
+*
 *   @return  bool true if the password is correct, false otherwise
 */
 bool ProfileWidget::checkValidPassword(string password) {

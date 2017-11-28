@@ -63,7 +63,7 @@ account_("","","","") {
     bgCss->setBackgroundImage(WLink("images/bulb.png"));
     setDecorationStyle(*bgCss);
     //minimum window size of application
-    setMinimumSize(1024,768);
+    setMinimumSize(800,768);
 
     //Left Menu for Login/Create/Profile/Bridges depending on login status
     WMenu *leftMenu = new WMenu();
@@ -177,6 +177,13 @@ void WelcomeScreen::handleInternalPath(const string &internalPath) {
     }
 }
 
+/**
+ *   @brief  Creates a new LightManagementWidget for a Bridge in in the Account bridges vector at index.
+ *
+ *   @param  index is the index of Bridge in the Account bridges vector to view
+ *
+ *   @return void
+ */
 void WelcomeScreen::lightManagementScreen(int index) {
     Bridge *bridge = account_.getBridgeAt(index);
 

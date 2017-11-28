@@ -24,17 +24,16 @@ private:
     Wt::WLineEdit *password_; // password text box
     Wt::WLineEdit *confirmPassword_; // confirm password text box
     Wt::WPushButton *createAccountButton_; // submit account creation
-    Wt::WText *unsuccessfulPassword_;
-    Wt::WText *unsuccessfulInput_;
-    Wt::WText *accountExists_;
+    Wt::WText *unsuccessfulPassword_; // password unsuccessful message
+    Wt::WText *unsuccessfulInput_; // input unsuccessful message
+    Wt::WText *accountExists_; // account already exists message
 
-    Wt::WRegExpValidator *usernameValidator_;
-    Wt::WLengthValidator *passwordLengthValidator_;
-    Wt::WValidator *inputNotEmpty_;
+    Wt::WRegExpValidator *usernameValidator_; // username validator
+    Wt::WLengthValidator *passwordLengthValidator_; // pw validator
+    Wt::WValidator *inputNotEmpty_; // empty input validator
 
     WelcomeScreen *parent_;
     Account *account_;
-
 
     void submit();
     bool validatePassword();

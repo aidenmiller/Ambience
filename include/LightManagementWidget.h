@@ -32,85 +32,45 @@ public:
 
     void update();
 private:
-    Wt::WContainerWidget *lightsContainer_;
-    WelcomeScreen *parent_;
-    Bridge *bridge_;
+    WelcomeScreen *parent_; // parent widget
+    Bridge *bridge_; // current bridge
 
     Wt::WStackedWidget *lightManagementStack_; // main stack of the screen
 
-    void viewOverviewWidget();
-    void viewLightsWidget();
-    void viewGroupsWidget();
-    void viewSchedulesWidget();
-    void updateLightsTable();
-    void updateGroupsTable();
-    void updateSchedulesTable();
-    Wt::WContainerWidget *overviewWidget_;
-    Wt::WContainerWidget *lightsWidget_;
-    Wt::WContainerWidget *groupsWidget_;
-    Wt::WContainerWidget *schedulesWidget_;
-    
+    Wt::WContainerWidget *overviewWidget_; // overview container widget
+    Wt::WContainerWidget *lightsWidget_; // lights container widget
+    Wt::WContainerWidget *groupsWidget_; // groups container widget
+    Wt::WContainerWidget *schedulesWidget_; // schedules container widget
+
+    Wt::WTable *lightsTable_; // lights table
+    Wt::WTable *groupsTable_; // groups table
+    Wt::WTable *schedulesTable_; // schedules table
+
+    // editRGBDialog function widgets
     Wt::WContainerWidget *rgbContainer_; //contains XY RGB slider
+    Wt::WSlider *brightnessSlider_; // brightness value
 
-    void updateLightBri(WSlider *slider_, Light *light);
-    void updateLightOn(WPushButton *button_, Light *light);
-    void updateLightXY(Light *light);
-    void updateLightInfo(Light *light);
-    void handlePutHttp(boost::system::error_code err, const Wt::Http::Message &response);
-
-    Wt::WSlider *brightnessSlider_;
-    void editRGBDialog(Light *light);
-    Wt::WDialog *editRGBDialog_;
+    Wt::WDialog *editRGBDialog_; // edit RGB dialog
     Wt::WSlider *redSlider;
     Wt::WSlider *greenSlider;
     Wt::WSlider *blueSlider;
 
-    Wt::WLineEdit *editLightTransition;
-    Wt::WIntValidator *intValidator;
+    // lights page widgets
+    Wt::WLineEdit *editLightTransition; // transition value
+    Wt::WIntValidator *intValidator; // text box validator
+    Wt::WDialog *editLightDialog_; // dialog to edit light
+    Wt::WLineEdit *editLightName; // light name edit
 
-    Wt::WTable *lightsTable_;
-    Wt::WTable *groupsTable_;
-    Wt::WTable *schedulesTable_;
+    // groups page widgets
+    Wt::WDialog *createGroupDialog_; // dialog to create group
+    Wt::WLineEdit *groupName; // group name
+    vector<WCheckBox*> lightBoxes; // vector of lights to add
 
-    void createSchedule();
-    void createGroup();
-    void removeSchedule(Schedule *schedule);
-    void removeGroup(Group *group);
-    void removeLight(Light *light);
-    void editLightDialog(Light *light);
-    Wt::WDialog *editLightDialog_;
-    Wt::WLineEdit *editLightName;
-    void editGroupDialog(Group *group);
-    Wt::WDialog *editGroupDialog_;
-    Wt::WLineEdit *editGroupName;
-    void updateGroupInfo(Group *group);
+    Wt::WDialog *editGroupDialog_; // dialog to edit group
+    Wt::WLineEdit *editGroupName; // group name
 
-    //objects from createScheduleDialog()
-    void createScheduleDialog();
-    Wt::WDialog *createScheduleDialog_;
-    Wt::WLineEdit *scheduleName;
-    Wt::WLineEdit *description;
-    Wt::WDateEdit *dateEdit;
-    Wt::WTimeEdit *timeEdit;
-    Wt::WButtonGroup *resourceButtonGroup;
-    WLineEdit *resourceNum;
-    Wt::WButtonGroup *actionButtonGroup;
-    Wt::WButtonGroup *onButtonGroup;
-    WSlider *brightnessSchedule;
-    WLineEdit *transitionSchedule;
-
-    void putRequest(string url, string json);
-    void postRequest(string url, string json);
-    void deleteRequest(string url);
-
-    //group add/edit
-    Wt::WDialog *createGroupDialog_;
-    Wt::WLineEdit *groupName;
-    vector<WCheckBox*> lightBoxes;
-    
-    //group advanced
-    Wt::WDialog *groupAdvancedDialog_;
-    Wt::WSlider *brightnessGroup;
+    Wt::WDialog *groupAdvancedDialog_; // dialog for advanced settings in group
+    Wt::WSlider *brightnessGroup; // brightness of group
     Wt::WLineEdit *hue;
     Wt::WLineEdit *saturation;
     Wt::WLineEdit *ct;
@@ -118,10 +78,51 @@ private:
     Wt::WComboBox *effect;
     WComboBox *reachable;
 
+    // schedules page widgets
+    Wt::WDialog *createScheduleDialog_; // dialog to create schedule
+    Wt::WLineEdit *scheduleName; // schedule name
+    Wt::WLineEdit *description; // schedule description
+    Wt::WDateEdit *dateEdit; // date
+    Wt::WTimeEdit *timeEdit; // time
+    Wt::WButtonGroup *resourceButtonGroup; // container for resource buttons
+    WLineEdit *resourceNum; // resource number
+    Wt::WButtonGroup *actionButtonGroup; // container for action buttons
+    Wt::WButtonGroup *onButtonGroup; // container for on/off buttons
+    WSlider *brightnessSchedule; // brightness slider
+    WLineEdit *transitionSchedule; // transition time
+
+    void viewOverviewWidget();
+    void viewLightsWidget();
+    void viewGroupsWidget();
+    void viewSchedulesWidget();
+    void editRGBDialog(Light *light);
+
+    void updateLightsTable();
+    void editLightDialog(Light *light);
+    void removeLight(Light *light);
+    void updateLightInfo(Light *light);
+    void updateLightBri(WSlider *slider_, Light *light);
+    void updateLightOn(WPushButton *button_, Light *light);
+    void updateLightXY(Light *light);
+
+    void updateGroupsTable();
     void createGroupDialog();
     void groupAdvancedDialog(Group *group);
+    void editGroupDialog(Group *group);
+    void createGroup();
+    void removeGroup(Group *group);
+    void updateGroupInfo(Group *group);
     void groupUpdateAdvanced(Group *group);
 
+    void updateSchedulesTable();
+    void createScheduleDialog();
+    void createSchedule();
+    void removeSchedule(Schedule *schedule);
+
+    void deleteRequest(string url);
+    void putRequest(string url, string json);
+    void postRequest(string url, string json);
+    void handlePutHttp(boost::system::error_code err, const Wt::Http::Message &response);
     void refreshBridge();
     void refreshBridgeHttp(boost::system::error_code err, const Wt::Http::Message &response);
 };

@@ -481,10 +481,6 @@ void LightManagementWidget::updateLightsTable() {
         colourButton_->setDisabled(!light->getOn());  //disable if light off
         colourButton_->actionButton()->clicked().connect(boost::bind(&LightManagementWidget::editRGBDialog, this, light));
 
-        //WCssDecorationStyle *colour = new WCssDecorationStyle();
-        //struct xy *cols = ColourConvert::rgb2xy(255.0f, 0.0f, 0.0f);
-        //struct rgb *cols2 = ColourConvert::xy2rgb()
-
         tableRow->elementAt(4)->addWidget(switchButton_);
         tableRow->elementAt(4)->addWidget(colourButton_);
         tableRow->elementAt(4)->addWidget(editLightButton_);
@@ -1242,7 +1238,6 @@ void LightManagementWidget::createScheduleDialog() {
     // Container for Date and Time
     Wt::WGroupBox *datetimeGroupContainer = new Wt::WGroupBox("Date & Time", createScheduleDialog_->contents());
     dateEdit = new WDateEdit(datetimeGroupContainer);
-    //form->bindWidget("from",dateEdit);
     dateEdit->setDate(WDate::currentServerDate());
     timeEdit = new WTimeEdit(datetimeGroupContainer);
     timeEdit->setTime(WTime::currentTime());

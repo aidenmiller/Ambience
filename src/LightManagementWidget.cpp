@@ -6,7 +6,8 @@
  *
  *  @brief      CS 3307, Hue Light Application screen for managing lights/groups/schedules on a bridge
  *
- *  @section    DESCRIPTION
+ *  @section    This class represents the light management screen. This screen allows the user to
+ *              create, edit, and delete their lights/groups/schedules on the user selected bridge.
  *
  *
  */
@@ -36,7 +37,7 @@ using namespace Wt;
 using namespace std;
 
 /**
- *   @brief  light management Widget constructor
+ *   @brief  Light Management Widget constructor
  *
  *   @param  *parent is a pointer the the containerwidget that stores this widget
  *   @param  *bridge is a pointer to the Bridge object
@@ -64,7 +65,7 @@ schedulesWidget_(0)
 void LightManagementWidget::update()
 {
     clear(); // everytime you come back to page, reset the widgets
-    
+
     //create refreshButton for refreshing Bridge JSON data
     WPushButton *refreshButton = new WPushButton("Refresh Bridge");
     refreshButton->clicked().connect(boost::bind(&LightManagementWidget::refreshBridge, this));
@@ -83,7 +84,7 @@ void LightManagementWidget::update()
     WMenuItem *lightMenuItem = new WMenuItem("Lights");
     menu->addItem(lightMenuItem);
     lightMenuItem->triggered().connect(this, &LightManagementWidget::viewLightsWidget);
-    
+
     WMenuItem *groupsMenuItem = new WMenuItem("Groups");
     menu->addItem(groupsMenuItem);
     groupsMenuItem->triggered().connect(this, &LightManagementWidget::viewGroupsWidget);
@@ -267,26 +268,53 @@ void LightManagementWidget::update()
     }));
 }
 
+/**
+ *   @brief  View overview function, sets the current widget to the overview widget when clicked on
+ *           the menu.
+ *
+ *   @return  void
+ *
+ */
 void LightManagementWidget::viewOverviewWidget(){
     lightManagementStack_->setCurrentWidget(overviewWidget_);
 }
 
+/**
+ *   @brief  View lights function, sets the current widget to the light widget when clicked on
+ *           the menu.
+ *
+ *   @return  void
+ *
+ */
 void LightManagementWidget::viewLightsWidget(){
     lightManagementStack_->setCurrentWidget(lightsWidget_);
 }
-
+/**
+ *   @brief  View groups function, sets the current widget shown to groups widget when clicked on
+ *           the menu.
+ *
+ *   @return  void
+ *
+ */
 void LightManagementWidget::viewGroupsWidget(){
     lightManagementStack_->setCurrentWidget(groupsWidget_);
 }
 
+/**
+ *   @brief  View schedule function, sets the current widget shown to schedule widget when clicked on
+ *           the menu.
+ *
+ *   @return  void
+ *
+ */
 void LightManagementWidget::viewSchedulesWidget(){
     lightManagementStack_->setCurrentWidget(schedulesWidget_);
 }
 
 /**
- *   @brief  Opens a WDialog box to edit rgb for specified light
+ *   @brief  Opens a WDialog box to edit rgb values for the specified light
  *
- *   @param   lightNum the position of the Light to view
+ *   @param   light is the current light object to edit
  *
  *   @return  void
  *
@@ -326,9 +354,9 @@ void LightManagementWidget::editRGBDialog(Light *light) {
 }
 
 /**
- *   @brief  Opens a WDialog box to edit rgb for specified light
+ *   @brief  Opens a WDialog box to convert hue, saturation, and brightness to rgb color
  *
- *   @param   lightNum the position of the Light to view
+ *   @param   light is the current light object to edit
  *
  *   @return  void
  *
@@ -373,6 +401,14 @@ void LightManagementWidget::editHueSatDialog(Light *light) {
     editHueSatDialog_->show();
 }
 
+/**
+ *   @brief  Update lights table function, clears the current table and re-populates it with
+ *           all the lights that are in the bridge. The user can edit the properties of lights
+ *           from this table.
+ *
+ *   @return  void
+ *
+ */
 void LightManagementWidget::updateLightsTable() {
     lightsTable_->clear();
 
@@ -459,6 +495,15 @@ void LightManagementWidget::updateLightsTable() {
     }
 }
 
+/**
+ *   @brief  Edit lights function, when the edit button is clicked, a window where the user can
+ *           change any property of the selected light appears.
+ *
+ *   @param  light is the light object that was selected to edit from the table.
+ *
+ *   @return  void
+ *
+ */
 void LightManagementWidget::editLightDialog(Light *light) {
     editLightDialog_ = new WDialog("Edit Light #" + boost::lexical_cast<string>(light->getLightnum())); // title
 
@@ -479,12 +524,29 @@ void LightManagementWidget::editLightDialog(Light *light) {
     editLightDialog_->show();
 }
 
-//NOTE: Does not work on Hue Emulator but would work with real bridge
+/**
+ *   @brief  Remove lights function, removes the selected light from the current
+ *           bridge. Does not work on Hue Emulator but will work with real bridges.
+ *
+ *   @param  light is the light object to remove from the bridge.
+ *
+ *   @return  void
+ *
+ */
 void LightManagementWidget::removeLight(Light *light) {
     string url = "http://" + bridge_->getIP() + ":" + bridge_->getPort() + "/api/" + bridge_->getUsername() + "/lights/" + light->getLightnum().toUTF8();
     deleteRequest(url);
 }
 
+/**
+ *   @brief  Update lights function, creates a JSON request to change properties of
+ *           a given light based on user's inputs in the edit light dialog box.
+ *
+ *   @param  light is the light object to update from the bridge.
+ *
+ *   @return  void
+ *
+ */
 void LightManagementWidget::updateLightInfo(Light *light){
     if (editLightDialog_->result() == WDialog::DialogCode::Rejected)
         return;
@@ -508,6 +570,16 @@ void LightManagementWidget::updateLightInfo(Light *light){
     }
 }
 
+/**
+ *   @brief  Update brightness function, creates a JSON request to update the selected light's
+ *           brightness value given the brightness slider's value.
+ *
+ *   @param  slider_ is the brightness slider that contains a value between 0-254.
+ *   @param  light is the light object to update the brightness value.
+ *
+ *   @return  void
+ *
+ */
 void LightManagementWidget::updateLightBri(WSlider *slider_, Light *light){
     string url = "http://" + bridge_->getIP() + ":" + bridge_->getPort() + "/api/" + bridge_->getUsername() + "/lights/" + light->getLightnum().toUTF8() + "/state";
     Http::Message *data = new Http::Message();
@@ -527,6 +599,16 @@ void LightManagementWidget::updateLightBri(WSlider *slider_, Light *light){
     }
 }
 
+/**
+ *   @brief  Update on/off function, creates a JSON request to toggle the selected light's
+ *           on/off value.
+ *
+ *   @param  button_ is the clickable button that contains on/off value.
+ *   @param  light is the light object to update the on/off value.
+ *
+ *   @return  void
+ *
+ */
 void LightManagementWidget::updateLightOn(WPushButton *button_, Light *light){
     //set value string to reflect current state of the button
     string value = button_->text() == "On" ? "False" : "True";
@@ -556,6 +638,15 @@ void LightManagementWidget::updateLightOn(WPushButton *button_, Light *light){
     }
 }
 
+/**
+ *   @brief  Update light's XY function, creates a JSON request to update the selected light's
+ *           color value given the XY values.
+ *
+ *   @param  light is the light object to update the XY value.
+ *
+ *   @return  void
+ *
+ */
 void LightManagementWidget::updateLightXY(Light *light){
     if (editRGBDialog_->result() == WDialog::DialogCode::Rejected)
         return;
@@ -581,6 +672,15 @@ void LightManagementWidget::updateLightXY(Light *light){
     }
 }
 
+/**
+ *   @brief  Update HS function, creates a JSON request to update the selected light's
+ *           hue, saturation, brightness, and transition time values.
+ *
+ *   @param  light is the light object to update.
+ *
+ *   @return  void
+ *
+ */
 void LightManagementWidget::updateLightHS(Light *light){
     if (editHueSatDialog_->result() == WDialog::DialogCode::Rejected)
         return;
@@ -609,6 +709,13 @@ void LightManagementWidget::updateLightHS(Light *light){
     }
 }
 
+/**
+ *   @brief  Update groups table function, clears the current table and re-populates it with
+ *           all the groups that are in the bridge.
+ *
+ *   @return  void
+ *
+ */
 void LightManagementWidget::updateGroupsTable() {
     groupsTable_->clear();
 
@@ -671,6 +778,13 @@ void LightManagementWidget::updateGroupsTable() {
     }
 }
 
+/**
+ *   @brief  Create groups function, when the create button is clicked, a dialog appears where the user
+ *           can create a group and select lights to be added to the group.
+ *
+ *   @return  void
+ *
+ */
 void LightManagementWidget::createGroupDialog() {
     createGroupDialog_ = new WDialog("Create a Group"); // title
 
@@ -704,6 +818,13 @@ void LightManagementWidget::createGroupDialog() {
     createGroupDialog_->show();
 }
 
+/**
+ *   @brief  Create group function, creates a JSON request to add a new group to the
+ *           bridge, using the user defined options selected in create group dialog.
+ *
+ *   @return  void
+ *
+ */
 void LightManagementWidget::createGroup(){
     if (createGroupDialog_->result() == WDialog::DialogCode::Rejected)
         return;
@@ -731,24 +852,42 @@ void LightManagementWidget::createGroup(){
     postRequest(url, Json::serialize(groupJSON));
 }
 
+/**
+ *   @brief  Remove group function, creates a JSON request to remove the selected group
+ *           from the current bridge.
+ *
+ *   @param  group is the group object to remove from the bridge.
+ *
+ *   @return  void
+ *
+ */
 void LightManagementWidget::removeGroup(Group *group) {
     string url = "http://" + bridge_->getIP() + ":" + bridge_->getPort() + "/api/" + bridge_->getUsername() + "/groups/" + group->getGroupnum().toUTF8();
     deleteRequest(url);
 }
 
+/**
+ *   @brief  Edit group function, when the edit button is clicked, a window where the user can
+ *           change lights assigned to the selected group appears.
+ *
+ *   @param  group is the group object that was selected to edit from the table.
+ *
+ *   @return  void
+ *
+ */
 void LightManagementWidget::editGroupDialog(Group *group) {
     editGroupDialog_ = new WDialog("Edit Group #" + group->getGroupnum().toUTF8()); // title
-    
+
     new WLabel("Group Name: ", editGroupDialog_->contents());
     editGroupName = new WLineEdit(editGroupDialog_->contents());
     editGroupName->setValueText(group->getName().toUTF8());
     new WBreak(editGroupDialog_->contents());
-    
+
     new WLabel("Lights: ", editGroupDialog_->contents());
     Json::Object bridgeJson;
     Json::parse(bridge_->getJson(), bridgeJson);
     Json::Object lights = bridgeJson.get("lights");
-    
+
     set<string> data = lights.names();
     lightBoxes.clear(); //empty lightbox
     for(string num : data) {
@@ -756,19 +895,29 @@ void LightManagementWidget::editGroupDialog(Group *group) {
         lightBoxes.push_back(lightButton_);
     }
     new WBreak(editGroupDialog_->contents());
-    
+
     // make okay and cancel buttons, cancel sends a reject dialogstate, okay sends an accept
     WPushButton *ok = new WPushButton("OK", editGroupDialog_->contents());
     WPushButton *cancel = new WPushButton("Cancel", editGroupDialog_->contents());
-    
+
     ok->clicked().connect(editGroupDialog_, &WDialog::accept);
     cancel->clicked().connect(editGroupDialog_, &WDialog::reject);
-    
+
     editGroupDialog_->finished().connect(boost::bind(&LightManagementWidget::updateGroupInfo, this, group));
-    
+
     editGroupDialog_->show();
 }
 
+
+/**
+ *   @brief  Update groups function, creates a JSON request to change properties of
+ *           a given group based on user's inputs in the edit group dialog box.
+ *
+ *   @param  group is the group object to update from the bridge.
+ *
+ *   @return  void
+ *
+ */
 void LightManagementWidget::updateGroupInfo(Group *group){
     if (editGroupDialog_->result() == WDialog::DialogCode::Rejected)
         return;
@@ -798,6 +947,82 @@ void LightManagementWidget::updateGroupInfo(Group *group){
     putRequest(url, Json::serialize(groupJSON));
 }
 
+/**
+ *   @brief  Update groups advanced function, creates a opens a dialog box to change
+ *           any property of a given group based on user's inputs in the dialog box.
+ *
+ *   @param  group is the group object to update from the bridge.
+ *
+ *   @return  void
+ *
+ */
+void LightManagementWidget::groupAdvancedDialog(Group *group) {
+    groupAdvancedDialog_ = new WDialog("Advanced"); // title
+
+    new WLabel("State: ", groupAdvancedDialog_->contents());
+    onButtonGroup = new WButtonGroup(this);
+    WRadioButton *onRadioButton;
+    onRadioButton = new WRadioButton("On", groupAdvancedDialog_->contents());
+    onButtonGroup->addButton(onRadioButton, 0);
+    onRadioButton = new WRadioButton("Off", groupAdvancedDialog_->contents());
+    onButtonGroup->addButton(onRadioButton, 1);
+    onButtonGroup->setCheckedButton(onButtonGroup->button(0));
+    new WBreak(groupAdvancedDialog_->contents());
+
+    //brightness slider
+    new WLabel("Brightness: ", groupAdvancedDialog_->contents());
+    brightnessGroup = new WSlider(groupAdvancedDialog_->contents());
+    brightnessGroup->resize(200,20);
+    brightnessGroup->setMinimum(0);
+    brightnessGroup->setMaximum(254);
+    brightnessGroup->setValue(1);
+    brightnessGroup->setDisabled(false);
+    new WBreak(groupAdvancedDialog_->contents());
+
+    // color
+    new WLabel("Color: ", groupAdvancedDialog_->contents());
+    groupAdvancedDialog_->contents()->addWidget(rgbContainer_);
+    redSlider->setValue(0);
+    greenSlider->setValue(0);
+    blueSlider->setValue(0);
+    redSlider->setDisabled(false);
+    greenSlider->setDisabled(false);
+    blueSlider->setDisabled(false);
+    WCssDecorationStyle *colour = new WCssDecorationStyle();
+    colour->setBackgroundColor(WColor(redSlider->value(), greenSlider->value(), blueSlider->value()));
+    rgbContainer_->setDecorationStyle(*colour);
+    new WBreak(groupAdvancedDialog_->contents());
+
+    // disable all fields while group is off
+    onButtonGroup->checkedChanged().connect(bind([=] {
+        bool onStatus = onButtonGroup->checkedButton()->text() == "On" ? 1 : 0;
+        brightnessGroup->setDisabled(!onStatus);
+        redSlider->setDisabled(!onStatus);
+        greenSlider->setDisabled(!onStatus);
+        blueSlider->setDisabled(!onStatus);
+    }));
+
+    // make okay and cancel buttons, cancel sends a reject dialogstate, okay sends an accept
+    WPushButton *ok = new WPushButton("OK", groupAdvancedDialog_->contents());
+    WPushButton *cancel = new WPushButton("Cancel", groupAdvancedDialog_->contents());
+
+    ok->clicked().connect(groupAdvancedDialog_, &WDialog::accept);
+    cancel->clicked().connect(groupAdvancedDialog_, &WDialog::reject);
+
+    // when the user is finished, call function to update group
+    groupAdvancedDialog_->finished().connect(boost::bind(&LightManagementWidget::groupUpdateAdvanced, this, group));
+    groupAdvancedDialog_->show();
+}
+
+/**
+ *   @brief  Update groups function, creates a JSON request to change properties of
+ *           a given group based on user's inputs in the advanced group dialog box.
+ *
+ *   @param  light is the light object to update from the bridge.
+ *
+ *   @return  void
+ *
+ */
 void LightManagementWidget::groupUpdateAdvanced(Group *group){
     if (groupAdvancedDialog_->result() == WDialog::DialogCode::Rejected)
         return;
@@ -843,105 +1068,13 @@ void LightManagementWidget::groupUpdateAdvanced(Group *group){
     putRequest(url, Json::serialize(actionJSON));
 }
 
-void LightManagementWidget::groupAdvancedDialog(Group *group) {
-    groupAdvancedDialog_ = new WDialog("Advanced"); // title
-    
-    new WLabel("State: ", groupAdvancedDialog_->contents());
-    onButtonGroup = new WButtonGroup(this);
-    WRadioButton *onRadioButton;
-    onRadioButton = new WRadioButton("On", groupAdvancedDialog_->contents());
-    onButtonGroup->addButton(onRadioButton, 0);
-    onRadioButton = new WRadioButton("Off", groupAdvancedDialog_->contents());
-    onButtonGroup->addButton(onRadioButton, 1);
-    onButtonGroup->setCheckedButton(onButtonGroup->button(0));
-    new WBreak(groupAdvancedDialog_->contents());
-    
-    //brightness slider
-    new WLabel("Brightness: ", groupAdvancedDialog_->contents());
-    brightnessGroup = new WSlider(groupAdvancedDialog_->contents());
-    brightnessGroup->resize(200,20);
-    brightnessGroup->setMinimum(0);
-    brightnessGroup->setMaximum(254);
-    brightnessGroup->setValue(1);
-    brightnessGroup->setDisabled(false);
-    new WBreak(groupAdvancedDialog_->contents());
-    
-    // color
-    new WLabel("Color: ", groupAdvancedDialog_->contents());
-    groupAdvancedDialog_->contents()->addWidget(rgbContainer_);
-    redSlider->setValue(0);
-    greenSlider->setValue(0);
-    blueSlider->setValue(0);
-    redSlider->setDisabled(false);
-    greenSlider->setDisabled(false);
-    blueSlider->setDisabled(false);
-    WCssDecorationStyle *colour = new WCssDecorationStyle();
-    colour->setBackgroundColor(WColor(redSlider->value(), greenSlider->value(), blueSlider->value()));
-    rgbContainer_->setDecorationStyle(*colour);
-    new WBreak(groupAdvancedDialog_->contents());
-    
-    /*
-     // hue
-     new WLabel("Hue: ", groupAdvancedDialog_->contents());
-     hue = new WLineEdit(groupAdvancedDialog_->contents());
-     hue->setValueText(boost::lexical_cast<string>(group->getHue()));
-     new WBreak(groupAdvancedDialog_->contents());
-     
-     // saturation
-     new WLabel("Saturation: ", groupAdvancedDialog_->contents());
-     saturation = new WLineEdit(groupAdvancedDialog_->contents());
-     saturation->setValueText(boost::lexical_cast<string>(group->getSat()));
-     new WBreak(groupAdvancedDialog_->contents());
-     
-     // CT
-     new WLabel("CT: ", groupAdvancedDialog_->contents());
-     ct = new WLineEdit(groupAdvancedDialog_->contents());
-     ct->setValueText(boost::lexical_cast<string>(group->getCt()));
-     new WBreak(groupAdvancedDialog_->contents());
-     
-     // alert
-     new WLabel("Alert: ", groupAdvancedDialog_->contents());
-     alert = new WComboBox(groupAdvancedDialog_->contents());
-     alert->addItem("none");
-     alert->addItem("colorloop");
-     alert->setCurrentIndex(boost::lexical_cast<string>(group->getAlert()) == "none" ? 0 : 1);
-     new WBreak(groupAdvancedDialog_->contents());
-     
-     // effect
-     new WLabel("Effect: ", groupAdvancedDialog_->contents());
-     effect = new WComboBox(groupAdvancedDialog_->contents());
-     effect->addItem("null");
-     effect->addItem("select");
-     effect->setCurrentIndex(boost::lexical_cast<string>(group->getEffect()) == "null" ? 0 : 1);
-     new WBreak(groupAdvancedDialog_->contents());
-     */
-    
-    // disable all fields while group is off
-    onButtonGroup->checkedChanged().connect(bind([=] {
-        bool onStatus = onButtonGroup->checkedButton()->text() == "On" ? 1 : 0;
-        brightnessGroup->setDisabled(!onStatus);
-        redSlider->setDisabled(!onStatus);
-        greenSlider->setDisabled(!onStatus);
-        blueSlider->setDisabled(!onStatus);
-        /*hue->setDisabled(!onStatus);
-         saturation->setDisabled(!onStatus);
-         ct->setDisabled(!onStatus);
-         alert->setDisabled(!onStatus);
-         effect->setDisabled(!onStatus);*/
-    }));
-    
-    // make okay and cancel buttons, cancel sends a reject dialogstate, okay sends an accept
-    WPushButton *ok = new WPushButton("OK", groupAdvancedDialog_->contents());
-    WPushButton *cancel = new WPushButton("Cancel", groupAdvancedDialog_->contents());
-    
-    ok->clicked().connect(groupAdvancedDialog_, &WDialog::accept);
-    cancel->clicked().connect(groupAdvancedDialog_, &WDialog::reject);
-    
-    // when the user is finished, call function to update group
-    groupAdvancedDialog_->finished().connect(boost::bind(&LightManagementWidget::groupUpdateAdvanced, this, group));
-    groupAdvancedDialog_->show();
-}
-
+/**
+ *   @brief  Update schedules table function, clears the current table and re-populates it with
+ *           all the schedules that are in the bridge.
+ *
+ *   @return  void
+ *
+ */
 void LightManagementWidget::updateSchedulesTable() {
     schedulesTable_->clear();
 
@@ -1004,6 +1137,13 @@ void LightManagementWidget::updateSchedulesTable() {
     }
 }
 
+/**
+ *   @brief  Create schedule function, when the create button is clicked, a dialog appears where the user
+ *           can create a schedule and select their options.
+ *
+ *   @return  void
+ *
+ */
 void LightManagementWidget::createScheduleDialog() {
     createScheduleDialog_ = new WDialog("Create a Schedule"); // title
 
@@ -1015,9 +1155,6 @@ void LightManagementWidget::createScheduleDialog() {
     new WLabel("Description: ", createScheduleDialog_->contents());
     description = new WLineEdit(createScheduleDialog_->contents());
     new WBreak(createScheduleDialog_->contents());
-
-    //WTemplate *form = new WTemplate(WString::tr("dateEdit-template"), createScheduleDialog_->contents());
-    //form->addFunction("id", &WTemplate::Functions::id);
 
     // Container for Resource Buttons
     Wt::WGroupBox *resourceGroupContainer = new Wt::WGroupBox("Resource", createScheduleDialog_->contents());
@@ -1124,6 +1261,13 @@ void LightManagementWidget::createScheduleDialog() {
     createScheduleDialog_->show();
 }
 
+/**
+ *   @brief  Create schedule function, creates a JSON request to add a new schedule to the
+ *           bridge, using the user defined options selected in create schedule dialog.
+ *
+ *   @return  void
+ *
+ */
 void LightManagementWidget::createSchedule() {
     if (createScheduleDialog_->result() == WDialog::DialogCode::Rejected)
         return;
@@ -1217,18 +1361,27 @@ void LightManagementWidget::createSchedule() {
     postRequest(url, Json::serialize(scheduleJSON));
 }
 
+/**
+ *   @brief  Edit schedule function, when the edit button is clicked, a window where the user can
+ *           change properties for the selected schedule appears.
+ *
+ *   @param  schedule is the schedule object that was selected to edit from the table.
+ *
+ *   @return  void
+ *
+ */
 void LightManagementWidget::editScheduleDialog(Schedule *schedule) {
     editScheduleDialog_ = new WDialog("Edit Schedule #" + schedule->getSchedulenum().toUTF8());
-    
+
     new WLabel("Schedule Name: ", editScheduleDialog_->contents());
     editScheduleName = new WLineEdit(editScheduleDialog_->contents());
     editScheduleName->setValueText("schedule");
     new WBreak(editScheduleDialog_->contents());
-    
+
     new WLabel("Description: ", editScheduleDialog_->contents());
     editScheduleDescription = new WLineEdit(editScheduleDialog_->contents());
     new WBreak(editScheduleDialog_->contents());
-    
+
     // Container for Resource Buttons
     Wt::WGroupBox *resourceGroupContainer = new Wt::WGroupBox("Resource", editScheduleDialog_->contents());
     resourceButtonGroup = new Wt::WButtonGroup(this);
@@ -1246,7 +1399,7 @@ void LightManagementWidget::editScheduleDialog(Schedule *schedule) {
     intValidator->setMandatory(true);
     resourceNum->setValidator(intValidator);
     new WBreak(editScheduleDialog_->contents());
-    
+
     // Container for Action Buttons
     Wt::WGroupBox *actionGroupContainer = new Wt::WGroupBox("Action", editScheduleDialog_->contents());
     actionButtonGroup = new Wt::WButtonGroup(this);
@@ -1259,7 +1412,7 @@ void LightManagementWidget::editScheduleDialog(Schedule *schedule) {
     actionButtonGroup->addButton(actionRadioButton, 2);
     actionButtonGroup->setCheckedButton(actionButtonGroup->button(0));
     new WBreak(editScheduleDialog_->contents());
-    
+
     // Container for Body Buttons
     Wt::WGroupBox *bodyGroupContainer = new Wt::WGroupBox("State", editScheduleDialog_->contents());
     // on or off
@@ -1278,7 +1431,7 @@ void LightManagementWidget::editScheduleDialog(Schedule *schedule) {
         blueSlider->setDisabled(!onStatus);
         transitionSchedule->setDisabled(!onStatus);
     }));
-    
+
     new WBreak(bodyGroupContainer);
     // brightness slider
     new WLabel("Brightness: ", bodyGroupContainer);
@@ -1311,40 +1464,49 @@ void LightManagementWidget::editScheduleDialog(Schedule *schedule) {
     transitionSchedule->setValidator(intValidator);
     new WText(" seconds", bodyGroupContainer);
     new WBreak(bodyGroupContainer);
-    
+
     // Container for Date and Time
     Wt::WGroupBox *datetimeGroupContainer = new Wt::WGroupBox("Date & Time", editScheduleDialog_->contents());
     editDateEdit = new WDateEdit(datetimeGroupContainer);
     editDateEdit->setDate(WDate::currentServerDate());
     editTimeEdit = new WTimeEdit(datetimeGroupContainer);
     editTimeEdit->setTime(WTime::currentTime());
-    
+
     new WBreak(editScheduleDialog_->contents());
-    
+
     // make okay and cancel buttons, cancel sends a reject dialogstate, okay sends an accept
     WPushButton *ok = new WPushButton("OK", editScheduleDialog_->contents());
     WPushButton *cancel = new WPushButton("Cancel", editScheduleDialog_->contents());
-    
+
     ok->clicked().connect(editScheduleDialog_, &WDialog::accept);
     cancel->clicked().connect(editScheduleDialog_, &WDialog::reject);
-    
+
     editScheduleDialog_->finished().connect(boost::bind(&LightManagementWidget::updateScheduleInfo, this, schedule));
-    
+
     editScheduleDialog_->show();
 }
 
+/**
+ *   @brief  Update schedule function, creates a JSON request to change properties of
+ *           a given schedule based on user's inputs in the edit schedule dialog box.
+ *
+ *   @param  schedule is the schedule object to update from the bridge.
+ *
+ *   @return  void
+ *
+ */
 void LightManagementWidget::updateScheduleInfo(Schedule *schedule){
     if (editScheduleDialog_->result() == WDialog::DialogCode::Rejected)
         return;
     if (resourceNum->validate() != 2)
         return;
-    
+
     string name = editScheduleName->valueText().toUTF8();
     string desc = editScheduleDescription->valueText().toUTF8();
     string date = editDateEdit->valueText().toUTF8();
     string time = editTimeEdit->valueText().toUTF8();
     string localtime = date + "T" + time;
-    
+
     string resource = "";
     string resourceTwo = "";
     string action = "";
@@ -1361,7 +1523,7 @@ void LightManagementWidget::updateScheduleInfo(Schedule *schedule){
         resourceTwo = "/action";
     }
     string num = "/" + resourceNum->valueText().toUTF8();
-    
+
     if(actionButtonGroup->checkedButton()->text() == "Change") {
         action = "PUT";
     }
@@ -1374,60 +1536,69 @@ void LightManagementWidget::updateScheduleInfo(Schedule *schedule){
         action = "DELETE";
         resourceTwo = "";
     }
-    
+
     if(onButtonGroup->checkedButton() != 0) {
         on = onButtonGroup->checkedButton()->text() == "On" ? "1" : "0";
     }
-    
+
     //if value is 1 user did not change it
     if(brightnessSchedule->value() != 1) {
         bri = boost::lexical_cast<string>(brightnessSchedule->value());
     }
-    
+
     if(redSlider->value() != 0 && greenSlider->value() != 0 && blueSlider->value() != 0) {
         struct xy *cols = ColourConvert::rgb2xy(redSlider->value(), greenSlider->value(), blueSlider->value());
-        
+
         xval = boost::lexical_cast<string>(cols->x);
         yval = boost::lexical_cast<string>(cols->y);
     }
-    
+
     //if value is 4 user did not change it
     int transition = boost::lexical_cast<int>(transitionSchedule->valueText());
-    
+
     //json formatting
     Json::Object scheduleJSON;
     if(name != "") scheduleJSON["name"] = Json::Value(name);
     if(desc != "") scheduleJSON["description"] = Json::Value(desc);
-    
+
     Json::Object commandJSON;
     commandJSON["address"] = Json::Value("/api/" + bridge_->getUsername() + resource + num + resourceTwo);
     commandJSON["method"] = Json::Value(action);
     commandJSON["body"] = Json::Value(Json::ObjectType);
-    
+
     Json::Object bodyJSON;
     if(on != "") bodyJSON["on"] = Json::Value((bool)boost::lexical_cast<int>(on));
-    
+
     if(bri != "" && on != "0") bodyJSON["bri"] = Json::Value(boost::lexical_cast<int>(bri));
-    
+
     if(xval != "" && yval != "" && on != "0") {
         Json::Array xyJSON;
         xyJSON.push_back(Json::Value(boost::lexical_cast<double>(xval)));
         xyJSON.push_back(Json::Value(boost::lexical_cast<double>(yval)));
         bodyJSON["xy"] = Json::Value(xyJSON);
     }
-    
+
     if(transition != 4 && on != "0") bodyJSON["transitiontime"] = Json::Value(transition);
-    
+
     commandJSON["body"] = Json::Value(bodyJSON);
     scheduleJSON["command"] = Json::Value(commandJSON);
     scheduleJSON["time"] = Json::Value(localtime);
-    
+
     cout << Json::serialize(scheduleJSON) << "\n";
-    
+
     string url = "http://" + bridge_->getIP() + ":" + bridge_->getPort() + "/api/" + bridge_->getUsername() + "/schedules/" + schedule->getSchedulenum().toUTF8();
     putRequest(url, Json::serialize(scheduleJSON));
 }
 
+/**
+ *   @brief  Remove schedule function, creates a JSON request to remove the selected
+ *           schedule from the current bridge.
+ *
+ *   @param  schedule is the schedule object to remove from the bridge.
+ *
+ *   @return  void
+ *
+ */
 void LightManagementWidget::removeSchedule(Schedule *schedule) {
     string url = "http://" + bridge_->getIP() + ":" + bridge_->getPort() + "/api/" + bridge_->getUsername() + "/schedules/" + schedule->getSchedulenum().toUTF8();
     deleteRequest(url);

@@ -1,13 +1,14 @@
 #ifndef COLOURCONVERT_H
 #define COLOURCONVERT_H
 
+// structure with X and Y components of a colour and brightness value
 struct xy {
     float x;
     float y;
     float brightness;
 };
 
-
+// structure with red, green, blue components of a colour and brightness value
 struct rgb {
     float r;
     float g;

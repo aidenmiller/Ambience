@@ -12,7 +12,6 @@
 #include <Wt/Json/Parser>
 #include <Wt/Json/Array>
 
-
 using namespace std;
 using namespace Wt;
 
@@ -61,20 +60,20 @@ public:
     void toggleOnOff() {on_ = !on_;}
 
 private:
-    WString groupnum_;
-    WString name_;
-    WString alert_;
-    int bri_;
-    WString colormode_;
-    int ct_;
-    WString effect_;
-    int hue_;
-    bool on_;
-    bool reachable_;
-    int sat_;
-    double xy_[2];
-    vector<WString> lights_;
-    int transitiontime_;
+    WString groupnum_; // group number
+    WString name_; // group name
+    WString alert_; // alert mode
+    int bri_; // brightness
+    WString colormode_; // color mode
+    int ct_; // CT
+    WString effect_; // effect
+    int hue_; // hue value
+    bool on_; // group on/off switch
+    bool reachable_; // reachable
+    int sat_; // saturation value
+    double xy_[2]; // X and Y values
+    vector<WString> lights_; // vector of lights in the group
+    int transitiontime_; // transition time of the group
 };
 
 #endif //GROUP_H

@@ -1,3 +1,17 @@
+/**
+ *  @file       ColourConvert.cpp
+ *  @author     CS 3307 - Team 13
+ *  @date       11/27/2017
+ *  @version    1.0
+ *
+ *  @brief      CS 3307, Colour converter for Hue Light Application.
+ *
+ *  @section    DESCRIPTION
+ *
+ *              This is a helper class used to convert colour values from RGB format
+ *              to the XY format, or from XY to RGB format.
+ */
+
 #include "ColourConvert.h"
 #include <math.h>
 #include <stdio.h>
@@ -7,6 +21,13 @@
 
 using namespace std;
 
+/**
+ *   @brief  RGB to XY converter
+ *
+ *   @param  r is the red component of the colour
+ *   @param  g is the green component of the colour
+ *   @param  b is the blue component of the colour
+ */
 struct xy *ColourConvert::rgb2xy(float r, float g, float b)
 {
 
@@ -45,7 +66,13 @@ struct xy *ColourConvert::rgb2xy(float r, float g, float b)
     return xyStruct;
 }
 
-
+/**
+ *   @brief  XY to RGB converter
+ *
+ *   @param  inputX is the X component of the colour
+ *   @param  inputY is the Y component of the colour
+ *   @param  brightness is the brightness value of the light
+ */
 struct rgb *ColourConvert::xy2rgb(float inputX, float inputY, float brightness)
 {
 
@@ -134,7 +161,7 @@ struct rgb *ColourConvert::xy2rgb(float inputX, float inputY, float brightness)
         b = 255;
 
 
-
+    // create pointer of rgb structure
     struct rgb *rgbStruct = (struct rgb*) malloc(sizeof(struct rgb));
     rgbStruct->r = r;
     rgbStruct->b = b;

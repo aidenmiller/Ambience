@@ -17,12 +17,12 @@ using namespace std;
 using namespace Wt;
 
 class Schedule {
-    
+
 public:
     Schedule(WString scheduleNum, Json::Object scheduleData);
-    
+
     virtual ~Schedule();
-    
+
     //GETTERS
     WString getSchedulenum() {return schedulenum_;}
     WString getName() {return name_;}
@@ -35,18 +35,18 @@ public:
     bool getOn() {return on_;}
     double getX() {return xy_[0];}
     double getY() {return xy_[1];}
-    
+
 private:
-    WString schedulenum_;
-    WString name_;
-    WString description_;
-    WString time_;
-    WString address_;
-    WString method_;
-    int bri_;
-    int transition_;
-    bool on_;
-    double xy_[2];
+    WString schedulenum_; // shedule number
+    WString name_; // name
+    WString description_; // description
+    WString time_; // time
+    WString address_; // address
+    WString method_; // method
+    int bri_; // brightness value
+    int transition_; // transition time
+    bool on_; // on/off toggle
+    double xy_[2]; // X and Y color values
 };
 
 #endif //SCHEDULE_H

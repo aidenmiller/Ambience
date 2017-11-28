@@ -55,6 +55,13 @@ private:
     Wt::WSlider *greenSlider;
     Wt::WSlider *blueSlider;
 
+    // editHueSatDialog function widgets
+    Wt::WContainerWidget *hueSatContainer_; //contains hue and sat sliders
+    Wt::WDialog *editHueSatDialog_; // edit Hue/Saturation dialog
+    Wt::WSlider *hueSlider;
+    Wt::WSlider *satSlider;
+    Wt::WSlider *briSlider;
+
     // lights page widgets
     Wt::WLineEdit *editLightTransition; // transition value
     Wt::WIntValidator *intValidator; // text box validator
@@ -96,6 +103,7 @@ private:
     void viewGroupsWidget();
     void viewSchedulesWidget();
     void editRGBDialog(Light *light);
+    void editHueSatDialog(Light *light);
 
     void updateLightsTable();
     void editLightDialog(Light *light);
@@ -104,6 +112,7 @@ private:
     void updateLightBri(WSlider *slider_, Light *light);
     void updateLightOn(WPushButton *button_, Light *light);
     void updateLightXY(Light *light);
+    void updateLightHS(Light *light);
 
     void updateGroupsTable();
     void createGroupDialog();

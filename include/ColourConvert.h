@@ -16,12 +16,14 @@ struct rgb {
     float brightness;
 };
 
+
 class ColourConvert
 {
     //static public methods
     public:
         static struct xy *rgb2xy(float red, float green, float blue);
         static struct rgb *xy2rgb(float x, float y, float brightness);
+        static struct rgb *hsv2rgb(float hue, float sat, float bri);
 
     protected:
 

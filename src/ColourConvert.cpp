@@ -9,7 +9,7 @@
  *  @section    DESCRIPTION
  *
  *              This is a helper class used to convert colour values from RGB format
- *              to the XY format, or from XY to RGB format.
+ *              to the XY format, RGB to the Hue Sat Bri format, or from XY to RGB format.
  */
 
 #include "ColourConvert.h"
@@ -27,6 +27,8 @@ using namespace std;
  *   @param  r is the red component of the colour
  *   @param  g is the green component of the colour
  *   @param  b is the blue component of the colour
+ *
+ *   @return struct xy containing XY value representation of parameters
  */
 struct xy *ColourConvert::rgb2xy(float r, float g, float b)
 {
@@ -72,6 +74,8 @@ struct xy *ColourConvert::rgb2xy(float r, float g, float b)
  *   @param  inputX is the X component of the colour
  *   @param  inputY is the Y component of the colour
  *   @param  brightness is the brightness value of the light
+ *
+ *   @return struct rgb containing RGB value representation of parameters
  */
 struct rgb *ColourConvert::xy2rgb(float inputX, float inputY, float brightness)
 {
@@ -130,6 +134,15 @@ struct rgb *ColourConvert::xy2rgb(float inputX, float inputY, float brightness)
     return rgbStruct;
 }
 
+/**
+ *   @brief  Hue Sat Bri to RGB converter
+ *
+ *   @param  hue is the Hue component of the colour
+ *   @param  sat is the Sat component of the colour
+ *   @param  bri is the Brightness value of the light
+ *
+ *   @return struct rgb containing RGB value representation of parameters
+ */
 struct rgb *ColourConvert::hsv2rgb(float hue, float sat, float bri) {
     float r, g, b;
     double hh, p, q, t, ff;

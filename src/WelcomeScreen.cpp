@@ -189,6 +189,13 @@ void WelcomeScreen::handleInternalPath(const string &internalPath) {
     }
 }
 
+/**
+ *   @brief  Creates a new LightManagementWidget for a Bridge in in the Account bridges vector at index.
+ *
+ *   @param  index is the index of Bridge in the Account bridges vector to view
+ *
+ *   @return void
+ */
 void WelcomeScreen::lightManagementScreen(int index) {
     Bridge *bridge = account_.getBridgeAt(index);
 

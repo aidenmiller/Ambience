@@ -23,20 +23,20 @@
 Schedule::Schedule(WString scheduleNum, Json::Object scheduleData) {
     schedulenum_ = scheduleNum;
     if(scheduleData.type("name") != 0) name_ = scheduleData.get("name");
-    else name_ = "null";
+    else name_ = "";
     
     if(scheduleData.type("description") != 0) description_ = scheduleData.get("description");
-    else description_ = "null";
+    else description_ = "";
     
     if(scheduleData.type("time") != 0) time_ = scheduleData.get("time");
-    else time_ = "null";
+    else time_ = "";
     
     Json::Object command = scheduleData.get("command");
     if(command.type("address") != 0) address_ = command.get("address");
-    else address_ = "null";
+    else address_ = "";
     
     if(command.type("method") != 0) method_ = command.get("method");
-    else method_ = "null";
+    else method_ = "";
     
     Json::Object body = command.get("body");
     if(body.type("transition") != 0) transition_ = body.get("transition");

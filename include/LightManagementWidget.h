@@ -65,10 +65,8 @@ private:
     Wt::WDialog *createGroupDialog_; // dialog to create group
     Wt::WLineEdit *groupName; // group name
     vector<WCheckBox*> lightBoxes; // vector of lights to add
-
     Wt::WDialog *editGroupDialog_; // dialog to edit group
     Wt::WLineEdit *editGroupName; // group name
-
     Wt::WDialog *groupAdvancedDialog_; // dialog for advanced settings in group
     Wt::WSlider *brightnessGroup; // brightness of group
     Wt::WLineEdit *hue;
@@ -90,6 +88,11 @@ private:
     Wt::WButtonGroup *onButtonGroup; // container for on/off buttons
     WSlider *brightnessSchedule; // brightness slider
     WLineEdit *transitionSchedule; // transition time
+    Wt::WDialog *editScheduleDialog_; // dialog to edit schedule
+    Wt::WLineEdit *editScheduleDescription; //schedule desc
+    Wt::WLineEdit *editScheduleName; // schedule name
+    Wt::WDateEdit *editDateEdit; // date for edit box
+    Wt::WTimeEdit *editTimeEdit; // time for exit box
 
     void viewOverviewWidget();
     void viewLightsWidget();
@@ -117,6 +120,8 @@ private:
     void updateSchedulesTable();
     void createScheduleDialog();
     void createSchedule();
+    void editScheduleDialog(Schedule *schedule);
+    void updateScheduleInfo(Schedule *schedule);
     void removeSchedule(Schedule *schedule);
 
     void deleteRequest(string url);

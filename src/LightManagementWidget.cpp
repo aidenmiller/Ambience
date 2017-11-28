@@ -242,10 +242,6 @@ void LightManagementWidget::update()
                                           hsRgb->b));
         hueSatContainer_->setDecorationStyle(*hsColour);
     }));
-
-
-
-
 }
 
 void LightManagementWidget::viewOverviewWidget(){
@@ -325,7 +321,6 @@ void LightManagementWidget::editHueSatDialog(Light *light) {
     int sat = light->getSat();
     int bri = light->getBri();
 
-
     hueSlider->setValue(hue);
     satSlider->setValue(sat);
     briSlider->setValue(bri);
@@ -336,9 +331,10 @@ void LightManagementWidget::editHueSatDialog(Light *light) {
 
     WCssDecorationStyle *hsColour = new WCssDecorationStyle();
 
-    if (light->getColormode() == "hs")
+    if (light->getColormode() == "hs") {
         hsColour->setBackgroundColor(WColor(hueSlider->value(), satSlider->value(), briSlider->value()));
         hueSatContainer_->setDecorationStyle(*hsColour);
+    }
 
     new WBreak(editHueSatDialog_->contents());
 

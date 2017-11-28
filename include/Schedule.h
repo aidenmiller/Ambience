@@ -46,7 +46,7 @@ private:
     int bri_;
     int transition_;
     bool on_;
-    double xy_[2];
+    vector<double> xy_;
 };
 
 #endif //SCHEDULE_H

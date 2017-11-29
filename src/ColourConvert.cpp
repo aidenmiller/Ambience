@@ -72,7 +72,7 @@ struct xy *ColourConvert::rgb2xy(float r, float g, float b)
     
     struct xy *xyStruct = (struct xy*) malloc(sizeof(struct xy));
     
-    xyStruct->brightness = Y * 255.0;
+    xyStruct->brightness = Y * 254.0;
     xyStruct->x = x;
     xyStruct->y = y;
     

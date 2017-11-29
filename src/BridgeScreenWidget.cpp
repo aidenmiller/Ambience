@@ -152,6 +152,8 @@ void BridgeScreenWidget::update()
     statusMessage_->setHidden(true);
 
     new WBreak(this);
+    new WBreak(this);
+    new WBreak(this);
 
     // Page title
     WText *title2 = new WText( account_->getFirstName()+ "'s Bridges", this);

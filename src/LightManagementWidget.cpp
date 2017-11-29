@@ -249,14 +249,12 @@ void LightManagementWidget::update()
                                               (float)briSlider->value());
     hsColour->setBackgroundColor(WColor(hsRgb->r, hsRgb->g, hsRgb->b));
 
-    cout<< "222R: " << hsRgb->r << " G: " << hsRgb->g << " B: " << hsRgb->b << "\n\n";
 
     hueSatContainer_->setDecorationStyle(*hsColour);
 
     hueSlider->valueChanged().connect(bind([=] {
         struct rgb *hsRgb = ColourConvert::hsv2rgb((float)hueSlider->value(),(float) satSlider->value(),
                                               (float)briSlider->value());
-        cout<< "R: " << hsRgb->r << " G: " << hsRgb->g << " B: " << hsRgb->b << "\n\n";
         hsColour->setBackgroundColor(WColor(hsRgb->r,
                                           hsRgb->g,
                                           hsRgb->b));
@@ -471,9 +469,8 @@ void LightManagementWidget::updateLightsTable() {
 
         //brightness slider
         WSlider *brightnessSlider_ = new WSlider();
-        brightnessSlider_->resize(200,20);
+        brightnessSlider_->resize(160,20);
         brightnessSlider_->setMinimum(0);
-
         brightnessSlider_->setMaximum(254);
         brightnessSlider_->setValue(light->getBri());
         brightnessSlider_->setDisabled(!light->getOn()); //disable if light off
@@ -665,9 +662,9 @@ void LightManagementWidget::updateLightXY(Light *light){
     string url = "http://" + bridge_->getIP() + ":" + bridge_->getPort() + "/api/" + bridge_->getUsername() + "/lights/" + light->getLightnum().toUTF8() + "/state";
 
     struct xy *cols = ColourConvert::rgb2xy(redSlider->value(), greenSlider->value(), blueSlider->value());
-
+    
     Http::Message *data = new Http::Message();
-    data->addBodyText("{\"xy\":[" + boost::lexical_cast<string>(cols->x) + "," + boost::lexical_cast<string>(cols->y) + "]" + ", \"transitiontime\":" + boost::lexical_cast<string>(light->getTransition()) + "}");
+    data->addBodyText("{\"xy\":[" + boost::lexical_cast<string>(cols->x) + "," + boost::lexical_cast<string>(cols->y) + "]" + ", \"transitiontime\":" + boost::lexical_cast<string>(light->getTransition()) + ",\"bri\":" + boost::lexical_cast<string>((int)(cols->brightness)) + "}");
 
     cout << "Light: Updating light brightness at URL " << url << "\n";
     Wt::Http::Client *client = new Wt::Http::Client(this);
@@ -993,9 +990,9 @@ void LightManagementWidget::groupAdvancedDialog(Group *group) {
     // color
     new WLabel("Color: ", groupAdvancedDialog_->contents());
     groupAdvancedDialog_->contents()->addWidget(rgbContainer_);
-    redSlider->setValue(0);
-    greenSlider->setValue(0);
-    blueSlider->setValue(0);
+    redSlider->setValue(1); //default values to show user has not changed rgb
+    greenSlider->setValue(2); //default values to show user has not changed rgb
+    blueSlider->setValue(3); //default values to show user has not changed rgb
     redSlider->setDisabled(false);
     greenSlider->setDisabled(false);
     blueSlider->setDisabled(false);
@@ -1053,11 +1050,13 @@ void LightManagementWidget::groupUpdateAdvanced(Group *group){
         bri = boost::lexical_cast<string>(brightnessGroup->value());
     }
 
-    if(redSlider->value() != 0 && greenSlider->value() != 0 && blueSlider->value() != 0) {
+    //sets new xval and yval if the sliders have been changed from default values
+    if(redSlider->value() != 1 || greenSlider->value() != 2 || blueSlider->value() != 3) {
         struct xy *cols = ColourConvert::rgb2xy(redSlider->value(), greenSlider->value(), blueSlider->value());
 
         xval = boost::lexical_cast<string>(cols->x);
         yval = boost::lexical_cast<string>(cols->y);
+        bri = boost::lexical_cast<string>((int)(cols->brightness));
     }
 
     //json formatting
@@ -1230,9 +1229,9 @@ void LightManagementWidget::createScheduleDialog() {
     // color picker
     new WLabel("Color: ", bodyGroupContainer);
     bodyGroupContainer->addWidget(rgbContainer_);
-    redSlider->setValue(0);
-    greenSlider->setValue(0);
-    blueSlider->setValue(0);
+    redSlider->setValue(1); //default values to show user has not changed rgb
+    greenSlider->setValue(2); //default values to show user has not changed rgb
+    blueSlider->setValue(3); //default values to show user has not changed rgb
     redSlider->setDisabled(false);
     greenSlider->setDisabled(false);
     blueSlider->setDisabled(false);
@@ -1329,11 +1328,13 @@ void LightManagementWidget::createSchedule() {
         bri = boost::lexical_cast<string>(brightnessSchedule->value());
     }
 
-    if(redSlider->value() != 0 && greenSlider->value() != 0 && blueSlider->value() != 0) {
+    //sets new xval and yval if the sliders have been changed from default values
+    if(redSlider->value() != 1 || greenSlider->value() != 2 || blueSlider->value() != 3) {
         struct xy *cols = ColourConvert::rgb2xy(redSlider->value(), greenSlider->value(), blueSlider->value());
 
         xval = boost::lexical_cast<string>(cols->x);
         yval = boost::lexical_cast<string>(cols->y);
+        bri = boost::lexical_cast<string>((int)(cols->brightness));
     }
 
     //if value is 4 user did not change it
@@ -1455,9 +1456,9 @@ void LightManagementWidget::editScheduleDialog(Schedule *schedule) {
     // color picker
     new WLabel("Color: ", bodyGroupContainer);
     bodyGroupContainer->addWidget(rgbContainer_);
-    redSlider->setValue(0);
-    greenSlider->setValue(0);
-    blueSlider->setValue(0);
+    redSlider->setValue(1); //default values to show user has not changed rgb
+    greenSlider->setValue(2); //default values to show user has not changed rgb
+    blueSlider->setValue(3); //default values to show user has not changed rgb
     redSlider->setDisabled(false);
     greenSlider->setDisabled(false);
     blueSlider->setDisabled(false);
@@ -1556,11 +1557,13 @@ void LightManagementWidget::updateScheduleInfo(Schedule *schedule){
         bri = boost::lexical_cast<string>(brightnessSchedule->value());
     }
 
-    if(redSlider->value() != 0 && greenSlider->value() != 0 && blueSlider->value() != 0) {
+    //sets new xval and yval if the sliders have been changed from default values
+    if(redSlider->value() != 1 || greenSlider->value() != 2 || blueSlider->value() != 3) {
         struct xy *cols = ColourConvert::rgb2xy(redSlider->value(), greenSlider->value(), blueSlider->value());
 
         xval = boost::lexical_cast<string>(cols->x);
         yval = boost::lexical_cast<string>(cols->y);
+        bri = boost::lexical_cast<string>((int)(cols->brightness));
     }
 
     //if value is 4 user did not change it

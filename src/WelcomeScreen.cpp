@@ -112,7 +112,7 @@ account_("","","","") {
 
 
     mainStack_ = new WStackedWidget(this);
-    mainStack_->setPadding("1%"); //give 1% padding to widgets in mainStack
+    mainStack_->setPadding("2%"); //give 2% padding to widgets in mainStack
 
     //WContainer for Application's landing page
     WContainerWidget *landingPage = new WContainerWidget(mainStack_);
